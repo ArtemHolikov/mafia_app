@@ -9,6 +9,7 @@ import { useState } from "react";
 
 export const NameTextField = () => {
   const addPlayer = useGameStore((state: any) => state.addPlayer);
+  const players = useGameStore((state: any) => state.players);
 
   const [nickname, setNickname] = useState<string>("");
   const [tableOrder, setTableOrder] = useState<number | null>(null);
@@ -39,6 +40,12 @@ export const NameTextField = () => {
       return;
     }
 
+    if (
+      players &&
+      players.some((player: any) => player.tableOrder === tableOrder)
+    )
+      return;
+
     addPlayer(nickname.trim(), tableOrder);
     setNickname("");
     setTableOrder(null);
@@ -56,11 +63,13 @@ export const NameTextField = () => {
         <PlayersTextField
           onChange={(e) => handleChangeNickname(e)}
           value={nickname}
+          placeholder="Enter the player's nickname"
         />
         <PlayerOrderField
           onChange={(e) => handleChangeTableOrder(e)}
           value={tableOrder ?? ""}
           type="number"
+          placeholder="#"
           slotProps={{
             input: {
               sx: {
