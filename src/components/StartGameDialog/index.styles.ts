@@ -1,4 +1,11 @@
-import { Box, MenuItem, MenuList, styled, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  MenuItem,
+  MenuList,
+  styled,
+  Typography,
+} from "@mui/material";
 
 export const StartGameDialogBody = styled(Box)({
   background: "#3b3b3b",
@@ -55,4 +62,20 @@ export const NoPlayersMessage = styled(Typography)({
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
+});
+
+export const GoToAcquaintancePhase = styled(Button)({
+  background: "#48e400",
+  color: "#000",
+  fontWeight: 600,
+  fontSize: "14px",
+  textTransform: "capitalize",
+  fontFamily: "Calibre-R",
+  padding: "16px",
+  width: "100%",
+  marginTop: "20px",
+
+  "&:disabled": {
+    background: "#3aac06",
+  },
 });

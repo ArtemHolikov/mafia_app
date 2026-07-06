@@ -1,5 +1,13 @@
-import { Box, Dialog, Divider, MenuItem, Typography } from "@mui/material";
 import {
+  Box,
+  Button,
+  Dialog,
+  Divider,
+  MenuItem,
+  Typography,
+} from "@mui/material";
+import {
+  GoToAcquaintancePhase,
   NoPlayersMessage,
   PlayerItem,
   PlayerItemInfoText,
@@ -10,6 +18,8 @@ import {
 } from "./index.styles";
 import { useGameStore } from "../../store/gameStore";
 import { NameTextField } from "./components/NameTextField";
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 interface StartGameDialogProps {
   isOpen: boolean;
@@ -25,10 +35,26 @@ export const StartGameDialog = ({
   };
 
   const players = useGameStore((state: any) => state.players);
+  const setPlayers = useGameStore((state: any) => state.setPlayers);
+
+  const setPhase = useGameStore((state: any) => state.setPhase);
+
+  const navigate = useNavigate();
 
   const sortedPlayers = players.sort(
     (a: any, b: any) => a.tableOrder - b.tableOrder,
   );
+
+  if (sortedPlayers && sortedPlayers.length > 0) {
+    setPlayers(sortedPlayers);
+  }
+
+  const handleSwitchToAcquaintancePhase = () => {
+    setPhase("acquaintance");
+    handleClose();
+
+    navigate("/acquaintance");
+  };
 
   return (
     <Dialog open={isOpen} onClose={handleClose}>
@@ -69,6 +95,12 @@ export const StartGameDialog = ({
               <NoPlayersMessage>No players currently</NoPlayersMessage>
             )}
           </PlayersList>
+          <GoToAcquaintancePhase
+            disabled={sortedPlayers.length === 0}
+            onClick={handleSwitchToAcquaintancePhase}
+          >
+            Next
+          </GoToAcquaintancePhase>
         </PlayersBox>
       </StartGameDialogBody>
     </Dialog>
