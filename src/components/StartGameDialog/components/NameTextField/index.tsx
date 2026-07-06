@@ -85,7 +85,12 @@ export const NameTextField = () => {
           }}
         />
       </Box>
-      <AddPlayerButton onClick={handleAddPlayer}>Add</AddPlayerButton>
+      <AddPlayerButton
+        onClick={handleAddPlayer}
+        disabled={!(nickname && tableOrder)}
+      >
+        Add
+      </AddPlayerButton>
     </Box>
   );
 };
