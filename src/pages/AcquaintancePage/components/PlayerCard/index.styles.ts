@@ -13,6 +13,17 @@ export const CardWrapper = styled(Box)({
   backdropFilter: "blur(4px)",
   color: "#111",
   marginBottom: 12,
+  transition: "all .3s ease",
+  userSelect: "none",
+
+  "&:hover": {
+    backgroundColor: "rgba(255, 255, 255, 0.7)",
+    cursor: "pointer",
+  },
+
+  "&:active": {
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+  },
 });
 
 export const OrderNicknameText = styled(Typography)({

@@ -1,4 +1,4 @@
-import { styled, Box, Button } from "@mui/material";
+import { styled, Box, Button, Typography } from "@mui/material";
 
 export const PageWrapper = styled(Box, {
   shouldForwardProp: (prop) => prop !== "bgimage",
@@ -17,6 +17,16 @@ export const PageWrapper = styled(Box, {
 export const PlayerCardsWrapper = styled(Box)({
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
-  rowGap: "40px",
+  rowGap: "20px",
   padding: "16px",
+});
+
+export const SectionTitle = styled(Typography)({
+  fontSize: "32px",
+  lineHeight: "48px",
+  fontFamily: "Calibre-R",
+  fontWeight: 500,
+  color: "#fff",
+  textAlign: "center",
+  padding: "12px 0",
 });
