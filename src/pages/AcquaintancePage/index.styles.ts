@@ -30,3 +30,17 @@ export const SectionTitle = styled(Typography)({
   textAlign: "center",
   padding: "12px 0",
 });
+
+export const GoToDayAcquaintanceButton = styled(Button)({
+  position: "absolute",
+  bottom: 0,
+  right: 0,
+  padding: "15px",
+  background: "#3fa504",
+  borderRadius: 0,
+  textTransform: "capitalize",
+  fontFamily: "Calibre-R",
+  fontSize: "18px",
+  fontWeight: 600,
+  color: "#000",
+});

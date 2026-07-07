@@ -15,6 +15,7 @@ export const CardWrapper = styled(Box)({
   marginBottom: 12,
   transition: "all .3s ease",
   userSelect: "none",
+  position: "relative",
 
   "&:hover": {
     backgroundColor: "rgba(255, 255, 255, 0.7)",
@@ -30,6 +31,7 @@ export const OrderNicknameText = styled(Typography)({
   fontSize: "18px",
   lineHeight: "32px",
   fontFamily: "Calibre-R",
+  zIndex: 999,
 });
 
 export const RoleText = styled(Typography)({
@@ -37,4 +39,14 @@ export const RoleText = styled(Typography)({
   lineHeight: "36px",
   fontFamily: "Calibre-R",
   fontWeight: 600,
+  zIndex: 999,
+});
+
+export const RaisedForVotingBox = styled(Box)({
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  zIndex: -2,
+  opacity: 0.4,
 });

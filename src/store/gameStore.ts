@@ -7,7 +7,8 @@ export type phaseNames =
   | "discussion"
   | "voting"
   | "gameOver"
-  | "acquaintance";
+  | "night acquaintance"
+  | "day acquaintance";
 
 export const useGameStore = create((set) => ({
   // STATE
@@ -36,6 +37,7 @@ export const useGameStore = create((set) => ({
           fouls: 0,
           isVoted: false,
           votesRecived: 0,
+          raisedForVoting: false,
         },
       ],
     })),
@@ -68,12 +70,10 @@ export const useGameStore = create((set) => ({
       ),
     })),
 
-  votesFor: (votedId: number) =>
+  raisedForVoting: (votedId: number) =>
     set((state: any) => ({
       players: state.players.map((player: any) =>
-        player.id === votedId
-          ? { ...player, votesRecived: player.votesRecived + 1 }
-          : player,
+        player.id === votedId ? { ...player, raisedForVoting: true } : player,
       ),
     })),
 }));

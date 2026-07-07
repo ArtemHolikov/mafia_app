@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Dialog,
-  Divider,
-  MenuItem,
-  Typography,
-} from "@mui/material";
+import { Box, Dialog, Divider } from "@mui/material";
 import {
   GoToAcquaintancePhase,
   NoPlayersMessage,
@@ -19,7 +12,6 @@ import {
 import { useGameStore } from "../../store/gameStore";
 import { NameTextField } from "./components/NameTextField";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 
 interface StartGameDialogProps {
   isOpen: boolean;
@@ -50,7 +42,7 @@ export const StartGameDialog = ({
   }
 
   const handleSwitchToAcquaintancePhase = () => {
-    setPhase("acquaintance");
+    setPhase("night acquaintance");
     handleClose();
 
     navigate("/acquaintance");
