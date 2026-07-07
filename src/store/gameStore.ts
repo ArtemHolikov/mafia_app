@@ -40,6 +40,18 @@ export const useGameStore = create((set) => ({
       ],
     })),
 
+  changeRole: (playerId: number, role: string) =>
+    set((state: any) => ({
+      players: state.players.map((player: any) =>
+        player.id === playerId
+          ? {
+              ...player,
+              role: role,
+            }
+          : player,
+      ),
+    })),
+
   addFoul: (playerId: number) =>
     set((state: any) => ({
       players: state.players.map((player: any) =>

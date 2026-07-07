@@ -1,40 +1,50 @@
 import { Avatar, Box, Card, Typography } from "@mui/material";
 
-import Don from "../../../../images/don_logo.png";
-import Mafia from "../../../../images/mafia.png";
-import Maniac from "../../../../images/maniac.png";
-import Citizen from "../../../../images/mirniy.png";
-import Doctor from "../../../../images/doctor.png";
-import Sherif from "../../../../images/sherif.png";
-import Journalist from "../../../../images/journalist.png";
 import { CardWrapper, OrderNicknameText, RoleText } from "./index.styles";
+import { imageToDisplay } from "../../../../constants";
+import { useState } from "react";
+import { AcquaintancePlayerModal } from "../AcquaintancePlayerModal";
 
 interface PlayerCardProps {
+  id: number;
   nickname: string;
   tableOrder: number;
   role: string;
 }
 
-export const PlayerCard = ({ nickname, tableOrder, role }: PlayerCardProps) => {
-  const imageToDisplay: any = {
-    don: Don,
-    mafia: Mafia,
-    maniac: Maniac,
-    citizen: Citizen,
-    doctor: Doctor,
-    sherif: Sherif,
-    journalist: Journalist,
+export const PlayerCard = ({
+  id,
+  nickname,
+  tableOrder,
+  role,
+}: PlayerCardProps) => {
+  const [openModal, setOpenModal] = useState(false);
+
+  const handleClickPlayerCard = () => {
+    setOpenModal(true);
   };
 
   return (
-    <CardWrapper>
-      <Box>
-        <OrderNicknameText>
-          {tableOrder} | {nickname}
-        </OrderNicknameText>
-        <RoleText>{role}</RoleText>
-      </Box>
-      <img src={imageToDisplay[role.toLowerCase()]} width={85} height={85} />
-    </CardWrapper>
+    <>
+      <CardWrapper onClick={handleClickPlayerCard}>
+        <Box>
+          <OrderNicknameText>
+            {tableOrder} | {nickname}
+          </OrderNicknameText>
+          <RoleText>{role}</RoleText>
+        </Box>
+        <img src={imageToDisplay[role.toLowerCase()]} width={85} height={85} />
+      </CardWrapper>
+
+      {openModal && (
+        <AcquaintancePlayerModal
+          id={id}
+          nickname={nickname}
+          open={openModal}
+          setOpen={setOpenModal}
+          role={role}
+        />
+      )}
+    </>
   );
 };

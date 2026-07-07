@@ -15,6 +15,7 @@ export const AcquaintancePage = () => {
       <PlayerCardsWrapper>
         {players.map((player: any) => (
           <PlayerCard
+            id={player.id}
             nickname={player.nickname}
             role={player.role}
             tableOrder={player.tableOrder}
