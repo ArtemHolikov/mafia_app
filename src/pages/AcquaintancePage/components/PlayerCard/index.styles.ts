@@ -1,4 +1,4 @@
-import { Box, styled } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 
 export const CardWrapper = styled(Box)({
   display: "inline-flex",
@@ -13,4 +13,17 @@ export const CardWrapper = styled(Box)({
   backdropFilter: "blur(4px)",
   color: "#111",
   marginBottom: 12,
+});
+
+export const OrderNicknameText = styled(Typography)({
+  fontSize: "18px",
+  lineHeight: "32px",
+  fontFamily: "Calibre-R",
+});
+
+export const RoleText = styled(Typography)({
+  fontSize: "20px",
+  lineHeight: "36px",
+  fontFamily: "Calibre-R",
+  fontWeight: 600,
 });

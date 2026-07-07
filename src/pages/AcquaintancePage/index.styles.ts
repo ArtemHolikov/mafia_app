@@ -7,9 +7,9 @@ export const PageWrapper = styled(Box, {
   backgroundSize: "cover",
   backgroundPosition: "center",
   backgroundRepeat: "no-repeat",
-  width: "100%",
+  width: "auto",
   height: "calc(100vh - 20px)",
-  padding: 16,
+  padding: 0,
   overflow: "hidden",
   position: "relative",
 }));
@@ -18,4 +18,5 @@ export const PlayerCardsWrapper = styled(Box)({
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))",
   rowGap: "40px",
+  padding: "16px",
 });

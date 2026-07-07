@@ -8,8 +8,6 @@ import { PlayerCard } from "./components/PlayerCard";
 export const AcquaintancePage = () => {
   const players = useGameStore((state: any) => state.players);
 
-  console.log(players);
-
   return (
     <PageWrapper {...{ bgimage: backgroundImage }}>
       <PlayerCardsWrapper>

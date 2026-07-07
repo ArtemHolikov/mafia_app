@@ -1,7 +1,13 @@
 import { Avatar, Box, Card, Typography } from "@mui/material";
 
 import Don from "../../../../images/don_logo.png";
-import { CardWrapper } from "./index.styles";
+import Mafia from "../../../../images/mafia.png";
+import Maniac from "../../../../images/maniac.png";
+import Citizen from "../../../../images/mirniy.png";
+import Doctor from "../../../../images/doctor.png";
+import Sherif from "../../../../images/sherif.png";
+import Journalist from "../../../../images/journalist.png";
+import { CardWrapper, OrderNicknameText, RoleText } from "./index.styles";
 
 interface PlayerCardProps {
   nickname: string;
@@ -10,15 +16,25 @@ interface PlayerCardProps {
 }
 
 export const PlayerCard = ({ nickname, tableOrder, role }: PlayerCardProps) => {
+  const imageToDisplay: any = {
+    don: Don,
+    mafia: Mafia,
+    maniac: Maniac,
+    citizen: Citizen,
+    doctor: Doctor,
+    sherif: Sherif,
+    journalist: Journalist,
+  };
+
   return (
     <CardWrapper>
       <Box>
-        <Typography>
+        <OrderNicknameText>
           {tableOrder} | {nickname}
-        </Typography>
-        <Typography>{role}</Typography>
+        </OrderNicknameText>
+        <RoleText>{role}</RoleText>
       </Box>
-      <img src={Don} width={85} height={85} />
+      <img src={imageToDisplay[role.toLowerCase()]} width={85} height={85} />
     </CardWrapper>
   );
 };
