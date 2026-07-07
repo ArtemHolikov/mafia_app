@@ -27,7 +27,6 @@ export const StartGameDialog = ({
   };
 
   const players = useGameStore((state: any) => state.players);
-  const setPlayers = useGameStore((state: any) => state.setPlayers);
 
   const setPhase = useGameStore((state: any) => state.setPhase);
 
@@ -36,10 +35,6 @@ export const StartGameDialog = ({
   const sortedPlayers = players.sort(
     (a: any, b: any) => a.tableOrder - b.tableOrder,
   );
-
-  if (sortedPlayers && sortedPlayers.length > 0) {
-    setPlayers(sortedPlayers);
-  }
 
   const handleSwitchToAcquaintancePhase = () => {
     setPhase("night acquaintance");

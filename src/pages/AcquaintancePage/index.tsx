@@ -13,14 +13,34 @@ import { PlayerCard } from "./components/PlayerCard";
 
 export const AcquaintancePage = () => {
   const players = useGameStore((state: any) => state.players);
+  const raisedForVotingPlayers = useGameStore(
+    (state: any) => state.raisedForVotingPlayers,
+  );
   const phase = useGameStore((state: any) => state.phase);
   const setPhase = useGameStore((state: any) => state.setPhase);
   const raisedForVoting = useGameStore((state: any) => state.raisedForVoting);
   const [voteModeVoterId, setVoteModeVoterId] = useState<number | null>(null);
 
-  const switchToDayAcquaintance = () => {
-    setPhase("day acquaintance");
+  const switchToNextPhase = () => {
+    if (phase === "night acquaintance") {
+      setPhase("day acquaintance");
+      return;
+    }
+
+    if (phase === "day acquaintance" && raisedForVotingPlayers.length > 0) {
+      setPhase("voting");
+    } else if (
+      phase === "day acquaintance" &&
+      raisedForVotingPlayers.length === 0
+    ) {
+      setPhase("night");
+    }
   };
+
+  const displayedPlayers =
+    phase === "day acquaintance"
+      ? [...players].sort((a: any, b: any) => a.tableOrder - b.tableOrder)
+      : raisedForVotingPlayers;
 
   const handleVoteTargetSelect = (targetId: number) => {
     if (voteModeVoterId === null) return;
@@ -28,11 +48,18 @@ export const AcquaintancePage = () => {
     setVoteModeVoterId(null);
   };
 
+  const buttonTextToDisplay =
+    phase === "night acquaintance"
+      ? "Go to Day Acquaintance"
+      : phase === "day acquaintance" && raisedForVotingPlayers.length > 0
+        ? `Voting stage (${raisedForVotingPlayers.length})`
+        : "Go to night";
+
   return (
     <PageWrapper {...{ bgimage: backgroundImage }}>
       <SectionTitle>{phase.toUpperCase()}</SectionTitle>
       <PlayerCardsWrapper>
-        {players.map((player: any) => (
+        {displayedPlayers.map((player: any) => (
           <PlayerCard
             key={player.id}
             id={player.id}
@@ -45,8 +72,9 @@ export const AcquaintancePage = () => {
           />
         ))}
       </PlayerCardsWrapper>
-      <GoToDayAcquaintanceButton onClick={switchToDayAcquaintance}>
-        Go To Day Acquaintance
+      {raisedForVotingPlayers.length > 0}
+      <GoToDayAcquaintanceButton onClick={switchToNextPhase}>
+        {buttonTextToDisplay}
       </GoToDayAcquaintanceButton>
     </PageWrapper>
   );

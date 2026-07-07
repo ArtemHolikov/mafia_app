@@ -14,6 +14,7 @@ export const useGameStore = create((set) => ({
   // STATE
   phase: "lobby",
   players: [], // Array of player objects
+  raisedForVotingPlayers: [],
   playersCount: 0, // Total number of players
   speechTimer: 60, // Timer for speech phase
   round: 1, // Current round number
@@ -70,10 +71,30 @@ export const useGameStore = create((set) => ({
       ),
     })),
 
-  raisedForVoting: (votedId: number) =>
-    set((state: any) => ({
-      players: state.players.map((player: any) =>
+  raisedForVoting: (votedId: number) => {
+    set((state: any) => {
+      const updatedPlayers = state.players.map((player: any) =>
         player.id === votedId ? { ...player, raisedForVoting: true } : player,
-      ),
-    })),
+      );
+
+      const votedPlayer = updatedPlayers.find(
+        (player: any) => player.id === votedId,
+      );
+
+      if (!votedPlayer) {
+        return { players: updatedPlayers };
+      }
+
+      const alreadyRaised = state.raisedForVotingPlayers.some(
+        (player: any) => player.id === votedId,
+      );
+
+      return {
+        players: updatedPlayers,
+        raisedForVotingPlayers: alreadyRaised
+          ? state.raisedForVotingPlayers
+          : [...state.raisedForVotingPlayers, votedPlayer],
+      };
+    });
+  },
 }));
