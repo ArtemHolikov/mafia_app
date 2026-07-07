@@ -37,7 +37,7 @@ export const useGameStore = create((set) => ({
           isAlive: true,
           fouls: 0,
           isVoted: false,
-          votesRecived: 0,
+          votesReceived: 0,
           raisedForVoting: false,
         },
       ],
@@ -60,6 +60,15 @@ export const useGameStore = create((set) => ({
       players: state.players.map((player: any) =>
         player.id === playerId
           ? { ...player, fouls: player.fouls + 1 }
+          : player,
+      ),
+    })),
+
+  submitReceivedVotes: (playerId: number, votesReceived: number) =>
+    set((state: any) => ({
+      players: state.players.map((player: any) =>
+        player.id === playerId
+          ? { ...player, votesReceived: votesReceived }
           : player,
       ),
     })),

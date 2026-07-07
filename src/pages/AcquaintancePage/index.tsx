@@ -10,8 +10,10 @@ import {
 import backgroundImage from "../../images/backgroundPhoto.png";
 import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "./components/PlayerCard";
+import { useNavigate } from "react-router-dom";
 
 export const AcquaintancePage = () => {
+  const navigate = useNavigate();
   const players = useGameStore((state: any) => state.players);
   const raisedForVotingPlayers = useGameStore(
     (state: any) => state.raisedForVotingPlayers,
@@ -29,6 +31,7 @@ export const AcquaintancePage = () => {
 
     if (phase === "day acquaintance" && raisedForVotingPlayers.length > 0) {
       setPhase("voting");
+      navigate("/voting");
     } else if (
       phase === "day acquaintance" &&
       raisedForVotingPlayers.length === 0
@@ -37,10 +40,9 @@ export const AcquaintancePage = () => {
     }
   };
 
-  const displayedPlayers =
-    phase === "day acquaintance"
-      ? [...players].sort((a: any, b: any) => a.tableOrder - b.tableOrder)
-      : raisedForVotingPlayers;
+  const displayedPlayers = [...players].sort(
+    (a: any, b: any) => a.tableOrder - b.tableOrder,
+  );
 
   const handleVoteTargetSelect = (targetId: number) => {
     if (voteModeVoterId === null) return;

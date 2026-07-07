@@ -13,15 +13,16 @@ import { useGameStore } from "../../../../store/gameStore";
 import { PlayerActionsModal } from "../../../../components/PlayerActionsModal";
 
 import RaisedForVoting from "../../../../images/raisedForVoting.png";
+import { PlayerVotingModal } from "../../../../components/PlayerVotingModal";
 
 interface PlayerCardProps {
   id: number;
   nickname: string;
   tableOrder: number;
   role: string;
-  voteModeVoterId: number | null;
-  onStartVoteMode: (voterId: number | null) => void;
-  onVoteTargetSelect: (targetId: number) => void;
+  voteModeVoterId?: number | null;
+  onStartVoteMode?: (voterId: number | null) => void;
+  onVoteTargetSelect?: (targetId: number) => void;
 }
 
 export const PlayerCard = ({
@@ -42,8 +43,8 @@ export const PlayerCard = ({
   );
 
   const handleClickPlayerCard = () => {
-    if (voteModeVoterId !== null) {
-      onVoteTargetSelect(id);
+    if (voteModeVoterId !== null && voteModeVoterId !== undefined) {
+      onVoteTargetSelect?.(id);
       return;
     }
 
@@ -89,6 +90,15 @@ export const PlayerCard = ({
           id={id}
           nickname={nickname}
           onVoteModeStart={onStartVoteMode}
+        />
+      )}
+
+      {phase === "voting" && openModal && (
+        <PlayerVotingModal
+          open={openModal}
+          setOpen={setOpenModal}
+          id={id}
+          nickname={nickname}
         />
       )}
     </>
