@@ -1,12 +1,5 @@
-import {
-  Box,
-  Button,
-  Dialog,
-  Divider,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { ActionButton, DialogBody } from "../PlayerActionsModal/index.styles";
+import { Box, Dialog, Divider, Typography } from "@mui/material";
+import { DialogBody } from "../PlayerActionsModal/index.styles";
 import { SettingPlayerInfoTitle } from "../../pages/AcquaintancePage/components/AcquaintancePlayerModal/index.styles";
 import {
   CountOfVotesField,
@@ -14,7 +7,7 @@ import {
   SubmitButton,
 } from "./index.styles";
 import { useGameStore } from "../../store/gameStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface PlayerVotingModalProps {
   open: boolean;
@@ -39,15 +32,21 @@ export const PlayerVotingModal = ({
     setOpen(false);
   };
 
+  useEffect(() => {
+    if (!open) {
+      setCountOfVotes(0);
+    }
+  }, [open]);
+
   const handleChangeCountOfVotes = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setCountOfVotes(Number(e.target.value));
+    const value = Number(e.target.value);
+    setCountOfVotes(Number.isNaN(value) ? 0 : Math.max(0, value));
   };
 
   const handleSubmitReceivedVotes = () => {
     submitReceivedVotes(id, countOfVotes);
-
     handleClose();
   };
 
@@ -57,21 +56,35 @@ export const PlayerVotingModal = ({
         <SettingPlayerInfoTitle>
           {id} | {nickname}
         </SettingPlayerInfoTitle>
-        <Divider sx={{ width: "100%", height: "2px", background: "#1e1e1e" }} />
+        <Typography
+          sx={{ color: "rgba(248,250,252,0.75)", textAlign: "center", mb: 2 }}
+        >
+          Enter how many votes this player received.
+        </Typography>
+        <Divider
+          sx={{
+            width: "100%",
+            height: "1px",
+            background: "rgba(255,255,255,0.12)",
+          }}
+        />
         <Box
           sx={{
-            padding: "16px",
+            paddingTop: 3,
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-around",
+            justifyContent: "space-between",
+            gap: 2,
           }}
         >
-          <CountOfVotesTitle>Count of votes:</CountOfVotesTitle>
+          <CountOfVotesTitle>Votes received</CountOfVotesTitle>
           <CountOfVotesField
+            value={countOfVotes}
             onChange={(e) => handleChangeCountOfVotes(e)}
             type="number"
             slotProps={{
               input: {
+                inputProps: { min: 0 },
                 sx: {
                   "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
                     {
@@ -85,7 +98,9 @@ export const PlayerVotingModal = ({
             }}
           />
         </Box>
-        <SubmitButton onClick={handleSubmitReceivedVotes}>Submit</SubmitButton>
+        <SubmitButton onClick={handleSubmitReceivedVotes}>
+          Save votes
+        </SubmitButton>
       </DialogBody>
     </Dialog>
   );

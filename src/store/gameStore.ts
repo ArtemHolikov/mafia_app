@@ -68,8 +68,16 @@ export const useGameStore = create((set) => ({
     set((state: any) => ({
       players: state.players.map((player: any) =>
         player.id === playerId
-          ? { ...player, votesReceived: votesReceived }
+          ? {
+              ...player,
+              votesReceived: votesReceived,
+              raisedForVoting: false,
+              isVoted: true,
+            }
           : player,
+      ),
+      raisedForVotingPlayers: state.raisedForVotingPlayers.filter(
+        (player: any) => player.id !== playerId,
       ),
     })),
 

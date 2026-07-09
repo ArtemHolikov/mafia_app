@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import {
   AddPlayerButton,
   PlayerOrderField,
@@ -52,24 +52,20 @@ export const NameTextField = () => {
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      <Box sx={{ display: "flex", gap: "5px" }}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 1.25 }}>
+      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
         <PlayersTextField
           onChange={(e) => handleChangeNickname(e)}
           value={nickname}
-          placeholder="Enter the player's nickname"
+          placeholder="Player nickname"
+          size="small"
         />
         <PlayerOrderField
           onChange={(e) => handleChangeTableOrder(e)}
           value={tableOrder ?? ""}
           type="number"
           placeholder="#"
+          size="small"
           slotProps={{
             input: {
               sx: {
@@ -84,13 +80,16 @@ export const NameTextField = () => {
             },
           }}
         />
+        <AddPlayerButton
+          onClick={handleAddPlayer}
+          disabled={!(nickname && tableOrder)}
+        >
+          Add
+        </AddPlayerButton>
       </Box>
-      <AddPlayerButton
-        onClick={handleAddPlayer}
-        disabled={!(nickname && tableOrder)}
-      >
-        Add
-      </AddPlayerButton>
+      <Typography sx={{ color: "rgba(248,250,252,0.7)", fontSize: "0.85rem" }}>
+        Enter a nickname and a unique table order to build the lobby.
+      </Typography>
     </Box>
   );
 };

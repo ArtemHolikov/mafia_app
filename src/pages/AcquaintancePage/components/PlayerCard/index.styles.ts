@@ -1,52 +1,53 @@
 import { Box, styled, Typography } from "@mui/material";
 
 export const CardWrapper = styled(Box)({
-  display: "inline-flex",
+  display: "flex",
   alignItems: "center",
   justifyContent: "space-between",
-  gap: 80,
-  width: "300px",
-  padding: "40px 20px",
-  borderRadius: 12,
-  backgroundColor: "rgba(255, 255, 255, 0.9)",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-  backdropFilter: "blur(4px)",
-  color: "#111",
-  marginBottom: 12,
-  transition: "all .3s ease",
+  gap: 20,
+  minHeight: 142,
+  padding: "24px",
+  borderRadius: 22,
+  background: "rgba(255, 255, 255, 0.1)",
+  border: "1px solid rgba(255,255,255,0.12)",
+  boxShadow: "0 16px 40px rgba(2, 6, 23, 0.22)",
+  backdropFilter: "blur(10px)",
+  color: "#f8fafc",
+  transition: "transform 0.2s ease, background-color 0.2s ease",
   userSelect: "none",
   position: "relative",
+  cursor: "pointer",
 
   "&:hover": {
-    backgroundColor: "rgba(255, 255, 255, 0.7)",
-    cursor: "pointer",
-  },
-
-  "&:active": {
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    transform: "translateY(-2px)",
+    background: "rgba(255, 255, 255, 0.16)",
   },
 });
 
 export const OrderNicknameText = styled(Typography)({
-  fontSize: "18px",
-  lineHeight: "32px",
-  fontFamily: "Calibre-R",
-  zIndex: 999,
+  fontSize: "1rem",
+  lineHeight: 1.5,
+  fontWeight: 600,
+  zIndex: 1,
 });
 
 export const RoleText = styled(Typography)({
-  fontSize: "20px",
-  lineHeight: "36px",
-  fontFamily: "Calibre-R",
-  fontWeight: 600,
-  zIndex: 999,
+  fontSize: "0.95rem",
+  lineHeight: 1.5,
+  color: "rgba(248, 250, 252, 0.74)",
+  fontWeight: 500,
+  zIndex: 1,
+  marginTop: 4,
 });
 
 export const RaisedForVotingBox = styled(Box)({
   position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  zIndex: -2,
-  opacity: 0.4,
+  inset: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "rgba(255, 255, 255, 0.06)",
+  borderRadius: 22,
+  opacity: 0.82,
+  zIndex: 0,
 });

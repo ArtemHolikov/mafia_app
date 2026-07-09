@@ -1,31 +1,28 @@
 import { Button, styled, TextField, Typography } from "@mui/material";
 
 export const CountOfVotesField = styled(TextField)({
-  width: "25%",
+  width: "110px",
   textAlign: "center",
-  background: "#5a5a5a",
-  color: "#fff",
+  "& .MuiOutlinedInput-root": {
+    borderRadius: 16,
+    background: "rgba(255,255,255,0.06)",
+    color: "#f8fafc",
+  },
 });
 
 export const CountOfVotesTitle = styled(Typography)({
-  fontSize: "20px",
-  lineHeight: "32px",
-  fontFamily: "Calibre-R",
-  color: "#fff",
-  fontWeight: 500,
+  fontSize: "1rem",
+  color: "#f8fafc",
+  fontWeight: 600,
 });
 
 export const SubmitButton = styled(Button)({
-  width: "268px",
-  position: "absolute",
-  bottom: 0,
-  marginBottom: "15px",
-  marginLeft: "16px",
+  width: "100%",
+  marginTop: 18,
   color: "#fff",
-  fontSize: "20px",
-  lineHeight: "32px",
-  fontFamily: "Calibre-R",
-  textTransform: "capitalize",
-  fontWeight: 500,
-  background: "#178102",
+  fontSize: "1rem",
+  fontWeight: 700,
+  background: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
+  padding: "12px 16px",
+  borderRadius: 16,
 });

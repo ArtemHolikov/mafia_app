@@ -1,4 +1,4 @@
-import { Box, Dialog, Divider } from "@mui/material";
+import { Box, Dialog, Divider, Typography } from "@mui/material";
 import {
   GoToAcquaintancePhase,
   NoPlayersMessage,
@@ -32,7 +32,7 @@ export const StartGameDialog = ({
 
   const navigate = useNavigate();
 
-  const sortedPlayers = players.sort(
+  const sortedPlayers = [...players].sort(
     (a: any, b: any) => a.tableOrder - b.tableOrder,
   );
 
@@ -46,47 +46,44 @@ export const StartGameDialog = ({
   return (
     <Dialog open={isOpen} onClose={handleClose}>
       <StartGameDialogBody>
-        <SettingsLobbyTitle>Lobby Settings</SettingsLobbyTitle>
-        <Divider sx={{ width: "100%", height: "2px", background: "#1e1e1e" }} />
+        <SettingsLobbyTitle>Lobby setup</SettingsLobbyTitle>
+        <Typography sx={{ color: "rgba(248,250,252,0.75)", mb: 2 }}>
+          Add players, assign their table order, and launch the game flow.
+        </Typography>
+        <Divider
+          sx={{
+            width: "100%",
+            height: "1px",
+            background: "rgba(255,255,255,0.12)",
+          }}
+        />
         <PlayersBox>
           <SettingsLobbyTitle>Players ({players.length})</SettingsLobbyTitle>
           <NameTextField />
           <PlayersList>
             {sortedPlayers.map((player: any) => (
-              <PlayerItem>
-                <Box sx={{ display: "flex" }}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "15px",
-                      marginRight: "15px",
-                    }}
-                  >
-                    <PlayerItemInfoText>{player.tableOrder}</PlayerItemInfoText>
-                    <Divider
-                      orientation="vertical"
-                      sx={{
-                        width: "1px",
-                        height: "100%",
-                        background: "#fff",
-                      }}
-                    />
-                  </Box>
+              <PlayerItem key={player.id}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                  <PlayerItemInfoText>#{player.tableOrder}</PlayerItemInfoText>
+                  <Divider
+                    orientation="vertical"
+                    flexItem
+                    sx={{ borderColor: "rgba(255,255,255,0.14)" }}
+                  />
                   <PlayerItemInfoText>{player.nickname}</PlayerItemInfoText>
                 </Box>
               </PlayerItem>
             ))}
 
             {sortedPlayers.length === 0 && (
-              <NoPlayersMessage>No players currently</NoPlayersMessage>
+              <NoPlayersMessage>No players yet</NoPlayersMessage>
             )}
           </PlayersList>
           <GoToAcquaintancePhase
             disabled={sortedPlayers.length === 0}
             onClick={handleSwitchToAcquaintancePhase}
           >
-            Next
+            Start acquaintance
           </GoToAcquaintancePhase>
         </PlayersBox>
       </StartGameDialogBody>

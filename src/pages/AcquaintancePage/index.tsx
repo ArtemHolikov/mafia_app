@@ -1,12 +1,14 @@
-import { Box, Button } from "@mui/material";
-import { useState } from "react";
+import { Box, Typography } from "@mui/material";
+import { useMemo, useState } from "react";
 import {
+  ContentShell,
   GoToDayAcquaintanceButton,
   PageWrapper,
   PlayerCardsWrapper,
+  SectionChip,
   SectionTitle,
+  TopBar,
 } from "./index.styles";
-
 import backgroundImage from "../../images/backgroundPhoto.png";
 import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "./components/PlayerCard";
@@ -22,6 +24,11 @@ export const AcquaintancePage = () => {
   const setPhase = useGameStore((state: any) => state.setPhase);
   const raisedForVoting = useGameStore((state: any) => state.raisedForVoting);
   const [voteModeVoterId, setVoteModeVoterId] = useState<number | null>(null);
+
+  const displayedPlayers = useMemo(
+    () => [...players].sort((a: any, b: any) => a.tableOrder - b.tableOrder),
+    [players],
+  );
 
   const switchToNextPhase = () => {
     if (phase === "night acquaintance") {
@@ -40,10 +47,6 @@ export const AcquaintancePage = () => {
     }
   };
 
-  const displayedPlayers = [...players].sort(
-    (a: any, b: any) => a.tableOrder - b.tableOrder,
-  );
-
   const handleVoteTargetSelect = (targetId: number) => {
     if (voteModeVoterId === null) return;
     raisedForVoting(targetId);
@@ -52,29 +55,47 @@ export const AcquaintancePage = () => {
 
   const buttonTextToDisplay =
     phase === "night acquaintance"
-      ? "Go to Day Acquaintance"
+      ? "Continue to day acquaintance"
       : phase === "day acquaintance" && raisedForVotingPlayers.length > 0
-        ? `Voting stage (${raisedForVotingPlayers.length})`
-        : "Go to night";
+        ? `Open voting stage (${raisedForVotingPlayers.length})`
+        : "Move to night";
+
+  const phaseLabel =
+    phase === "night acquaintance"
+      ? "Night acquaintance"
+      : phase === "day acquaintance"
+        ? "Day acquaintance"
+        : phase;
 
   return (
-    <PageWrapper {...{ bgimage: backgroundImage }}>
-      <SectionTitle>{phase.toUpperCase()}</SectionTitle>
-      <PlayerCardsWrapper>
-        {displayedPlayers.map((player: any) => (
-          <PlayerCard
-            key={player.id}
-            id={player.id}
-            nickname={player.nickname}
-            role={player.role}
-            tableOrder={player.tableOrder}
-            voteModeVoterId={voteModeVoterId}
-            onStartVoteMode={setVoteModeVoterId}
-            onVoteTargetSelect={handleVoteTargetSelect}
-          />
-        ))}
-      </PlayerCardsWrapper>
-      {raisedForVotingPlayers.length > 0}
+    <PageWrapper bgimage={backgroundImage}>
+      <ContentShell>
+        <TopBar>
+          <Box>
+            <SectionTitle>{phaseLabel}</SectionTitle>
+            <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
+              Review each player and prepare the next stage smoothly.
+            </Typography>
+          </Box>
+          <SectionChip>{displayedPlayers.length} players</SectionChip>
+        </TopBar>
+
+        <PlayerCardsWrapper>
+          {displayedPlayers.map((player: any) => (
+            <PlayerCard
+              key={player.id}
+              id={player.id}
+              nickname={player.nickname}
+              role={player.role}
+              tableOrder={player.tableOrder}
+              voteModeVoterId={voteModeVoterId}
+              onStartVoteMode={setVoteModeVoterId}
+              onVoteTargetSelect={handleVoteTargetSelect}
+            />
+          ))}
+        </PlayerCardsWrapper>
+      </ContentShell>
+
       <GoToDayAcquaintanceButton onClick={switchToNextPhase}>
         {buttonTextToDisplay}
       </GoToDayAcquaintanceButton>
