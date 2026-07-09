@@ -22,11 +22,15 @@ export const AcquaintancePage = () => {
   );
   const phase = useGameStore((state: any) => state.phase);
   const setPhase = useGameStore((state: any) => state.setPhase);
+  const setRound = useGameStore((state: any) => state.setRound);
   const raisedForVoting = useGameStore((state: any) => state.raisedForVoting);
   const [voteModeVoterId, setVoteModeVoterId] = useState<number | null>(null);
 
   const displayedPlayers = useMemo(
-    () => [...players].sort((a: any, b: any) => a.tableOrder - b.tableOrder),
+    () =>
+      [...players]
+        .filter((player: any) => player.isAlive)
+        .sort((a: any, b: any) => a.tableOrder - b.tableOrder),
     [players],
   );
 
@@ -44,6 +48,8 @@ export const AcquaintancePage = () => {
       raisedForVotingPlayers.length === 0
     ) {
       setPhase("night");
+      setRound(1);
+      navigate("/night?round=1");
     }
   };
 
@@ -62,9 +68,9 @@ export const AcquaintancePage = () => {
 
   const phaseLabel =
     phase === "night acquaintance"
-      ? "Night acquaintance"
+      ? "Night acquaintance — initial setup"
       : phase === "day acquaintance"
-        ? "Day acquaintance"
+        ? "Day acquaintance — initial setup"
         : phase;
 
   return (
