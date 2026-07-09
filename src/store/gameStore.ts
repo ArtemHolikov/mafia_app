@@ -16,6 +16,7 @@ export const useGameStore = create((set) => ({
   players: [], // Array of player objects
   raisedForVotingPlayers: [],
   votingEntries: null,
+  votingTie: null,
   votingResult: null,
   playersCount: 0, // Total number of players
   speechTimer: 60, // Timer for speech phase
@@ -79,66 +80,172 @@ export const useGameStore = create((set) => ({
       }
 
       const currentEntries = state.votingEntries ?? {};
-      const nextEntries: any = {
+      const nextEntries: Record<number, number> = {
         ...currentEntries,
         [playerId]: votesReceived,
       };
 
-      const totalCandidates = state.raisedForVotingPlayers.length;
+      const orderedCandidates = state.raisedForVotingPlayers;
+      const totalCandidates = orderedCandidates.length;
       const entriesCount = Object.keys(nextEntries).length;
 
-      if (entriesCount < totalCandidates) {
+      // Helper to finalize with given entries - unused votes go to specified receiverId
+      const finalize = (
+        entries: Record<number, number>,
+        receiverId?: number,
+      ) => {
+        const sum = Object.values(entries).reduce(
+          (s: number, v: number) => s + v,
+          0,
+        );
+        const unused = Math.max(0, alivePlayersCount - sum);
+        const finalEntries: Record<number, number> = { ...entries };
+        if (receiverId !== undefined) {
+          finalEntries[receiverId] = (finalEntries[receiverId] ?? 0) + unused;
+        }
+
+        const maxVotes = Math.max(...Object.values(finalEntries));
+        const topPlayers = orderedCandidates.filter(
+          (p: any) => finalEntries[p.id] === maxVotes,
+        );
+
+        const eliminatedPlayer = topPlayers.length === 1 ? topPlayers[0] : null;
+
+        const updatedPlayers = state.players.map((player: any) => {
+          if (!finalEntries.hasOwnProperty(player.id)) {
+            return player;
+          }
+
+          const finalVotes = finalEntries[player.id];
+          return {
+            ...player,
+            votesReceived: finalVotes,
+            raisedForVoting: false,
+            isVoted: eliminatedPlayer?.id === player.id,
+            isAlive:
+              eliminatedPlayer?.id === player.id ? false : player.isAlive,
+          };
+        });
+
         return {
-          votingEntries: nextEntries,
+          players: updatedPlayers,
+          raisedForVotingPlayers: [],
+          votingEntries: null,
+          votingTie: null,
+          votingResult: {
+            eliminated: Boolean(eliminatedPlayer),
+            eliminatedIds: eliminatedPlayer ? [eliminatedPlayer.id] : [],
+            playerId: eliminatedPlayer?.id ?? null,
+            nickname: eliminatedPlayer?.nickname ?? "",
+            votesReceived: eliminatedPlayer
+              ? finalEntries[eliminatedPlayer.id]
+              : maxVotes,
+            alivePlayersCount,
+            finalEntries,
+          },
         };
+      };
+
+      // If not all entries yet, check for early finish conditions
+      if (entriesCount < totalCandidates) {
+        // compute sums
+        const sumSoFar = Object.values(nextEntries).reduce(
+          (s: number, v: number) => s + v,
+          0,
+        );
+        const remainingVotes = Math.max(0, alivePlayersCount - sumSoFar);
+        const currentVotes = nextEntries[playerId] ?? 0;
+
+        // If current has majority
+        if (currentVotes > alivePlayersCount / 2) {
+          return finalize(nextEntries, playerId);
+        }
+
+        // If current is guaranteed top (others cannot catch up even if remaining votes go to them)
+        const others = orderedCandidates.filter((p: any) => p.id !== playerId);
+        const guaranteed = others.every((p: any) => {
+          const otherVotes = nextEntries[p.id] ?? 0;
+          const maxOtherPossible = otherVotes + remainingVotes;
+          return currentVotes > maxOtherPossible;
+        });
+
+        if (guaranteed) {
+          // assign leftover votes to current player and finalize
+          return finalize(nextEntries, playerId);
+        }
+
+        // otherwise store the partial entries and continue
+        return { votingEntries: nextEntries };
       }
 
-      const orderedCandidates = state.raisedForVotingPlayers;
+      // All entries submitted - assign unused votes to last candidate
       const lastCandidate = orderedCandidates[orderedCandidates.length - 1];
-      const submittedSum: any = Object.values(nextEntries).reduce(
-        (sum: number, value: any) => sum + value,
+      const submittedSum = Object.values(nextEntries).reduce(
+        (s: number, v: number) => s + v,
         0,
       );
       const unusedVotes = Math.max(0, alivePlayersCount - submittedSum);
-
-      const finalEntries: number[] = {
+      const finalEntries: Record<number, number> = {
         ...nextEntries,
         [lastCandidate.id]: (nextEntries[lastCandidate.id] ?? 0) + unusedVotes,
       };
 
       const maxVotes = Math.max(...Object.values(finalEntries));
       const topPlayers = orderedCandidates.filter(
-        (player: any) => finalEntries[player.id] === maxVotes,
+        (p: any) => finalEntries[p.id] === maxVotes,
       );
-      const eliminatedPlayer = topPlayers.length === 1 ? topPlayers[0] : null;
 
-      const updatedPlayers = state.players.map((player: any) => {
-        if (!finalEntries.hasOwnProperty(player.id)) {
-          return player;
-        }
+      if (topPlayers.length === 1) {
+        // single winner -> eliminate
+        return finalize(finalEntries, undefined);
+      }
 
-        const finalVotes = finalEntries[player.id];
+      // tie detected
+      const tiedIds = topPlayers.map((p: any) => p.id);
+
+      // if this is a revote attempt already (votingTie exists), then eliminate tied players
+      if (
+        state.votingTie &&
+        Array.isArray(state.votingTie.ids) &&
+        state.votingTie.attempts >= 1
+      ) {
+        const updatedPlayers = state.players.map((player: any) =>
+          tiedIds.includes(player.id)
+            ? { ...player, isAlive: false, raisedForVoting: false }
+            : { ...player, raisedForVoting: false },
+        );
+
         return {
-          ...player,
-          votesReceived: finalVotes,
-          raisedForVoting: false,
-          isVoted: eliminatedPlayer?.id === player.id,
-          isAlive: eliminatedPlayer?.id === player.id ? false : player.isAlive,
+          players: updatedPlayers,
+          raisedForVotingPlayers: [],
+          votingEntries: null,
+          votingTie: null,
+          votingResult: {
+            eliminated: true,
+            eliminatedIds: tiedIds,
+            playerId: null,
+            nickname: "",
+            votesReceived: maxVotes,
+            alivePlayersCount,
+            finalEntries,
+          },
         };
-      });
+      }
 
+      // Start a revote among tied players
+      const tiedPlayers = orderedCandidates.filter((p: any) =>
+        tiedIds.includes(p.id),
+      );
       return {
-        players: updatedPlayers,
-        raisedForVotingPlayers: [],
+        players: state.players.map((p: any) => ({
+          ...p,
+          raisedForVoting: tiedIds.includes(p.id),
+        })),
+        raisedForVotingPlayers: tiedPlayers,
         votingEntries: null,
-        votingResult: {
-          playerId: eliminatedPlayer?.id ?? null,
-          nickname: eliminatedPlayer?.nickname ?? null,
-          votesReceived: eliminatedPlayer
-            ? finalEntries[eliminatedPlayer.id]
-            : 0,
-          alivePlayersCount,
-          finalEntries,
+        votingTie: {
+          ids: tiedIds,
+          attempts: (state.votingTie?.attempts ?? 0) + 1,
         },
       };
     }),

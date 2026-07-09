@@ -37,10 +37,16 @@ export const PlayerCard = ({
   const [openModal, setOpenModal] = useState(false);
   const phase = useGameStore((state: any) => state.phase);
   const players = useGameStore((state: any) => state.players);
+  const votingEntries = useGameStore((state: any) => state.votingEntries);
 
   const isPlayerRaisedForVoting = players.find(
     (player: any) => player.id === id && player.raisedForVoting,
   );
+  const playerRecord = players.find((player: any) => player.id === id);
+  const currentVotes =
+    phase === "voting"
+      ? (votingEntries?.[id] ?? playerRecord?.votesReceived)
+      : 0;
 
   const handleClickPlayerCard = () => {
     if (voteModeVoterId !== null && voteModeVoterId !== undefined) {
@@ -64,6 +70,11 @@ export const PlayerCard = ({
             {tableOrder} | {nickname}
           </OrderNicknameText>
           <RoleText>{role}</RoleText>
+          {currentVotes > 0 && (
+            <Typography sx={{ fontSize: "0.85rem", color: "#f8fafc", mt: 1 }}>
+              Votes: {currentVotes}
+            </Typography>
+          )}
         </Box>
         <img src={imageToDisplay[role.toLowerCase()]} width={85} height={85} />
         {isPlayerRaisedForVoting && (

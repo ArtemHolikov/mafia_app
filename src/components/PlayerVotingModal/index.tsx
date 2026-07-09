@@ -24,9 +24,27 @@ export const PlayerVotingModal = ({
 }: PlayerVotingModalProps) => {
   const [countOfVotes, setCountOfVotes] = useState(0);
 
+  const alivePlayersCount = useGameStore(
+    (state: any) =>
+      state.players.filter((player: any) => player.isAlive).length,
+  );
+  const votingEntries = useGameStore((state: any) => state.votingEntries);
+  const raisedForVotingPlayers = useGameStore(
+    (state: any) => state.raisedForVotingPlayers,
+  );
   const submitReceivedVotes = useGameStore(
     (state: any) => state.submitReceivedVotes,
   );
+
+  const currentEntry = votingEntries?.[id] ?? 0;
+  const otherEntriesSum = Object.entries(votingEntries ?? {}).reduce(
+    (sum: number, [entryId, value]: [string, unknown]) => {
+      const numericValue = typeof value === "number" ? value : Number(value);
+      return Number(entryId) === id ? sum : sum + numericValue;
+    },
+    0,
+  );
+  const remainingVotes = Math.max(0, alivePlayersCount - otherEntriesSum);
 
   const handleClose = () => {
     setOpen(false);
@@ -35,14 +53,18 @@ export const PlayerVotingModal = ({
   useEffect(() => {
     if (!open) {
       setCountOfVotes(0);
+      return;
     }
-  }, [open]);
+
+    setCountOfVotes(currentEntry);
+  }, [open, currentEntry]);
 
   const handleChangeCountOfVotes = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const value = Number(e.target.value);
-    setCountOfVotes(Number.isNaN(value) ? 0 : Math.max(0, value));
+    const normalizedValue = Number.isNaN(value) ? 0 : Math.max(0, value);
+    setCountOfVotes(Math.min(normalizedValue, remainingVotes));
   };
 
   const handleSubmitReceivedVotes = () => {
@@ -60,6 +82,11 @@ export const PlayerVotingModal = ({
           sx={{ color: "rgba(248,250,252,0.75)", textAlign: "center", mb: 2 }}
         >
           Enter how many votes this player received.
+        </Typography>
+        <Typography
+          sx={{ color: "rgba(248,250,252,0.7)", textAlign: "center", mb: 2 }}
+        >
+          Remaining votes available: {remainingVotes}
         </Typography>
         <Divider
           sx={{
@@ -84,7 +111,7 @@ export const PlayerVotingModal = ({
             type="number"
             slotProps={{
               input: {
-                inputProps: { min: 0 },
+                inputProps: { min: 0, max: remainingVotes },
                 sx: {
                   "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
                     {

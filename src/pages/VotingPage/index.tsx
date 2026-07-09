@@ -79,7 +79,9 @@ export const VotingPage = () => {
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
             {votingResult
-              ? `${votingResult.nickname} has been voted out with ${votingResult.votesReceived} vote(s).`
+              ? votingResult.eliminated
+                ? `${votingResult.nickname} has been voted out with ${votingResult.votesReceived} vote(s).`
+                : "No player was eliminated this round."
               : "Voting results are ready."}
           </DialogContentText>
           <DialogContentText sx={{ color: "rgba(248,250,252,0.75)" }}>
