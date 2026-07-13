@@ -198,31 +198,29 @@ export const useGameStore = create((set) => ({
       // tie detected
       const tiedIds = topPlayers.map((p: any) => p.id);
 
-      // if this is a revote attempt already (votingTie exists), then eliminate tied players
       if (
         state.votingTie &&
         Array.isArray(state.votingTie.ids) &&
         state.votingTie.attempts >= 1
       ) {
-        const updatedPlayers = state.players.map((player: any) =>
-          tiedIds.includes(player.id)
-            ? { ...player, isAlive: false, raisedForVoting: false }
-            : { ...player, raisedForVoting: false },
-        );
-
         return {
-          players: updatedPlayers,
+          players: state.players.map((player: any) => ({
+            ...player,
+            raisedForVoting: false,
+          })),
           raisedForVotingPlayers: [],
           votingEntries: null,
           votingTie: null,
           votingResult: {
-            eliminated: true,
+            type: "tieResolution",
+            eliminated: false,
             eliminatedIds: tiedIds,
             playerId: null,
             nickname: "",
             votesReceived: maxVotes,
             alivePlayersCount,
             finalEntries,
+            tiedIds,
           },
         };
       }
@@ -241,6 +239,54 @@ export const useGameStore = create((set) => ({
         votingTie: {
           ids: tiedIds,
           attempts: (state.votingTie?.attempts ?? 0) + 1,
+        },
+      };
+    }),
+
+  resolveTieResolution: (decision: "leave" | "kick") =>
+    set((state: any) => {
+      const result = state.votingResult;
+
+      if (result?.type !== "tieResolution" || !Array.isArray(result.tiedIds)) {
+        return {};
+      }
+
+      const tiedIds = result.tiedIds;
+      const updatedPlayers = state.players.map((player: any) => {
+        if (!tiedIds.includes(player.id)) {
+          return player;
+        }
+
+        if (decision === "kick") {
+          return {
+            ...player,
+            raisedForVoting: false,
+            isAlive: false,
+            isVoted: true,
+          };
+        }
+
+        return {
+          ...player,
+          raisedForVoting: false,
+          isVoted: false,
+        };
+      });
+
+      return {
+        players: updatedPlayers,
+        raisedForVotingPlayers: [],
+        votingEntries: null,
+        votingTie: null,
+        votingResult: {
+          ...result,
+          eliminated: decision === "kick",
+          eliminatedIds: decision === "kick" ? tiedIds : [],
+          playerId: null,
+          nickname: "",
+          alivePlayersCount: updatedPlayers.filter(
+            (player: any) => player.isAlive,
+          ).length,
         },
       };
     }),

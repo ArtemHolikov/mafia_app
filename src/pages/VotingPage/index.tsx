@@ -31,6 +31,9 @@ export const VotingPage = () => {
   const clearVotingResult = useGameStore(
     (state: any) => state.clearVotingResult,
   );
+  const resolveTieResolution = useGameStore(
+    (state: any) => state.resolveTieResolution,
+  );
   const setPhase = useGameStore((state: any) => state.setPhase);
 
   const round = useGameStore((state: any) => state.round);
@@ -40,6 +43,11 @@ export const VotingPage = () => {
     setPhase("night");
     clearVotingResult();
     navigate(`/night?round=${nextRound}`);
+  };
+
+  const handleTieResolution = (decision: "leave" | "kick") => {
+    resolveTieResolution(decision);
+    goToNight();
   };
 
   return (
@@ -75,25 +83,51 @@ export const VotingPage = () => {
       </GoToDayAcquaintanceButton>
 
       <Dialog open={Boolean(votingResult)} onClose={goToNight}>
-        <DialogTitle>Voting results</DialogTitle>
+        <DialogTitle>
+          {votingResult?.type === "tieResolution"
+            ? "Tie resolution"
+            : "Voting results"}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
-            {votingResult
-              ? votingResult.eliminated
-                ? `${votingResult.nickname} has been voted out with ${votingResult.votesReceived} vote(s).`
-                : "No player was eliminated this round."
-              : "Voting results are ready."}
+            {votingResult?.type === "tieResolution"
+              ? `Both ${votingResult.tiedIds?.map((id: number) => `#${id}`).join(" and ")} received the same number of votes. Decide whether to eliminate both players.`
+              : votingResult
+                ? votingResult.eliminated
+                  ? `${votingResult.nickname} has been voted out with ${votingResult.votesReceived} vote(s).`
+                  : "No player was eliminated this round."
+                : "Voting results are ready."}
           </DialogContentText>
           <DialogContentText sx={{ color: "rgba(248,250,252,0.75)" }}>
-            {votingResult
-              ? `Alive players remaining: ${votingResult.alivePlayersCount}`
-              : "Proceed to night after confirming the result."}
+            {votingResult?.type === "tieResolution"
+              ? "If most alive players vote to remove both tied players, they will be eliminated. Otherwise they stay alive and the game goes to night."
+              : votingResult
+                ? `Alive players remaining: ${votingResult.alivePlayersCount}`
+                : "Proceed to night after confirming the result."}
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={goToNight} variant="contained" sx={{ mr: 1 }}>
-            Confirm and go to night
-          </Button>
+        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
+          {votingResult?.type === "tieResolution" ? (
+            <>
+              <Button
+                onClick={() => handleTieResolution("leave")}
+                color="inherit"
+              >
+                Leave both
+              </Button>
+              <Button
+                onClick={() => handleTieResolution("kick")}
+                variant="contained"
+                color="error"
+              >
+                Kick both
+              </Button>
+            </>
+          ) : (
+            <Button onClick={goToNight} variant="contained" sx={{ mr: 1 }}>
+              Confirm and go to night
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
     </PageWrapper>
