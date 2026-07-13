@@ -122,6 +122,10 @@ export const useGameStore = create((set) => ({
           };
         });
 
+        const remainingPlayersCount = updatedPlayers.filter(
+          (player: any) => player.isAlive,
+        ).length;
+
         return {
           players: updatedPlayers,
           raisedForVotingPlayers: [],
@@ -135,7 +139,7 @@ export const useGameStore = create((set) => ({
             votesReceived: eliminatedPlayer
               ? finalEntries[eliminatedPlayer.id]
               : maxVotes,
-            alivePlayersCount,
+            alivePlayersCount: remainingPlayersCount,
             finalEntries,
           },
         };
