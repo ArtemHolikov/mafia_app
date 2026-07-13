@@ -3,6 +3,7 @@ import {
   ContentShell,
   GoToDayAcquaintanceButton,
   PageWrapper,
+  PlayerCardsWrapper,
   SectionTitle,
   TopBar,
 } from "../AcquaintancePage/index.styles";
@@ -10,6 +11,7 @@ import backgroundImage from "../../images/backgroundPhoto.png";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useGameStore } from "../../store/gameStore";
+import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
 
 export const NightPage = () => {
   const navigate = useNavigate();
@@ -17,6 +19,9 @@ export const NightPage = () => {
   const setPhase = useGameStore((state: any) => state.setPhase);
   const round = useGameStore((state: any) => state.round);
   const setRound = useGameStore((state: any) => state.setRound);
+  const players = useGameStore((state: any) => state.players);
+
+  const filteredPlayers = players.filter((player: any) => player.isAlive);
 
   const roundParam = Number(searchParams.get("round") ?? round) || 1;
 
@@ -48,6 +53,17 @@ export const NightPage = () => {
           </Typography>
         </TopBar>
       </ContentShell>
+
+      <PlayerCardsWrapper>
+        {filteredPlayers.map((player: any) => (
+          <PlayerCard
+            id={player.id}
+            nickname={player.nickname}
+            tableOrder={player.tableOrder}
+            role={player.role}
+          />
+        ))}
+      </PlayerCardsWrapper>
 
       <GoToDayAcquaintanceButton onClick={goToDay}>
         Proceed to day
