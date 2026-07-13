@@ -94,14 +94,9 @@ export const useGameStore = create((set) => ({
         entries: Record<number, number>,
         receiverId?: number,
       ) => {
-        const sum = Object.values(entries).reduce(
-          (s: number, v: number) => s + v,
-          0,
-        );
-        const unused = Math.max(0, alivePlayersCount - sum);
         const finalEntries: Record<number, number> = { ...entries };
         if (receiverId !== undefined) {
-          finalEntries[receiverId] = (finalEntries[receiverId] ?? 0) + unused;
+          finalEntries[receiverId] = finalEntries[receiverId] ?? 0;
         }
 
         const maxVotes = Math.max(...Object.values(finalEntries));
