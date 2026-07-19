@@ -21,6 +21,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
+import { FlickeringBox, MafiaFlickeringBox } from "./index.styles";
 
 export const DayPage = () => {
   const navigate = useNavigate();
@@ -40,6 +41,11 @@ export const DayPage = () => {
     [players],
   );
   const aliveCount = alivePlayers.length;
+  const mafiaRoles = new Set(["Don", "Mafia", "Thief"]);
+  const mafiaAliveCount = alivePlayers.filter((player: any) =>
+    mafiaRoles.has(player.role),
+  ).length;
+  const townAliveCount = aliveCount - mafiaAliveCount;
   const killedPlayers = useMemo(
     () =>
       players.filter(
@@ -96,37 +102,80 @@ export const DayPage = () => {
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 2,
                 px: 3,
                 borderRadius: 3,
                 border: "1px solid rgba(255,255,255,0.18)",
                 bgcolor: "rgba(255,255,255,0.04)",
-                minWidth: 120,
-                padding: "15px 40px",
-                alignItems: "center",
+                minWidth: 260,
+                padding: "15px 24px",
               }}
             >
-              <Typography
+              <Box
                 sx={{
-                  color: "rgba(248,250,252,0.72)",
-                  fontSize: "0.85rem",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 1,
                 }}
               >
-                Alive players
-              </Typography>
-              <Typography
+                <Typography
+                  sx={{
+                    color: "rgba(248,250,252,0.72)",
+                    fontSize: "0.85rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                  }}
+                >
+                  Town
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <FlickeringBox />
+                  <Typography
+                    sx={{
+                      color: "#fff",
+                      fontWeight: 700,
+                      fontSize: "1.35rem",
+                    }}
+                  >
+                    {townAliveCount}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box
                 sx={{
-                  color: "#fff",
-                  fontWeight: 700,
-                  fontSize: "1.35rem",
-                  mt: 0.5,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 1,
                 }}
               >
-                {aliveCount}
-              </Typography>
+                <Typography
+                  sx={{
+                    color: "rgba(248,250,252,0.72)",
+                    fontSize: "0.85rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                  }}
+                >
+                  Mafia
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <MafiaFlickeringBox />
+                  <Typography
+                    sx={{
+                      color: "#fff",
+                      fontWeight: 700,
+                      fontSize: "1.35rem",
+                    }}
+                  >
+                    {mafiaAliveCount}
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
           </Box>
         </TopBar>
