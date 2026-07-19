@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  IconButton,
   Typography,
 } from "@mui/material";
 import {
@@ -18,10 +19,13 @@ import {
 } from "../AcquaintancePage/index.styles";
 import backgroundImage from "../../images/backgroundPhoto.png";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
 import { FlickeringBox, MafiaFlickeringBox } from "./index.styles";
+
+import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 export const DayPage = () => {
   const navigate = useNavigate();
@@ -35,7 +39,23 @@ export const DayPage = () => {
   );
 
   const roundParam = Number(searchParams.get("round") ?? round) || 1;
+  const speechTimer = useGameStore((state: any) => state.speechTimer);
+  const dayTimerSecondsLeft = useGameStore(
+    (state: any) => state.dayTimerSecondsLeft,
+  );
+  const isDayTimerRunning = useGameStore(
+    (state: any) => state.isDayTimerRunning,
+  );
+  const setDayTimerSecondsLeft = useGameStore(
+    (state: any) => state.setDayTimerSecondsLeft,
+  );
+  const setDayTimerRunning = useGameStore(
+    (state: any) => state.setDayTimerRunning,
+  );
+  const resetDayTimer = useGameStore((state: any) => state.resetDayTimer);
   const [showKilledDialog, setShowKilledDialog] = useState(false);
+  const intervalRef = useRef<number | null>(null);
+  const dayTimerSecondsRef = useRef<number>(dayTimerSecondsLeft);
   const alivePlayers = useMemo(
     () => players.filter((player: any) => player.isAlive),
     [players],
@@ -60,10 +80,59 @@ export const DayPage = () => {
     }
     setPhase("day");
 
+    resetDayTimer();
+
     if (killedPlayers.length > 0) {
       setShowKilledDialog(true);
     }
-  }, [round, roundParam, setRound, setPhase, killedPlayers.length]);
+  }, [
+    round,
+    roundParam,
+    setRound,
+    setPhase,
+    killedPlayers.length,
+    resetDayTimer,
+  ]);
+
+  useEffect(() => {
+    dayTimerSecondsRef.current = dayTimerSecondsLeft;
+  }, [dayTimerSecondsLeft]);
+
+  useEffect(() => {
+    if (!isDayTimerRunning) {
+      return;
+    }
+
+    intervalRef.current = window.setInterval(() => {
+      const currentSeconds = Number.isFinite(dayTimerSecondsRef.current)
+        ? dayTimerSecondsRef.current
+        : speechTimer;
+      if (currentSeconds <= 1) {
+        window.clearInterval(intervalRef.current!);
+        intervalRef.current = null;
+        setDayTimerRunning(false);
+        setDayTimerSecondsLeft(0);
+        dayTimerSecondsRef.current = 0;
+        return;
+      }
+
+      const nextSeconds = currentSeconds - 1;
+      dayTimerSecondsRef.current = nextSeconds;
+      setDayTimerSecondsLeft(nextSeconds);
+    }, 1000);
+
+    return () => {
+      if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [
+    isDayTimerRunning,
+    setDayTimerSecondsLeft,
+    setDayTimerRunning,
+    speechTimer,
+  ]);
 
   const confirmKills = () => {
     if (killedPlayers.length > 0) {
@@ -77,6 +146,34 @@ export const DayPage = () => {
     setPhase("night");
     setRound(nextNightRound);
     navigate(`/night?round=${nextNightRound}`);
+  };
+
+  const handleTimerStart = () => setDayTimerRunning(true);
+  const handleTimerStop = () => setDayTimerRunning(false);
+  const handleTimerReset = () => resetDayTimer();
+
+  const sortedPlayers = useMemo(
+    () => [...players].sort((a: any, b: any) => a.tableOrder - b.tableOrder),
+    [players],
+  );
+
+  const openingSpeaker = useMemo(() => {
+    if (sortedPlayers.length === 0) return null;
+    const startIndex = (roundParam - 1) % sortedPlayers.length;
+    for (let i = 0; i < sortedPlayers.length; i += 1) {
+      const index = (startIndex + i) % sortedPlayers.length;
+      const player = sortedPlayers[index];
+      if (player.isAlive) {
+        return player;
+      }
+    }
+    return null;
+  }, [sortedPlayers, roundParam]);
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remaining = seconds % 60;
+    return `${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`;
   };
 
   return (
@@ -98,6 +195,75 @@ export const DayPage = () => {
                 Day actions for round {roundParam}. Proceed to the next night
                 when ready.
               </Typography>
+              <Typography
+                sx={{ color: "rgba(248,250,252,0.72)", marginTop: 1 }}
+              >
+                Opening speaker:{" "}
+                {openingSpeaker?.nickname ?? "No alive starter"}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 2,
+                px: 3,
+                py: 1.5,
+                borderRadius: 3,
+                border: "1px solid rgba(255,255,255,0.18)",
+                bgcolor: "rgba(255,255,255,0.04)",
+                minWidth: 260,
+                width: 260,
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "rgba(248,250,252,0.72)",
+                  fontSize: "0.75rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  textAlign: "center",
+                }}
+              >
+                Speaker time
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  width: "100%",
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: "#fff",
+                    fontWeight: 700,
+                    fontSize: "1.35rem",
+                    textAlign: "center",
+                  }}
+                >
+                  {formatTime(
+                    Number.isFinite(dayTimerSecondsLeft)
+                      ? dayTimerSecondsLeft
+                      : speechTimer,
+                  )}
+                </Typography>
+                <Box>
+                  <IconButton
+                    onClick={
+                      isDayTimerRunning ? handleTimerStop : handleTimerStart
+                    }
+                  >
+                    <PlayCircleFilledIcon />
+                  </IconButton>
+                  <IconButton onClick={handleTimerReset}>
+                    <RestartAltIcon />
+                  </IconButton>
+                </Box>
+              </Box>
             </Box>
             <Box
               sx={{

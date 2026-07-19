@@ -20,6 +20,8 @@ export const useGameStore = create((set) => ({
   votingResult: null,
   playersCount: 0, // Total number of players
   speechTimer: 60, // Timer for speech phase
+  dayTimerSecondsLeft: 60,
+  isDayTimerRunning: false,
   round: 1, // Current round number
   lastDoctorHealedPlayerId: null,
   lastDoctorHealRound: 0,
@@ -49,6 +51,20 @@ export const useGameStore = create((set) => ({
   setPhase: (phaseName: phaseNames) => set({ phase: phaseName }),
 
   setRound: (roundNumber: number) => set({ round: roundNumber }),
+
+  setSpeechTimer: (seconds: number) =>
+    set({ speechTimer: Math.max(10, seconds) }),
+
+  setDayTimerSecondsLeft: (seconds: number) =>
+    set({ dayTimerSecondsLeft: Math.max(0, seconds) }),
+
+  setDayTimerRunning: (running: boolean) => set({ isDayTimerRunning: running }),
+
+  resetDayTimer: () =>
+    set((state: any) => ({
+      dayTimerSecondsLeft: state.speechTimer,
+      isDayTimerRunning: false,
+    })),
 
   setPlayers: (playersArray: any[]) =>
     set({

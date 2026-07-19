@@ -60,6 +60,8 @@ export const StartGameDialog = ({
   const updateSelectedRoleCount = useGameStore(
     (state: any) => state.updateSelectedRoleCount,
   );
+  const speechTimer = useGameStore((state: any) => state.speechTimer);
+  const setSpeechTimer = useGameStore((state: any) => state.setSpeechTimer);
   const setPlayerImmunity = useGameStore(
     (state: any) => state.setPlayerImmunity,
   );
@@ -98,6 +100,10 @@ export const StartGameDialog = ({
 
   const handleRoleToggle = (role: string, enabled: boolean) => {
     updateSelectedRoleCount(role, enabled ? 1 : 0);
+  };
+
+  const handleSpeechTimerChange = (value: number) => {
+    setSpeechTimer(Math.max(10, value));
   };
 
   const handleSaveImmunity = () => {
@@ -158,6 +164,25 @@ export const StartGameDialog = ({
             >
               <SettingsLobbyTitle>Players</SettingsLobbyTitle>
               <TotalCountChip>{players.length} total</TotalCountChip>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
+              <TextField
+                type="number"
+                label="Speaker time"
+                size="small"
+                value={speechTimer}
+                onChange={(event) =>
+                  handleSpeechTimerChange(Number(event.target.value))
+                }
+                sx={{
+                  width: 160,
+                  background: "rgba(255,255,255,0.06)",
+                  borderRadius: 2,
+                }}
+              />
+              <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
+                seconds
+              </Typography>
             </Box>
             <NameTextField />
             <PlayersList>
