@@ -51,3 +51,15 @@ export const RaisedForVotingBox = styled(Box)({
   opacity: 0.82,
   zIndex: 0,
 });
+
+export const MarkIconBox = styled(Box)({
+  position: "absolute",
+  inset: 0,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "rgba(231, 80, 80, 0.66)",
+  borderRadius: 22,
+  opacity: 0.82,
+  zIndex: 0,
+});

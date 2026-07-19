@@ -5,6 +5,7 @@ import {
   OrderNicknameText,
   RaisedForVotingBox,
   RoleText,
+  MarkIconBox,
 } from "./index.styles";
 import { imageToDisplay } from "../../../../constants";
 import { useState } from "react";
@@ -13,6 +14,9 @@ import { useGameStore } from "../../../../store/gameStore";
 import { PlayerActionsModal } from "../../../../components/PlayerActionsModal";
 
 import RaisedForVoting from "../../../../images/raisedForVoting.png";
+import MafiaMark from "../../../../images/mafia_mark.png";
+import ManiacMark from "../../../../images/maniac_mark.png";
+import ThiefMark from "../../../../images/thief_mark.png";
 import { PlayerVotingModal } from "../../../../components/PlayerVotingModal";
 
 interface PlayerCardProps {
@@ -23,6 +27,8 @@ interface PlayerCardProps {
   voteModeVoterId?: number | null;
   onStartVoteMode?: (voterId: number | null) => void;
   onVoteTargetSelect?: (targetId: number) => void;
+  nightAction?: "mafia" | "maniac" | "doctor" | "thief" | null;
+  onNightTargetSelect?: (targetId: number) => void;
 }
 
 export const PlayerCard = ({
@@ -33,6 +39,8 @@ export const PlayerCard = ({
   onVoteTargetSelect,
   onStartVoteMode,
   voteModeVoterId,
+  nightAction,
+  onNightTargetSelect,
 }: PlayerCardProps) => {
   const [openModal, setOpenModal] = useState(false);
   const phase = useGameStore((state: any) => state.phase);
@@ -51,6 +59,11 @@ export const PlayerCard = ({
   const handleClickPlayerCard = () => {
     if (voteModeVoterId !== null && voteModeVoterId !== undefined) {
       onVoteTargetSelect?.(id);
+      return;
+    }
+
+    if (nightAction) {
+      onNightTargetSelect?.(id);
       return;
     }
 
@@ -77,6 +90,21 @@ export const PlayerCard = ({
           )}
         </Box>
         <img src={imageToDisplay[role.toLowerCase()]} width={85} height={85} />
+        {playerRecord?.pendingMafiaKill && (
+          <MarkIconBox>
+            <img src={MafiaMark} width={200} height={150} />
+          </MarkIconBox>
+        )}
+        {playerRecord?.pendingManiacKill && (
+          <MarkIconBox>
+            <img src={ManiacMark} width={200} height={150} />
+          </MarkIconBox>
+        )}
+        {playerRecord?.pendingThiefBlock && (
+          <MarkIconBox>
+            <img src={ThiefMark} width={200} height={150} />
+          </MarkIconBox>
+        )}
         {isPlayerRaisedForVoting && (
           <RaisedForVotingBox>
             <img src={RaisedForVoting} width={200} height={150} />

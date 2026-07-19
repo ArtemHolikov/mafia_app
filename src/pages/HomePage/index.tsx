@@ -19,7 +19,7 @@ export const HomePage = () => {
     <AppWrapper bgimage={backgroundImage}>
       <HeroCard>
         <Typography variant="overline" sx={{ letterSpacing: 3, opacity: 0.8 }}>
-          Mafia Night Manager
+          Mafia Manager
         </Typography>
         <HeroTitle>Run your game with confidence.</HeroTitle>
         <HeroSubtitle>

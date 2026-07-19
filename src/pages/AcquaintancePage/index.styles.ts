@@ -62,4 +62,32 @@ export const GoToDayAcquaintanceButton = styled(Button)({
   color: "#fff",
   borderRadius: 999,
   boxShadow: "0 12px 30px rgba(76, 29, 149, 0.35)",
+  zIndex: 20,
+});
+
+export const NightActionsWrapper = styled(Box)({
+  position: "fixed",
+  bottom: 20,
+  left: 0,
+  right: 0,
+  display: "flex",
+  justifyContent: "center",
+  gap: 12,
+  padding: "0 24px",
+  zIndex: 10,
+});
+
+export const NightActionButton = styled(Button)({
+  padding: "12px 18px",
+  minWidth: 160,
+  borderRadius: 999,
+  background: "rgba(59, 130, 246, 0.92)",
+  color: "#fff",
+  textTransform: "none",
+  fontWeight: 600,
+  boxShadow: "0 10px 24px rgba(59, 130, 246, 0.2)",
+  "&:disabled": {
+    background: "rgba(148, 163, 184, 0.6)",
+    color: "rgba(255,255,255,0.8)",
+  },
 });

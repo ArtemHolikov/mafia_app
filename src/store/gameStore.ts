@@ -21,6 +21,8 @@ export const useGameStore = create((set) => ({
   playersCount: 0, // Total number of players
   speechTimer: 60, // Timer for speech phase
   round: 1, // Current round number
+  lastDoctorHealedPlayerId: null,
+  lastDoctorHealRound: 0,
 
   // ACTIONS
 
@@ -28,7 +30,15 @@ export const useGameStore = create((set) => ({
 
   setRound: (roundNumber: number) => set({ round: roundNumber }),
 
-  setPlayers: (playersArray: any[]) => set({ players: playersArray }),
+  setPlayers: (playersArray: any[]) =>
+    set({
+      players: playersArray.map((player: any) => ({
+        ...player,
+        pendingMafiaKill: player.pendingMafiaKill ?? false,
+        pendingManiacKill: player.pendingManiacKill ?? false,
+        pendingThiefBlock: player.pendingThiefBlock ?? false,
+      })),
+    }),
 
   addPlayer: (nickname: string, tableOrder: number) =>
     set((state: any) => ({
@@ -44,6 +54,9 @@ export const useGameStore = create((set) => ({
           isVoted: false,
           votesReceived: 0,
           raisedForVoting: false,
+          pendingMafiaKill: false,
+          pendingManiacKill: false,
+          pendingThiefBlock: false,
         },
       ],
     })),
@@ -302,6 +315,92 @@ export const useGameStore = create((set) => ({
       players: state.players.map((player: any) =>
         player.id === playerId ? { ...player, isAlive: false } : player,
       ),
+    })),
+
+  setMafiaNightTarget: (playerId: number) =>
+    set((state: any) => ({
+      players: state.players.map((player: any) => ({
+        ...player,
+        pendingMafiaKill: player.id === playerId,
+      })),
+    })),
+
+  setManiacNightTarget: (playerId: number) =>
+    set((state: any) => ({
+      players: state.players.map((player: any) => ({
+        ...player,
+        pendingManiacKill: player.id === playerId,
+      })),
+    })),
+
+  setThiefNightTarget: (playerId: number) =>
+    set((state: any) => ({
+      players: state.players.map((player: any) => ({
+        ...player,
+        pendingThiefBlock: player.id === playerId,
+      })),
+    })),
+
+  doctorHealTarget: (playerId: number, currentRound: number) =>
+    set((state: any) => {
+      const samePlayerBlocked =
+        state.lastDoctorHealedPlayerId === playerId &&
+        state.lastDoctorHealRound === currentRound - 1;
+
+      const updatedPlayers = state.players.map((player: any) => {
+        if (player.id !== playerId) {
+          return player;
+        }
+
+        if (samePlayerBlocked) {
+          return player;
+        }
+
+        const hasMafiaKill = Boolean(player.pendingMafiaKill);
+        const hasManiacKill = Boolean(player.pendingManiacKill);
+        const killCount = Number(hasMafiaKill) + Number(hasManiacKill);
+
+        if (killCount === 1) {
+          return {
+            ...player,
+            pendingMafiaKill: false,
+            pendingManiacKill: false,
+          };
+        }
+
+        return player;
+      });
+
+      return {
+        players: updatedPlayers,
+        lastDoctorHealedPlayerId: playerId,
+        lastDoctorHealRound: currentRound,
+      };
+    }),
+
+  commitNightDeaths: () =>
+    set((state: any) => ({
+      players: state.players.map((player: any) => ({
+        ...player,
+        isAlive:
+          player.isAlive &&
+          Boolean(player.pendingMafiaKill || player.pendingManiacKill)
+            ? false
+            : player.isAlive,
+        pendingMafiaKill: false,
+        pendingManiacKill: false,
+        pendingThiefBlock: false,
+      })),
+    })),
+
+  clearNightMarks: () =>
+    set((state: any) => ({
+      players: state.players.map((player: any) => ({
+        ...player,
+        pendingMafiaKill: false,
+        pendingManiacKill: false,
+        pendingThiefBlock: false,
+      })),
     })),
 
   raisedForVoting: (votedId: number) => {

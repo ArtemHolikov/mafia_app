@@ -5,6 +5,7 @@ import Citizen from "./images/mirniy.png";
 import Doctor from "./images/doctor.png";
 import Sherif from "./images/sherif.png";
 import Journalist from "./images/journalist.png";
+import Thief from "./images/zlodiy.png";
 
 export const imageToDisplay: any = {
   don: Don,
@@ -14,6 +15,7 @@ export const imageToDisplay: any = {
   doctor: Doctor,
   sheriff: Sherif,
   journalist: Journalist,
+  thief: Thief,
 };
 
 export const MafiaRoles = {
@@ -24,4 +26,5 @@ export const MafiaRoles = {
   Doctor: "doctor",
   Sheriff: "sheriff",
   Journalist: "journalist",
+  Thief: "thief",
 };
