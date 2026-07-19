@@ -37,6 +37,7 @@ export const NightPage = () => {
   );
 
   const alivePlayers = players.filter((player: any) => player.isAlive);
+  const aliveCount = alivePlayers.length;
   const roundParam = Number(searchParams.get("round") ?? round) || 1;
   const [activeAction, setActiveAction] = useState<
     "mafia" | "maniac" | "doctor" | "thief" | null
@@ -111,15 +112,57 @@ export const NightPage = () => {
     <PageWrapper bgimage={backgroundImage}>
       <ContentShell>
         <TopBar>
-          <Box>
-            <SectionTitle>{`Night — round ${roundParam}`}</SectionTitle>
-            <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
-              {activeButtonText}. Proceed to the next day when ready.
-            </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 3,
+              width: "100%",
+            }}
+          >
+            <Box>
+              <SectionTitle>{`Night — round ${roundParam}`}</SectionTitle>
+              <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
+                {activeButtonText}. Proceed to the next day when ready.
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                px: 3,
+                borderRadius: 3,
+                border: "1px solid rgba(255,255,255,0.18)",
+                bgcolor: "rgba(255,255,255,0.04)",
+                minWidth: 120,
+                padding: "15px 40px",
+                alignItems: "center",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "rgba(248,250,252,0.72)",
+                  fontSize: "0.85rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                Alive players
+              </Typography>
+              <Typography
+                sx={{
+                  color: "#fff",
+                  fontWeight: 700,
+                  fontSize: "1.35rem",
+                  mt: 0.5,
+                }}
+              >
+                {aliveCount}
+              </Typography>
+            </Box>
           </Box>
-          <Typography sx={{ color: "rgba(248,250,252,0.8)" }}>
-            Round {roundParam}
-          </Typography>
         </TopBar>
       </ContentShell>
 

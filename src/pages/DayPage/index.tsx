@@ -39,6 +39,7 @@ export const DayPage = () => {
     () => players.filter((player: any) => player.isAlive),
     [players],
   );
+  const aliveCount = alivePlayers.length;
   const killedPlayers = useMemo(
     () =>
       players.filter(
@@ -76,16 +77,58 @@ export const DayPage = () => {
     <PageWrapper bgimage={backgroundImage}>
       <ContentShell>
         <TopBar>
-          <Box>
-            <SectionTitle>{`Day — round ${roundParam}`}</SectionTitle>
-            <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
-              Day actions for round {roundParam}. Proceed to the next night when
-              ready.
-            </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 3,
+              width: "100%",
+            }}
+          >
+            <Box>
+              <SectionTitle>{`Day — round ${roundParam}`}</SectionTitle>
+              <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
+                Day actions for round {roundParam}. Proceed to the next night
+                when ready.
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                px: 3,
+                borderRadius: 3,
+                border: "1px solid rgba(255,255,255,0.18)",
+                bgcolor: "rgba(255,255,255,0.04)",
+                minWidth: 120,
+                padding: "15px 40px",
+                alignItems: "center",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "rgba(248,250,252,0.72)",
+                  fontSize: "0.85rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                }}
+              >
+                Alive players
+              </Typography>
+              <Typography
+                sx={{
+                  color: "#fff",
+                  fontWeight: 700,
+                  fontSize: "1.35rem",
+                  mt: 0.5,
+                }}
+              >
+                {aliveCount}
+              </Typography>
+            </Box>
           </Box>
-          <Typography sx={{ color: "rgba(248,250,252,0.8)" }}>
-            Round {roundParam}
-          </Typography>
         </TopBar>
       </ContentShell>
 
