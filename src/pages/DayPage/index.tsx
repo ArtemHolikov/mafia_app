@@ -161,6 +161,37 @@ export const DayPage = () => {
                     letterSpacing: "0.08em",
                   }}
                 >
+                  Total
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Typography
+                    sx={{
+                      color: "#fff",
+                      fontWeight: 700,
+                      fontSize: "1.35rem",
+                    }}
+                  >
+                    {aliveCount}
+                  </Typography>
+                </Box>
+              </Box>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: "rgba(248,250,252,0.72)",
+                    fontSize: "0.85rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                  }}
+                >
                   Mafia
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
