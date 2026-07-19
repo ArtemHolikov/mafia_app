@@ -23,6 +23,26 @@ export const useGameStore = create((set) => ({
   round: 1, // Current round number
   lastDoctorHealedPlayerId: null,
   lastDoctorHealRound: 0,
+  selectedGameRoles: {
+    Don: 1,
+    Mafia: 1,
+    Sheriff: 1,
+    Doctor: 1,
+    Journalist: 1,
+    Thief: 1,
+    Maniac: 1,
+    Citizen: 1,
+  },
+  roleLimits: {
+    Don: { min: 1, max: 1 },
+    Mafia: { min: 1, max: 4 },
+    Sheriff: { min: 1, max: 1 },
+    Doctor: { min: 1, max: 1 },
+    Journalist: { min: 1, max: 1 },
+    Thief: { min: 1, max: 1 },
+    Maniac: { min: 1, max: 1 },
+    Citizen: { min: 1, max: 15 },
+  },
 
   // ACTIONS
 
@@ -317,11 +337,29 @@ export const useGameStore = create((set) => ({
       ),
     })),
 
+  updateSelectedRoleCount: (role: string, count: number) =>
+    set((state: any) => ({
+      selectedGameRoles: {
+        ...state.selectedGameRoles,
+        [role]: Math.max(0, count),
+      },
+    })),
+
+  setPlayerImmunity: (playerId: number, nights: number) =>
+    set((state: any) => ({
+      players: state.players.map((player: any) =>
+        player.id === playerId
+          ? { ...player, immunityNights: Math.max(0, nights) }
+          : player,
+      ),
+    })),
+
   setMafiaNightTarget: (playerId: number) =>
     set((state: any) => ({
       players: state.players.map((player: any) => ({
         ...player,
-        pendingMafiaKill: player.id === playerId,
+        pendingMafiaKill:
+          player.id === playerId && (player.immunityNights ?? 0) <= 0,
       })),
     })),
 
@@ -329,7 +367,8 @@ export const useGameStore = create((set) => ({
     set((state: any) => ({
       players: state.players.map((player: any) => ({
         ...player,
-        pendingManiacKill: player.id === playerId,
+        pendingManiacKill:
+          player.id === playerId && (player.immunityNights ?? 0) <= 0,
       })),
     })),
 
@@ -380,17 +419,22 @@ export const useGameStore = create((set) => ({
 
   commitNightDeaths: () =>
     set((state: any) => ({
-      players: state.players.map((player: any) => ({
-        ...player,
-        isAlive:
-          player.isAlive &&
-          Boolean(player.pendingMafiaKill || player.pendingManiacKill)
-            ? false
-            : player.isAlive,
-        pendingMafiaKill: false,
-        pendingManiacKill: false,
-        pendingThiefBlock: false,
-      })),
+      players: state.players.map((player: any) => {
+        const hasMafiaKill = Boolean(player.pendingMafiaKill);
+        const hasManiacKill = Boolean(player.pendingManiacKill);
+        const killCount = Number(hasMafiaKill) + Number(hasManiacKill);
+        const isImmune = (player.immunityNights ?? 0) > 0;
+        const shouldDie = killCount > 0 && !isImmune;
+
+        return {
+          ...player,
+          isAlive: player.isAlive ? !shouldDie : player.isAlive,
+          pendingMafiaKill: false,
+          pendingManiacKill: false,
+          pendingThiefBlock: false,
+          immunityNights: Math.max(0, (player.immunityNights ?? 0) - 1),
+        };
+      }),
     })),
 
   clearNightMarks: () =>

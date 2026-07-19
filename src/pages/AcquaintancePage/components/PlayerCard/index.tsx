@@ -17,6 +17,7 @@ import RaisedForVoting from "../../../../images/raisedForVoting.png";
 import MafiaMark from "../../../../images/mafia_mark.png";
 import ManiacMark from "../../../../images/maniac_mark.png";
 import ThiefMark from "../../../../images/thief_mark.png";
+import DoubleKill from "../../../../images/double_kill.png";
 import { PlayerVotingModal } from "../../../../components/PlayerVotingModal";
 
 interface PlayerCardProps {
@@ -51,6 +52,11 @@ export const PlayerCard = ({
     (player: any) => player.id === id && player.raisedForVoting,
   );
   const playerRecord = players.find((player: any) => player.id === id);
+  const isImmune = Boolean(
+    playerRecord?.immunityNights && playerRecord.immunityNights > 0,
+  );
+  const isDisabledByImmunity =
+    nightAction === "mafia" || nightAction === "maniac" ? isImmune : false;
   const currentVotes =
     phase === "voting"
       ? (votingEntries?.[id] ?? playerRecord?.votesReceived)
@@ -63,6 +69,9 @@ export const PlayerCard = ({
     }
 
     if (nightAction) {
+      if (isDisabledByImmunity) {
+        return;
+      }
       onNightTargetSelect?.(id);
       return;
     }
@@ -76,6 +85,7 @@ export const PlayerCard = ({
         onClick={handleClickPlayerCard}
         sx={{
           background: isPlayerRaisedForVoting ? "#beb243" : "",
+          opacity: isDisabledByImmunity ? 0.55 : 1,
         }}
       >
         <Box>
@@ -90,15 +100,23 @@ export const PlayerCard = ({
           )}
         </Box>
         <img src={imageToDisplay[role.toLowerCase()]} width={85} height={85} />
-        {playerRecord?.pendingMafiaKill && (
+        {playerRecord?.pendingMafiaKill && playerRecord?.pendingManiacKill ? (
           <MarkIconBox>
-            <img src={MafiaMark} width={200} height={150} />
+            <img src={DoubleKill} width={200} height={150} />
           </MarkIconBox>
-        )}
-        {playerRecord?.pendingManiacKill && (
-          <MarkIconBox>
-            <img src={ManiacMark} width={200} height={150} />
-          </MarkIconBox>
+        ) : (
+          <>
+            {playerRecord?.pendingMafiaKill && (
+              <MarkIconBox>
+                <img src={MafiaMark} width={200} height={150} />
+              </MarkIconBox>
+            )}
+            {playerRecord?.pendingManiacKill && (
+              <MarkIconBox>
+                <img src={ManiacMark} width={200} height={150} />
+              </MarkIconBox>
+            )}
+          </>
         )}
         {playerRecord?.pendingThiefBlock && (
           <MarkIconBox>

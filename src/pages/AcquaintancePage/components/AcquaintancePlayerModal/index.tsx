@@ -10,7 +10,7 @@ import {
   SettingPlayerInfoTitle,
 } from "./index.styles";
 import { imageToDisplay, MafiaRoles } from "../../../../constants";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGameStore } from "../../../../store/gameStore";
 
 interface AcquaintancePlayerModalProps {
@@ -29,13 +29,20 @@ export const AcquaintancePlayerModal = ({
   setOpen,
 }: AcquaintancePlayerModalProps) => {
   const changeRole = useGameStore((state: any) => state.changeRole);
+  const selectedGameRoles = useGameStore(
+    (state: any) => state.selectedGameRoles,
+  );
+  const players = useGameStore((state: any) => state.players);
 
   const roleValue = Object.entries(MafiaRoles)
-    .flatMap((role) => ({
-      label: role[0],
-      value: role[1],
+    .flatMap((entry) => ({
+      label: entry[0],
+      value: entry[1],
     }))
-    .filter((r) => r.label === role)?.[0];
+    .find((r) => r.label === role) ?? {
+    label: role,
+    value: MafiaRoles.Citizen,
+  };
 
   const [selectedRoleValue, setSelectedRoleValue] = useState<string>(
     roleValue.value,
@@ -51,10 +58,28 @@ export const AcquaintancePlayerModal = ({
     setOpen(false);
   };
 
-  const rolesArray = Object.entries(MafiaRoles).map((role, _) => ({
-    label: role[0],
-    value: role[1],
-  }));
+  const assignedRoleCounts = useMemo(
+    () =>
+      players.reduce((acc: Record<string, number>, player: any) => {
+        const label = player.role;
+        acc[label] = (acc[label] ?? 0) + 1;
+        return acc;
+      }, {}),
+    [players],
+  );
+
+  const rolesArray = Object.entries(MafiaRoles)
+    .map((entry) => ({
+      label: entry[0],
+      value: entry[1],
+    }))
+    .filter((option) => {
+      const availableCount =
+        selectedGameRoles[option.label as keyof typeof selectedGameRoles] ?? 0;
+      const assignedCount = assignedRoleCounts[option.label] ?? 0;
+      const isCurrent = option.label === role;
+      return isCurrent || availableCount > assignedCount;
+    });
 
   const handleChangeRole = (value: string, label: string) => {
     setSelectedRoleValue(value);

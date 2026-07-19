@@ -34,6 +34,8 @@ export const PlayersList = styled(MenuList)({
   padding: 0,
   display: "flex",
   flexDirection: "column",
+  scrollbarColor: "grey transparent",
+  scrollbarWidth: "thin",
   gap: 8,
 });
 
@@ -67,3 +69,80 @@ export const GoToAcquaintancePhase = styled(Button)({
   marginTop: 18,
   padding: "12px 16px",
 });
+
+export const TabPanelBox = styled(Box)(({ theme }) => ({
+  marginTop: 16,
+  display: "flex",
+  flexDirection: "column",
+  gap: 16,
+}));
+
+export const TotalCountChip = styled(Box)(({ theme }) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "rgba(139, 92, 246, 0.18)",
+  color: "#e9d5ff",
+  border: "1px solid rgba(167, 139, 250, 0.25)",
+  borderRadius: 999,
+  padding: "8px 14px",
+  fontWeight: 700,
+  fontSize: "0.95rem",
+}));
+
+export const RoleRow = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 12,
+  padding: "14px 0",
+  borderBottom: "1px solid rgba(255,255,255,0.08)",
+}));
+
+export const RoleInfo = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+}));
+
+export const RoleCountField = styled(Box)(({ theme }) => ({
+  minWidth: 110,
+  display: "flex",
+  alignItems: "center",
+  gap: 8,
+}));
+
+export const RoleToggleField = styled(Box)(({ theme }) => ({
+  minWidth: 140,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-end",
+}));
+
+export const ImmunityButton = styled(Button)(({ theme }) => ({
+  width: "100%",
+  borderRadius: 14,
+  padding: "14px 0",
+  background: "rgba(255,255,255,0.08)",
+  color: "#fff",
+  fontWeight: 700,
+  border: "1px dashed rgba(255,255,255,0.14)",
+  textTransform: "none",
+}));
+
+export const ImmunityList = styled(Box)(({ theme }) => ({
+  display: "grid",
+  gap: 10,
+  marginTop: 8,
+}));
+
+export const ImmunityItem = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 12,
+  padding: "12px 14px",
+  borderRadius: 14,
+  background: "rgba(255,255,255,0.05)",
+  border: "1px solid rgba(255,255,255,0.08)",
+}));
