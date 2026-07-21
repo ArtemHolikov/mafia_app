@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.js": "/static/js/main.d356d003.js",
+    "static/media/don_logo.png": "/static/media/don_logo.4b3f4dec0e85b17ec4de.png",
+    "static/media/doctor.png": "/static/media/doctor.a158bd46052a8570abb4.png",
+    "static/media/mafia.png": "/static/media/mafia.96dd78b76b7ff5aedc08.png",
+    "static/media/journalist.png": "/static/media/journalist.147651a48a3bd3cfce5d.png",
+    "static/media/maniac.png": "/static/media/maniac.6cf23380094add7b37af.png",
+    "static/media/sherif.png": "/static/media/sherif.0fd40a67d6ee1efc659f.png",
+    "static/media/zlodiy.png": "/static/media/zlodiy.a45ae29db4f7c8c82722.png",
+    "static/media/maniac_mark.png": "/static/media/maniac_mark.25769d556446c0e0ddd5.png",
+    "static/media/mirniy.png": "/static/media/mirniy.ae6833628d1c7362138f.png",
+    "static/media/mafia_mark.png": "/static/media/mafia_mark.77e45446c6d37a0b8421.png",
+    "static/media/double_kill.png": "/static/media/double_kill.6e7a80274cb3a22c8c88.png",
+    "static/media/thief_mark.png": "/static/media/thief_mark.a144d2158bb6374ff033.png",
+    "static/media/raisedForVoting.png": "/static/media/raisedForVoting.751e7bf9e90dfda118e4.png",
+    "static/media/backgroundPhoto.png": "/static/media/backgroundPhoto.08f3eb7d241732ae37d7.png",
+    "static/media/voting.png": "/static/media/voting.6f7ef32c36484ca5f998.png",
+    "static/media/foul.png": "/static/media/foul.5684a5527267bc11f1ce.png",
+    "index.html": "/index.html",
+    "main.d356d003.js.map": "/static/js/main.d356d003.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.d356d003.js"
+  ]
+}
