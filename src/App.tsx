@@ -11,7 +11,7 @@ function App() {
   return (
     <ThemeProvider theme={appTheme}>
       <CssBaseline />
-      <BrowserRouter>
+      <BrowserRouter basename="/mafia_app">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/acquaintance" element={<AcquaintancePage />} />
