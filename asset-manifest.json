@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.js": "/mafia_app/static/js/main.3616359a.js",
+    "main.js": "/mafia_app/static/js/main.7859288b.js",
     "static/media/don_logo.png": "/mafia_app/static/media/don_logo.4b3f4dec0e85b17ec4de.png",
     "static/media/doctor.png": "/mafia_app/static/media/doctor.a158bd46052a8570abb4.png",
     "static/media/mafia.png": "/mafia_app/static/media/mafia.96dd78b76b7ff5aedc08.png",
@@ -18,9 +18,9 @@
     "static/media/voting.png": "/mafia_app/static/media/voting.6f7ef32c36484ca5f998.png",
     "static/media/foul.png": "/mafia_app/static/media/foul.5684a5527267bc11f1ce.png",
     "index.html": "/mafia_app/index.html",
-    "main.3616359a.js.map": "/mafia_app/static/js/main.3616359a.js.map"
+    "main.7859288b.js.map": "/mafia_app/static/js/main.7859288b.js.map"
   },
   "entrypoints": [
-    "static/js/main.3616359a.js"
+    "static/js/main.7859288b.js"
   ]
 }
