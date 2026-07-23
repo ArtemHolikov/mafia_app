@@ -140,7 +140,7 @@ export const PlayerCard = ({
         />
       )}
 
-      {phase === "day acquaintance" && openModal && (
+      {(phase === "day acquaintance" || phase === "day") && openModal && (
         <PlayerActionsModal
           open={openModal}
           setOpen={setOpenModal}

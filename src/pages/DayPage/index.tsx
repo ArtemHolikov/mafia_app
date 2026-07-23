@@ -54,6 +54,7 @@ export const DayPage = () => {
   );
   const resetDayTimer = useGameStore((state: any) => state.resetDayTimer);
   const [showKilledDialog, setShowKilledDialog] = useState(false);
+  const [voteModeVoterId, setVoteModeVoterId] = useState<number | null>(null);
   const intervalRef = useRef<number | null>(null);
   const dayTimerSecondsRef = useRef<number>(dayTimerSecondsLeft);
   const alivePlayers = useMemo(
@@ -141,7 +142,25 @@ export const DayPage = () => {
     setShowKilledDialog(false);
   };
 
+  const raisedForVoting = useGameStore((state: any) => state.raisedForVoting);
+  const raisedForVotingPlayers = useGameStore(
+    (state: any) => state.raisedForVotingPlayers,
+  );
+
+  const handleVoteTargetSelect = (targetId: number) => {
+    if (voteModeVoterId === null) return;
+    raisedForVoting(targetId);
+    setVoteModeVoterId(null);
+  };
+
   const goToNight = () => {
+    // If there are players raised for voting, move to voting stage instead
+    if (raisedForVotingPlayers.length > 0) {
+      setPhase("voting");
+      navigate("/voting");
+      return;
+    }
+
     const nextNightRound = roundParam + 1;
     setPhase("night");
     setRound(nextNightRound);
@@ -386,12 +405,17 @@ export const DayPage = () => {
             nickname={player.nickname}
             tableOrder={player.tableOrder}
             role={player.role}
+            voteModeVoterId={voteModeVoterId}
+            onStartVoteMode={setVoteModeVoterId}
+            onVoteTargetSelect={handleVoteTargetSelect}
           />
         ))}
       </PlayerCardsWrapper>
 
       <GoToDayAcquaintanceButton onClick={goToNight}>
-        Proceed to night
+        {raisedForVotingPlayers.length > 0
+          ? `Voting Phase (${raisedForVotingPlayers.length})`
+          : "Proceed to night"}
       </GoToDayAcquaintanceButton>
 
       <Dialog open={showKilledDialog} onClose={confirmKills}>
