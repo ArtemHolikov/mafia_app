@@ -38,6 +38,7 @@ import { useGameStore } from "../../store/gameStore";
 import { NameTextField } from "./components/NameTextField";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState, useEffect } from "react";
+import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
 interface StartGameDialogProps {
   isOpen: boolean;
@@ -208,7 +209,7 @@ export const StartGameDialog = ({
       <StartGameDialogBody>
         <SettingsLobbyTitle>Lobby setup</SettingsLobbyTitle>
         <Typography sx={{ color: "rgba(248,250,252,0.75)", mb: 2 }}>
-          Add players, assign their table order, and launch the game flow.
+          Add players, configure roles and timers, then launch the game flow.
         </Typography>
 
         <Tabs
@@ -382,14 +383,12 @@ export const StartGameDialog = ({
                     )}
                   </Box>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Typography
+                    <DragIndicatorIcon
                       sx={{
-                        color: "rgba(248,250,252,0.62)",
-                        fontSize: "0.8rem",
+                        color: "rgba(248,250,252,0.35)",
+                        fontSize: "1.2rem",
                       }}
-                    >
-                      Drag to reorder
-                    </Typography>
+                    />
                     <Button
                       size="small"
                       variant="text"

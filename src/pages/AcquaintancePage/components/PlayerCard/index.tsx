@@ -20,6 +20,17 @@ import ThiefMark from "../../../../images/thief_mark.png";
 import DoubleKill from "../../../../images/double_kill.png";
 import { PlayerVotingModal } from "../../../../components/PlayerVotingModal";
 
+const ROLE_COLORS: Record<string, string> = {
+  Don: "#ef4444",
+  Mafia: "#f97316",
+  Sheriff: "#3b82f6",
+  Doctor: "#22c55e",
+  Journalist: "#f59e0b",
+  Thief: "#a855f7",
+  Maniac: "#ec4899",
+  Citizen: "#94a3b8",
+};
+
 interface PlayerCardProps {
   id: number;
   nickname: string;
@@ -79,12 +90,20 @@ export const PlayerCard = ({
     setOpenModal(true);
   };
 
+  const roleColor = ROLE_COLORS[role] ?? "#94a3b8";
+
   return (
     <>
       <CardWrapper
         onClick={handleClickPlayerCard}
         sx={{
-          background: isPlayerRaisedForVoting ? "#beb243" : "",
+          background: isPlayerRaisedForVoting ? "rgba(139,92,246,0.22)" : "",
+          borderColor: isPlayerRaisedForVoting
+            ? "rgba(139,92,246,0.7)"
+            : `${roleColor}33`,
+          boxShadow: isPlayerRaisedForVoting
+            ? "0 0 0 2px rgba(139,92,246,0.5), 0 16px 40px rgba(2,6,23,0.22)"
+            : `0 0 0 1px ${roleColor}22, 0 16px 40px rgba(2,6,23,0.22)`,
           opacity: isDisabledByImmunity ? 0.55 : 1,
         }}
       >
@@ -92,7 +111,7 @@ export const PlayerCard = ({
           <OrderNicknameText>
             {tableOrder} | {nickname}
           </OrderNicknameText>
-          <RoleText>{role}</RoleText>
+          <RoleText sx={{ color: roleColor }}>{role}</RoleText>
           {currentVotes > 0 && (
             <Typography sx={{ fontSize: "0.85rem", color: "#f8fafc", mt: 1 }}>
               Votes: {currentVotes}

@@ -249,6 +249,7 @@ export const DayPage = () => {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
+              flexWrap: "wrap",
               gap: 3,
               width: "100%",
             }}
@@ -495,10 +496,14 @@ export const DayPage = () => {
         open={showWinnerDialog}
         onClose={() => setShowWinnerDialog(false)}
       >
-        <DialogTitle>Mafia wins</DialogTitle>
+        <DialogTitle>
+          {isTownWinConditionMet ? "Town wins" : "Mafia wins"}
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Mafia reached a tied score with the town and wins the game.
+            {isTownWinConditionMet
+              ? "All mafia members have been eliminated. Town wins the game!"
+              : "Mafia reached a tied score with the town and wins the game."}
           </DialogContentText>
         </DialogContent>
         <DialogActions>

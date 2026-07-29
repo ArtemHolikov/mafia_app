@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import {
   ContentShell,
   GoToDayAcquaintanceButton,
@@ -31,6 +31,16 @@ export const NightPage = () => {
   const setThiefNightTarget = useGameStore(
     (state: any) => state.setThiefNightTarget,
   );
+  const clearMafiaNightTarget = useGameStore(
+    (state: any) => state.clearMafiaNightTarget,
+  );
+  const clearManiacNightTarget = useGameStore(
+    (state: any) => state.clearManiacNightTarget,
+  );
+  const clearThiefNightTarget = useGameStore(
+    (state: any) => state.clearThiefNightTarget,
+  );
+  const clearDoctorHeal = useGameStore((state: any) => state.clearDoctorHeal);
   const doctorHealTarget = useGameStore((state: any) => state.doctorHealTarget);
   const commitNightDeaths = useGameStore(
     (state: any) => state.commitNightDeaths,
@@ -42,6 +52,9 @@ export const NightPage = () => {
   const [activeAction, setActiveAction] = useState<
     "mafia" | "maniac" | "doctor" | "thief" | null
   >(null);
+  const [completedActions, setCompletedActions] = useState<
+    ("mafia" | "maniac" | "doctor" | "thief")[]
+  >([]);
 
   const hasRole = useMemo(
     () => (role: string) => players.some((player: any) => player.role === role),
@@ -81,27 +94,41 @@ export const NightPage = () => {
 
     if (activeAction === "mafia") {
       setMafiaNightTarget(playerId);
+      setCompletedActions((prev) => [...prev, "mafia"]);
       setActiveAction(null);
       return;
     }
 
     if (activeAction === "maniac") {
       setManiacNightTarget(playerId);
+      setCompletedActions((prev) => [...prev, "maniac"]);
       setActiveAction(null);
       return;
     }
 
     if (activeAction === "doctor") {
       doctorHealTarget(playerId, roundParam);
+      setCompletedActions((prev) => [...prev, "doctor"]);
       setActiveAction(null);
       return;
     }
 
     if (activeAction === "thief") {
       setThiefNightTarget(playerId);
+      setCompletedActions((prev) => [...prev, "thief"]);
       setActiveAction(null);
       return;
     }
+  };
+
+  const handleUndoLastAction = () => {
+    const last = completedActions[completedActions.length - 1];
+    if (!last) return;
+    if (last === "mafia") clearMafiaNightTarget();
+    if (last === "maniac") clearManiacNightTarget();
+    if (last === "thief") clearThiefNightTarget();
+    if (last === "doctor") clearDoctorHeal();
+    setCompletedActions((prev) => prev.slice(0, -1));
   };
 
   const activeButtonText = activeAction
@@ -210,6 +237,23 @@ export const NightPage = () => {
           >
             Thief's turn
           </NightActionButton>
+        )}
+        {completedActions.length > 0 && activeAction === null && (
+          <Button
+            onClick={handleUndoLastAction}
+            variant="outlined"
+            sx={{
+              borderRadius: 999,
+              borderColor: "rgba(255,255,255,0.3)",
+              color: "rgba(248,250,252,0.8)",
+              px: 3,
+              py: 1.5,
+              fontWeight: 600,
+              "&:hover": { borderColor: "#fff" },
+            }}
+          >
+            Undo {completedActions[completedActions.length - 1]}
+          </Button>
         )}
       </NightActionsWrapper>
 

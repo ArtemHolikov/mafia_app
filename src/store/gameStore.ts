@@ -539,6 +539,40 @@ export const useGameStore = create(
           })),
         })),
 
+      clearMafiaNightTarget: () =>
+        set((state: any) => ({
+          players: state.players.map((player: any) => ({
+            ...player,
+            pendingMafiaKill: false,
+          })),
+        })),
+
+      clearManiacNightTarget: () =>
+        set((state: any) => ({
+          players: state.players.map((player: any) => ({
+            ...player,
+            pendingManiacKill: false,
+          })),
+        })),
+
+      clearThiefNightTarget: () =>
+        set((state: any) => ({
+          players: state.players.map((player: any) => ({
+            ...player,
+            pendingThiefBlock: false,
+          })),
+        })),
+
+      clearDoctorHeal: () =>
+        set((state: any) => ({
+          players: state.players.map((player: any) => ({
+            ...player,
+            pendingDoctorSave: false,
+          })),
+          lastDoctorHealedPlayerId: null,
+          lastDoctorHealRound: 0,
+        })),
+
       doctorHealTarget: (playerId: number, currentRound: number) =>
         set((state: any) => {
           const samePlayerBlocked =
