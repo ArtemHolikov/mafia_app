@@ -42,7 +42,7 @@ export const useGameStore = create(
       },
       roleLimits: {
         Don: { min: 1, max: 1 },
-        Mafia: { min: 1, max: 4 },
+        Mafia: { min: 1, max: 3 },
         Sheriff: { min: 1, max: 1 },
         Doctor: { min: 1, max: 1 },
         Journalist: { min: 1, max: 1 },

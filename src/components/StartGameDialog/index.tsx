@@ -412,6 +412,7 @@ export const StartGameDialog = ({
                           control={
                             <Switch
                               checked={roleCount > 0}
+                              disabled={role === "Don"}
                               onChange={(_, checked) =>
                                 handleRoleToggle(role, checked)
                               }
