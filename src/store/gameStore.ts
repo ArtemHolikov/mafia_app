@@ -359,6 +359,15 @@ export const useGameStore = create(
 
       clearVotingResult: () => set({ votingResult: null }),
 
+      clearRaisedForVoting: () =>
+        set((state: any) => ({
+          players: state.players.map((player: any) => ({
+            ...player,
+            raisedForVoting: false,
+          })),
+          raisedForVotingPlayers: [],
+        })),
+
       killPlayer: (playerId: number) =>
         set((state: any) => ({
           players: state.players.map((player: any) =>

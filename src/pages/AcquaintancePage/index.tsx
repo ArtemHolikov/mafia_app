@@ -24,6 +24,9 @@ export const AcquaintancePage = () => {
   const setPhase = useGameStore((state: any) => state.setPhase);
   const setRound = useGameStore((state: any) => state.setRound);
   const raisedForVoting = useGameStore((state: any) => state.raisedForVoting);
+  const clearRaisedForVoting = useGameStore(
+    (state: any) => state.clearRaisedForVoting,
+  );
   const [voteModeVoterId, setVoteModeVoterId] = useState<number | null>(null);
 
   const displayedPlayers = useMemo(
@@ -48,6 +51,7 @@ export const AcquaintancePage = () => {
       (raisedForVotingPlayers.length === 0 ||
         raisedForVotingPlayers.length === 1)
     ) {
+      clearRaisedForVoting();
       setPhase("night");
       setRound(1);
       navigate("/night?round=1");
@@ -63,7 +67,7 @@ export const AcquaintancePage = () => {
   const buttonTextToDisplay =
     phase === "night acquaintance"
       ? "Continue to day acquaintance"
-      : phase === "day acquaintance" && raisedForVotingPlayers.length > 0
+      : phase === "day acquaintance" && raisedForVotingPlayers.length > 1
         ? `Open voting stage (${raisedForVotingPlayers.length})`
         : "Move to night";
 
