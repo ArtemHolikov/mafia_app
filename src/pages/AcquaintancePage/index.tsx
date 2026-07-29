@@ -40,12 +40,13 @@ export const AcquaintancePage = () => {
       return;
     }
 
-    if (phase === "day acquaintance" && raisedForVotingPlayers.length > 0) {
+    if (phase === "day acquaintance" && raisedForVotingPlayers.length > 1) {
       setPhase("voting");
       navigate("/voting");
     } else if (
       phase === "day acquaintance" &&
-      raisedForVotingPlayers.length === 0
+      (raisedForVotingPlayers.length === 0 ||
+        raisedForVotingPlayers.length === 1)
     ) {
       setPhase("night");
       setRound(1);

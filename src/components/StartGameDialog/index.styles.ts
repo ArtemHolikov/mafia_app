@@ -30,7 +30,7 @@ export const PlayersBox = styled(Box)({
 export const PlayersList = styled(MenuList)({
   marginTop: 16,
   overflowY: "auto",
-  maxHeight: "360px",
+  maxHeight: "250px",
   padding: 0,
   display: "flex",
   flexDirection: "column",
