@@ -37,7 +37,7 @@ import {
 import { useGameStore } from "../../store/gameStore";
 import { NameTextField } from "./components/NameTextField";
 import { useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 interface StartGameDialogProps {
   isOpen: boolean;
@@ -86,6 +86,17 @@ export const StartGameDialog = ({
   const sortedPlayers = [...players].sort(
     (a: any, b: any) => a.tableOrder - b.tableOrder,
   );
+
+  const autoCitizenCount = useMemo(() => {
+    const otherRolesTotal = Object.entries(selectedGameRoles)
+      .filter(([role]) => role !== "Citizen")
+      .reduce((sum, [, count]) => sum + (count as number), 0);
+    return Math.max(0, players.length - otherRolesTotal);
+  }, [players.length, selectedGameRoles]);
+
+  useEffect(() => {
+    updateSelectedRoleCount("Citizen", autoCitizenCount);
+  }, [autoCitizenCount]);
 
   const handleSwitchToAcquaintancePhase = () => {
     setPhase("night acquaintance");
@@ -418,9 +429,12 @@ export const StartGameDialog = ({
               }}
             >
               {Object.entries(roleLimits).map(([role, limits]: any) => {
-                const roleCount =
-                  selectedGameRoles[role as keyof typeof selectedGameRoles] ??
-                  0;
+                const isCitizen = role === "Citizen";
+                const roleCount = isCitizen
+                  ? autoCitizenCount
+                  : (selectedGameRoles[
+                      role as keyof typeof selectedGameRoles
+                    ] ?? 0);
                 const isMultiRole = limits.max > 1;
 
                 return (
@@ -429,12 +443,39 @@ export const StartGameDialog = ({
                       <Typography sx={{ fontWeight: 700, color: "#fff" }}>
                         {role}
                       </Typography>
-                      <Typography sx={{ color: "rgba(248,250,252,0.68)" }}>
-                        {limits.min}-{limits.max}
-                      </Typography>
+                      {isCitizen ? (
+                        <Typography
+                          sx={{
+                            color: "rgba(248,250,252,0.5)",
+                            fontSize: "0.8rem",
+                          }}
+                        >
+                          auto
+                        </Typography>
+                      ) : (
+                        <Typography sx={{ color: "rgba(248,250,252,0.68)" }}>
+                          {limits.min}-{limits.max}
+                        </Typography>
+                      )}
                     </RoleInfo>
 
-                    {isMultiRole ? (
+                    {isCitizen ? (
+                      <Typography
+                        sx={{
+                          color:
+                            autoCitizenCount < 0
+                              ? "#fda4af"
+                              : "rgba(248,250,252,0.85)",
+                          fontWeight: 700,
+                          fontSize: "1rem",
+                          minWidth: 100,
+                          textAlign: "right",
+                          pr: 1.5,
+                        }}
+                      >
+                        {autoCitizenCount}
+                      </Typography>
+                    ) : isMultiRole ? (
                       <RoleCountField>
                         <TextField
                           select
