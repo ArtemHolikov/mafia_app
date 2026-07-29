@@ -232,11 +232,26 @@ export const StartGameDialog = ({
                   width: 160,
                   background: "rgba(255,255,255,0.06)",
                   borderRadius: 2,
+
+                  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                    {
+                      display: "none",
+                      margin: 0,
+                    },
+                  "& input[type=number]": {
+                    MozAppearance: "textfield",
+                  },
+                }}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
+                        sec
+                      </Typography>
+                    ),
+                  },
                 }}
               />
-              <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
-                seconds
-              </Typography>
             </Box>
             <NameTextField />
             <PlayersList>

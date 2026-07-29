@@ -3,6 +3,12 @@ import { Button, styled, TextField } from "@mui/material";
 export const PlayersTextField = styled(TextField)({
   flex: 1,
   minWidth: 200,
+  flexDirection: "row",
+  width: "100%",
+
+  "& .MuiInputBase-root": {
+    width: "100%",
+  },
 });
 
 export const PlayerOrderField = styled(TextField)({
