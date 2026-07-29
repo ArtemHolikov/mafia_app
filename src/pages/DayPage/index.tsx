@@ -33,6 +33,7 @@ export const DayPage = () => {
   const setPhase = useGameStore((state: any) => state.setPhase);
   const round = useGameStore((state: any) => state.round);
   const setRound = useGameStore((state: any) => state.setRound);
+  const resetForLobby = useGameStore((state: any) => state.resetForLobby);
   const players = useGameStore((state: any) => state.players);
   const commitNightDeaths = useGameStore(
     (state: any) => state.commitNightDeaths,
@@ -54,6 +55,7 @@ export const DayPage = () => {
   );
   const resetDayTimer = useGameStore((state: any) => state.resetDayTimer);
   const [showKilledDialog, setShowKilledDialog] = useState(false);
+  const [showWinnerDialog, setShowWinnerDialog] = useState(false);
   const [voteModeVoterId, setVoteModeVoterId] = useState<number | null>(null);
   const intervalRef = useRef<number | null>(null);
   const dayTimerSecondsRef = useRef<number>(dayTimerSecondsLeft);
@@ -66,7 +68,17 @@ export const DayPage = () => {
   const mafiaAliveCount = alivePlayers.filter((player: any) =>
     mafiaRoles.has(player.role),
   ).length;
-  const townAliveCount = aliveCount - mafiaAliveCount;
+  const townAliveCount = alivePlayers.filter(
+    (player: any) => !mafiaRoles.has(player.role),
+  ).length;
+  const hasAnyMafiaRole = mafiaAliveCount > 0;
+  const hasAnyTownRole = townAliveCount > 0;
+  const isMafiaWinConditionMet =
+    hasAnyMafiaRole &&
+    hasAnyTownRole &&
+    mafiaAliveCount === townAliveCount &&
+    [1, 2, 3].includes(mafiaAliveCount);
+  const isTownWinConditionMet = mafiaAliveCount === 0 && townAliveCount > 0;
   const killedPlayers = useMemo(
     () =>
       players.filter(
@@ -85,6 +97,7 @@ export const DayPage = () => {
 
     if (killedPlayers.length > 0) {
       setShowKilledDialog(true);
+      setShowWinnerDialog(false);
     }
   }, [
     round,
@@ -93,6 +106,23 @@ export const DayPage = () => {
     setPhase,
     killedPlayers.length,
     resetDayTimer,
+  ]);
+
+  useEffect(() => {
+    if (
+      (!isMafiaWinConditionMet && !isTownWinConditionMet) ||
+      showKilledDialog
+    ) {
+      return;
+    }
+
+    setPhase("gameOver");
+    setShowWinnerDialog(true);
+  }, [
+    isMafiaWinConditionMet,
+    isTownWinConditionMet,
+    showKilledDialog,
+    setPhase,
   ]);
 
   useEffect(() => {
@@ -142,9 +172,17 @@ export const DayPage = () => {
     setShowKilledDialog(false);
   };
 
+  const handleReturnToLobby = () => {
+    resetForLobby();
+    navigate("/?openLobby=true");
+  };
+
   const raisedForVoting = useGameStore((state: any) => state.raisedForVoting);
   const raisedForVotingPlayers = useGameStore(
     (state: any) => state.raisedForVotingPlayers,
+  );
+  const clearRaisedForVoting = useGameStore(
+    (state: any) => state.clearRaisedForVoting,
   );
 
   const handleVoteTargetSelect = (targetId: number) => {
@@ -154,12 +192,19 @@ export const DayPage = () => {
   };
 
   const goToNight = () => {
+    if (isMafiaWinConditionMet || isTownWinConditionMet) {
+      setShowWinnerDialog(true);
+      return;
+    }
+
     // If there are players raised for voting, move to voting stage instead
     if (raisedForVotingPlayers.length > 0) {
       setPhase("voting");
       navigate("/voting");
       return;
     }
+
+    clearRaisedForVoting();
 
     const nextNightRound = roundParam + 1;
     setPhase("night");
@@ -412,10 +457,17 @@ export const DayPage = () => {
         ))}
       </PlayerCardsWrapper>
 
-      <GoToDayAcquaintanceButton onClick={goToNight}>
+      <GoToDayAcquaintanceButton
+        onClick={goToNight}
+        disabled={isMafiaWinConditionMet || isTownWinConditionMet}
+      >
         {raisedForVotingPlayers.length > 0
           ? `Voting Phase (${raisedForVotingPlayers.length})`
-          : "Proceed to night"}
+          : isTownWinConditionMet
+            ? "Town wins"
+            : isMafiaWinConditionMet
+              ? "Mafia wins"
+              : "Proceed to night"}
       </GoToDayAcquaintanceButton>
 
       <Dialog open={showKilledDialog} onClose={confirmKills}>
@@ -435,6 +487,23 @@ export const DayPage = () => {
         <DialogActions>
           <Button onClick={confirmKills} variant="contained">
             Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={showWinnerDialog}
+        onClose={() => setShowWinnerDialog(false)}
+      >
+        <DialogTitle>Mafia wins</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Mafia reached a tied score with the town and wins the game.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleReturnToLobby} variant="contained">
+            Back to lobby settings
           </Button>
         </DialogActions>
       </Dialog>

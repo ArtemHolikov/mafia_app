@@ -414,6 +414,39 @@ export const useGameStore = create(
           raisedForVotingPlayers: [],
         })),
 
+      resetForLobby: () =>
+        set((state: any) => ({
+          phase: "lobby",
+          players: state.players.map((player: any, index: number) => ({
+            ...player,
+            id: player.id ?? index + 1,
+            nickname: player.nickname,
+            tableOrder: player.tableOrder ?? index + 1,
+            role: "Citizen",
+            isAlive: true,
+            fouls: 0,
+            isVoted: false,
+            votesReceived: 0,
+            raisedForVoting: false,
+            pendingMafiaKill: false,
+            pendingManiacKill: false,
+            pendingThiefBlock: false,
+            immunityNights: 0,
+          })),
+          raisedForVotingPlayers: [],
+          votingEntries: null,
+          votingTie: null,
+          votingResult: null,
+          playersCount: state.players.length,
+          speechTimer: state.speechTimer,
+          dayTimerSecondsLeft: state.speechTimer,
+          isDayTimerRunning: false,
+          round: 1,
+          lastDoctorHealedPlayerId: null,
+          lastDoctorHealRound: 0,
+          selectedGameRoles: state.selectedGameRoles,
+        })),
+
       killPlayer: (playerId: number) =>
         set((state: any) => ({
           players: state.players.map((player: any) =>

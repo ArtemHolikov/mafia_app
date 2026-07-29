@@ -27,6 +27,9 @@ export const AcquaintancePage = () => {
   const clearRaisedForVoting = useGameStore(
     (state: any) => state.clearRaisedForVoting,
   );
+  const selectedGameRoles = useGameStore(
+    (state: any) => state.selectedGameRoles,
+  );
   const [voteModeVoterId, setVoteModeVoterId] = useState<number | null>(null);
 
   const displayedPlayers = useMemo(
@@ -36,6 +39,22 @@ export const AcquaintancePage = () => {
         .sort((a: any, b: any) => a.tableOrder - b.tableOrder),
     [players],
   );
+
+  const assignedRoleCounts = useMemo(() => {
+    return players.reduce((acc: Record<string, number>, player: any) => {
+      acc[player.role] = (acc[player.role] ?? 0) + 1;
+      return acc;
+    }, {});
+  }, [players]);
+
+  const roleAssignmentComplete = useMemo(() => {
+    return Object.entries(selectedGameRoles).every(([role, requiredCount]) => {
+      if (role === "Citizen") return true;
+      const required = Number(requiredCount ?? 0);
+      if (required <= 0) return true;
+      return (assignedRoleCounts[role] ?? 0) >= required;
+    });
+  }, [assignedRoleCounts, selectedGameRoles]);
 
   const switchToNextPhase = () => {
     if (phase === "night acquaintance") {
@@ -66,7 +85,9 @@ export const AcquaintancePage = () => {
 
   const buttonTextToDisplay =
     phase === "night acquaintance"
-      ? "Continue to day acquaintance"
+      ? roleAssignmentComplete
+        ? "Continue to day acquaintance"
+        : "Assign all roles first"
       : phase === "day acquaintance" && raisedForVotingPlayers.length > 1
         ? `Open voting stage (${raisedForVotingPlayers.length})`
         : "Move to night";
@@ -107,7 +128,10 @@ export const AcquaintancePage = () => {
         </PlayerCardsWrapper>
       </ContentShell>
 
-      <GoToDayAcquaintanceButton onClick={switchToNextPhase}>
+      <GoToDayAcquaintanceButton
+        onClick={switchToNextPhase}
+        disabled={phase === "night acquaintance" && !roleAssignmentComplete}
+      >
         {buttonTextToDisplay}
       </GoToDayAcquaintanceButton>
     </PageWrapper>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import {
   AppWrapper,
@@ -11,9 +11,17 @@ import {
 } from "./index.styles";
 import { StartGameDialog } from "../../components/StartGameDialog";
 import backgroundImage from "../../images/backgroundPhoto.png";
+import { useSearchParams } from "react-router-dom";
 
 export const HomePage = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("openLobby") === "true") {
+      setIsOpen(true);
+    }
+  }, [searchParams]);
 
   return (
     <AppWrapper bgimage={backgroundImage}>
