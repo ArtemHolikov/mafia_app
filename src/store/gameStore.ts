@@ -103,6 +103,52 @@ export const useGameStore = create(
           ],
         })),
 
+      updatePlayer: (playerId: number, updates: Record<string, any>) =>
+        set((state: any) => ({
+          players: state.players.map((player: any) =>
+            player.id === playerId ? { ...player, ...updates } : player,
+          ),
+        })),
+
+      reorderPlayers: (orderedPlayerIds: number[]) =>
+        set((state: any) => {
+          const playerMap = new Map(
+            state.players.map((player: any) => [player.id, player]),
+          );
+
+          const reorderedPlayers = orderedPlayerIds.map((playerId, index) => {
+            const player = playerMap.get(playerId);
+            if (!player) {
+              return null;
+            }
+
+            return {
+              ...player,
+              tableOrder: index + 1,
+            };
+          });
+
+          const remainingPlayers = state.players.filter(
+            (player: any) => !orderedPlayerIds.includes(player.id),
+          );
+
+          const normalizedRemainingPlayers = remainingPlayers.map(
+            (player: any, index: number) => ({
+              ...player,
+              tableOrder: reorderedPlayers.length + index + 1,
+            }),
+          );
+
+          const finalizedPlayers = [
+            ...reorderedPlayers.filter(Boolean),
+            ...normalizedRemainingPlayers,
+          ];
+
+          return {
+            players: finalizedPlayers,
+          };
+        }),
+
       changeRole: (playerId: number, role: string) =>
         set((state: any) => ({
           players: state.players.map((player: any) =>

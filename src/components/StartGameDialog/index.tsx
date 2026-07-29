@@ -70,11 +70,16 @@ export const StartGameDialog = ({
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState(0);
+  const updatePlayer = useGameStore((state: any) => state.updatePlayer);
+  const reorderPlayers = useGameStore((state: any) => state.reorderPlayers);
   const [selectedImmunityPlayerId, setSelectedImmunityPlayerId] = useState<
     number | null
   >(null);
   const [immunityNights, setImmunityNights] = useState(1);
   const [isImmunityModalOpen, setIsImmunityModalOpen] = useState(false);
+  const [editingPlayerId, setEditingPlayerId] = useState<number | null>(null);
+  const [nicknameDraft, setNicknameDraft] = useState("");
+  const [draggedPlayerId, setDraggedPlayerId] = useState<number | null>(null);
 
   const sortedPlayers = [...players].sort(
     (a: any, b: any) => a.tableOrder - b.tableOrder,
@@ -124,6 +129,48 @@ export const StartGameDialog = ({
   };
 
   const handleCloseImmunityModal = () => setIsImmunityModalOpen(false);
+
+  const handleStartPlayerEdit = (player: any) => {
+    setEditingPlayerId(player.id);
+    setNicknameDraft(player.nickname);
+  };
+
+  const handleSavePlayerEdit = (playerId: number) => {
+    const trimmedName = nicknameDraft.trim();
+
+    if (!trimmedName) {
+      setEditingPlayerId(null);
+      setNicknameDraft("");
+      return;
+    }
+
+    updatePlayer(playerId, { nickname: trimmedName });
+    setEditingPlayerId(null);
+    setNicknameDraft("");
+  };
+
+  const handlePlayerDrop = (targetPlayerId: number) => {
+    if (draggedPlayerId === null || draggedPlayerId === targetPlayerId) {
+      setDraggedPlayerId(null);
+      return;
+    }
+
+    const currentOrder = sortedPlayers.map((player: any) => player.id);
+    const draggedIndex = currentOrder.indexOf(draggedPlayerId);
+    const targetIndex = currentOrder.indexOf(targetPlayerId);
+
+    if (draggedIndex === -1 || targetIndex === -1) {
+      setDraggedPlayerId(null);
+      return;
+    }
+
+    const nextOrder = [...currentOrder];
+    const [movedPlayerId] = nextOrder.splice(draggedIndex, 1);
+    nextOrder.splice(targetIndex, 0, movedPlayerId);
+
+    reorderPlayers(nextOrder);
+    setDraggedPlayerId(null);
+  };
 
   const handleSaveImmunityModal = () => {
     if (selectedImmunityPlayerId !== null) {
@@ -187,7 +234,15 @@ export const StartGameDialog = ({
             <NameTextField />
             <PlayersList>
               {sortedPlayers.map((player: any) => (
-                <PlayerItem key={player.id}>
+                <PlayerItem
+                  key={player.id}
+                  draggable
+                  onDragStart={() => setDraggedPlayerId(player.id)}
+                  onDragOver={(event) => event.preventDefault()}
+                  onDrop={() => handlePlayerDrop(player.id)}
+                  onDragEnd={() => setDraggedPlayerId(null)}
+                  sx={{ cursor: "grab" }}
+                >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                     <PlayerItemInfoText>
                       #{player.tableOrder}
@@ -197,7 +252,53 @@ export const StartGameDialog = ({
                       flexItem
                       sx={{ borderColor: "rgba(255,255,255,0.14)" }}
                     />
-                    <PlayerItemInfoText>{player.nickname}</PlayerItemInfoText>
+                    {editingPlayerId === player.id ? (
+                      <TextField
+                        value={nicknameDraft}
+                        onChange={(event) =>
+                          setNicknameDraft(event.target.value)
+                        }
+                        onBlur={() => handleSavePlayerEdit(player.id)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter") {
+                            event.preventDefault();
+                            handleSavePlayerEdit(player.id);
+                          }
+
+                          if (event.key === "Escape") {
+                            setEditingPlayerId(null);
+                            setNicknameDraft("");
+                          }
+                        }}
+                        size="small"
+                        autoFocus
+                        sx={{
+                          width: 180,
+                          background: "rgba(255,255,255,0.06)",
+                          borderRadius: 2,
+                        }}
+                      />
+                    ) : (
+                      <PlayerItemInfoText>{player.nickname}</PlayerItemInfoText>
+                    )}
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <Typography
+                      sx={{
+                        color: "rgba(248,250,252,0.62)",
+                        fontSize: "0.8rem",
+                      }}
+                    >
+                      Drag to reorder
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="text"
+                      onClick={() => handleStartPlayerEdit(player)}
+                      sx={{ color: "#e9d5ff", minWidth: "auto", px: 1 }}
+                    >
+                      Edit
+                    </Button>
                   </Box>
                 </PlayerItem>
               ))}
