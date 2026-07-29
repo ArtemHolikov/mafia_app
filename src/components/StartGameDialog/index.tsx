@@ -62,6 +62,8 @@ export const StartGameDialog = ({
   );
   const speechTimer = useGameStore((state: any) => state.speechTimer);
   const setSpeechTimer = useGameStore((state: any) => state.setSpeechTimer);
+  const defenseTimer = useGameStore((state: any) => state.defenseTimer);
+  const setDefenseTimer = useGameStore((state: any) => state.setDefenseTimer);
   const setPlayerImmunity = useGameStore(
     (state: any) => state.setPlayerImmunity,
   );
@@ -122,6 +124,10 @@ export const StartGameDialog = ({
 
   const handleSpeechTimerChange = (value: number) => {
     setSpeechTimer(Math.max(10, value));
+  };
+
+  const handleDefenseTimerChange = (value: number) => {
+    setDefenseTimer(Math.max(5, value));
   };
 
   const handleSaveImmunity = () => {
@@ -244,6 +250,37 @@ export const StartGameDialog = ({
                   background: "rgba(255,255,255,0.06)",
                   borderRadius: 2,
 
+                  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                    {
+                      display: "none",
+                      margin: 0,
+                    },
+                  "& input[type=number]": {
+                    MozAppearance: "textfield",
+                  },
+                }}
+                slotProps={{
+                  input: {
+                    endAdornment: (
+                      <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
+                        sec
+                      </Typography>
+                    ),
+                  },
+                }}
+              />
+              <TextField
+                type="number"
+                label="Defense time"
+                size="small"
+                value={defenseTimer}
+                onChange={(event) =>
+                  handleDefenseTimerChange(Number(event.target.value))
+                }
+                sx={{
+                  width: 160,
+                  background: "rgba(255,255,255,0.06)",
+                  borderRadius: 2,
                   "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
                     {
                       display: "none",

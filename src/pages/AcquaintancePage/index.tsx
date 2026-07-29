@@ -1,5 +1,5 @@
-import { Box, Typography } from "@mui/material";
-import { useMemo, useState } from "react";
+import { Box, IconButton, Typography } from "@mui/material";
+import { useMemo, useState, useRef, useEffect } from "react";
 import {
   ContentShell,
   GoToDayAcquaintanceButton,
@@ -13,6 +13,8 @@ import backgroundImage from "../../images/backgroundPhoto.png";
 import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "./components/PlayerCard";
 import { useNavigate } from "react-router-dom";
+import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 export const AcquaintancePage = () => {
   const navigate = useNavigate();
@@ -31,6 +33,71 @@ export const AcquaintancePage = () => {
     (state: any) => state.selectedGameRoles,
   );
   const [voteModeVoterId, setVoteModeVoterId] = useState<number | null>(null);
+
+  const speechTimer = useGameStore((state: any) => state.speechTimer);
+  const dayTimerSecondsLeft = useGameStore(
+    (state: any) => state.dayTimerSecondsLeft,
+  );
+  const isDayTimerRunning = useGameStore(
+    (state: any) => state.isDayTimerRunning,
+  );
+  const setDayTimerSecondsLeft = useGameStore(
+    (state: any) => state.setDayTimerSecondsLeft,
+  );
+  const setDayTimerRunning = useGameStore(
+    (state: any) => state.setDayTimerRunning,
+  );
+  const resetDayTimer = useGameStore((state: any) => state.resetDayTimer);
+
+  const intervalRef = useRef<number | null>(null);
+  const timerSecondsRef = useRef<number>(dayTimerSecondsLeft);
+
+  useEffect(() => {
+    resetDayTimer();
+  }, []);
+
+  useEffect(() => {
+    timerSecondsRef.current = dayTimerSecondsLeft;
+  }, [dayTimerSecondsLeft]);
+
+  useEffect(() => {
+    if (!isDayTimerRunning) return;
+
+    intervalRef.current = window.setInterval(() => {
+      const current = Number.isFinite(timerSecondsRef.current)
+        ? timerSecondsRef.current
+        : speechTimer;
+      if (current <= 1) {
+        window.clearInterval(intervalRef.current!);
+        intervalRef.current = null;
+        setDayTimerRunning(false);
+        setDayTimerSecondsLeft(0);
+        timerSecondsRef.current = 0;
+        return;
+      }
+      const next = current - 1;
+      timerSecondsRef.current = next;
+      setDayTimerSecondsLeft(next);
+    }, 1000);
+
+    return () => {
+      if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [
+    isDayTimerRunning,
+    setDayTimerSecondsLeft,
+    setDayTimerRunning,
+    speechTimer,
+  ]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
 
   const displayedPlayers = useMemo(
     () =>
@@ -96,7 +163,7 @@ export const AcquaintancePage = () => {
     phase === "night acquaintance"
       ? "Night acquaintance — initial setup"
       : phase === "day acquaintance"
-        ? "Day acquaintance — initial setup"
+        ? "Day acquaintance"
         : phase;
 
   return (
@@ -109,6 +176,67 @@ export const AcquaintancePage = () => {
               Review each player and prepare the next stage smoothly.
             </Typography>
           </Box>
+          {phase === "day acquaintance" && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 2,
+                px: 3,
+                py: 1.5,
+                borderRadius: 3,
+                border: "1px solid rgba(255,255,255,0.18)",
+                bgcolor: "rgba(255,255,255,0.04)",
+                minWidth: 220,
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "rgba(248,250,252,0.72)",
+                  fontSize: "0.75rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  textAlign: "center",
+                }}
+              >
+                Speaker time
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  width: "100%",
+                }}
+              >
+                <Typography
+                  sx={{ color: "#fff", fontWeight: 700, fontSize: "1.35rem" }}
+                >
+                  {formatTime(
+                    Number.isFinite(dayTimerSecondsLeft)
+                      ? dayTimerSecondsLeft
+                      : speechTimer,
+                  )}
+                </Typography>
+                <Box>
+                  <IconButton
+                    onClick={() =>
+                      isDayTimerRunning
+                        ? setDayTimerRunning(false)
+                        : setDayTimerRunning(true)
+                    }
+                  >
+                    <PlayCircleFilledIcon />
+                  </IconButton>
+                  <IconButton onClick={resetDayTimer}>
+                    <RestartAltIcon />
+                  </IconButton>
+                </Box>
+              </Box>
+            </Box>
+          )}
           <SectionChip>{displayedPlayers.length} players</SectionChip>
         </TopBar>
 

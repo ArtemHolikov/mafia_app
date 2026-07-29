@@ -6,9 +6,10 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  IconButton,
   Typography,
 } from "@mui/material";
-import { useMemo } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import {
   ContentShell,
   GoToDayAcquaintanceButton,
@@ -22,7 +23,9 @@ import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
 import backgroundImage from "../../images/backgroundPhoto.png";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+
+import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 
 export const VotingPage = () => {
   const navigate = useNavigate();
@@ -44,7 +47,67 @@ export const VotingPage = () => {
   const setPhase = useGameStore((state: any) => state.setPhase);
 
   const round = useGameStore((state: any) => state.round);
+  const defenseTimer = useGameStore((state: any) => state.defenseTimer);
+  const defenseTimerSecondsLeft = useGameStore(
+    (state: any) => state.defenseTimerSecondsLeft,
+  );
+  const isDefenseTimerRunning = useGameStore(
+    (state: any) => state.isDefenseTimerRunning,
+  );
+  const setDefenseTimerSecondsLeft = useGameStore(
+    (state: any) => state.setDefenseTimerSecondsLeft,
+  );
+  const setDefenseTimerRunning = useGameStore(
+    (state: any) => state.setDefenseTimerRunning,
+  );
+  const resetDefenseTimer = useGameStore(
+    (state: any) => state.resetDefenseTimer,
+  );
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
+
+  const intervalRef = useRef<number | null>(null);
+  const defenseTimerSecondsRef = useRef<number>(defenseTimerSecondsLeft);
+
+  useEffect(() => {
+    resetDefenseTimer();
+  }, []);
+
+  useEffect(() => {
+    defenseTimerSecondsRef.current = defenseTimerSecondsLeft;
+  }, [defenseTimerSecondsLeft]);
+
+  useEffect(() => {
+    if (!isDefenseTimerRunning) return;
+
+    intervalRef.current = window.setInterval(() => {
+      const current = Number.isFinite(defenseTimerSecondsRef.current)
+        ? defenseTimerSecondsRef.current
+        : defenseTimer;
+      if (current <= 1) {
+        window.clearInterval(intervalRef.current!);
+        intervalRef.current = null;
+        setDefenseTimerRunning(false);
+        setDefenseTimerSecondsLeft(0);
+        defenseTimerSecondsRef.current = 0;
+        return;
+      }
+      const next = current - 1;
+      defenseTimerSecondsRef.current = next;
+      setDefenseTimerSecondsLeft(next);
+    }, 1000);
+
+    return () => {
+      if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [
+    isDefenseTimerRunning,
+    setDefenseTimerSecondsLeft,
+    setDefenseTimerRunning,
+    defenseTimer,
+  ]);
 
   const alivePlayers = useMemo(
     () => players.filter((player: any) => player.isAlive),
@@ -118,6 +181,12 @@ export const VotingPage = () => {
     goToNight();
   };
 
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
+
   return (
     <PageWrapper bgimage={backgroundImage}>
       <ContentShell>
@@ -129,6 +198,65 @@ export const VotingPage = () => {
             <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
               Review the players who have been raised for discussion.
             </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 2,
+              px: 3,
+              py: 1.5,
+              borderRadius: 3,
+              border: "1px solid rgba(255,255,255,0.18)",
+              bgcolor: "rgba(255,255,255,0.04)",
+              minWidth: 220,
+            }}
+          >
+            <Typography
+              sx={{
+                color: "rgba(248,250,252,0.72)",
+                fontSize: "0.75rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                textAlign: "center",
+              }}
+            >
+              Defense time
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-around",
+                width: "100%",
+              }}
+            >
+              <Typography
+                sx={{ color: "#fff", fontWeight: 700, fontSize: "1.35rem" }}
+              >
+                {formatTime(
+                  Number.isFinite(defenseTimerSecondsLeft)
+                    ? defenseTimerSecondsLeft
+                    : defenseTimer,
+                )}
+              </Typography>
+              <Box>
+                <IconButton
+                  onClick={() =>
+                    isDefenseTimerRunning
+                      ? setDefenseTimerRunning(false)
+                      : setDefenseTimerRunning(true)
+                  }
+                >
+                  <PlayCircleFilledIcon />
+                </IconButton>
+                <IconButton onClick={resetDefenseTimer}>
+                  <RestartAltIcon />
+                </IconButton>
+              </Box>
+            </Box>
           </Box>
           <SectionChip>{raisedForVotingPlayers.length} nominated</SectionChip>
         </TopBar>

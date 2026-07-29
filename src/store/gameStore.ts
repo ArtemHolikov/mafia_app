@@ -25,8 +25,11 @@ export const useGameStore = create(
       votingResult: null,
       playersCount: 0, // Total number of players
       speechTimer: 60, // Timer for speech phase
+      defenseTimer: 30, // Timer for voting self-defense
       dayTimerSecondsLeft: 60,
       isDayTimerRunning: false,
+      defenseTimerSecondsLeft: 30,
+      isDefenseTimerRunning: false,
       round: 1, // Current round number
       lastDoctorHealedPlayerId: null,
       lastDoctorHealRound: 0,
@@ -60,6 +63,9 @@ export const useGameStore = create(
       setSpeechTimer: (seconds: number) =>
         set({ speechTimer: Math.max(10, seconds) }),
 
+      setDefenseTimer: (seconds: number) =>
+        set({ defenseTimer: Math.max(5, seconds) }),
+
       setDayTimerSecondsLeft: (seconds: number) =>
         set({ dayTimerSecondsLeft: Math.max(0, seconds) }),
 
@@ -70,6 +76,18 @@ export const useGameStore = create(
         set((state: any) => ({
           dayTimerSecondsLeft: state.speechTimer,
           isDayTimerRunning: false,
+        })),
+
+      setDefenseTimerSecondsLeft: (seconds: number) =>
+        set({ defenseTimerSecondsLeft: Math.max(0, seconds) }),
+
+      setDefenseTimerRunning: (running: boolean) =>
+        set({ isDefenseTimerRunning: running }),
+
+      resetDefenseTimer: () =>
+        set((state: any) => ({
+          defenseTimerSecondsLeft: state.defenseTimer,
+          isDefenseTimerRunning: false,
         })),
 
       setPlayers: (playersArray: any[]) =>
