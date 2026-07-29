@@ -98,9 +98,9 @@ export const PlayerCard = ({
         onClick={handleClickPlayerCard}
         sx={{
           background: isPlayerRaisedForVoting ? "rgba(139,92,246,0.22)" : "",
-          borderColor: isPlayerRaisedForVoting
-            ? "rgba(139,92,246,0.7)"
-            : `${roleColor}33`,
+          border: `3px solid ${
+            isPlayerRaisedForVoting ? "rgba(139,92,246,0.7)" : `${roleColor}63`
+          }`,
           boxShadow: isPlayerRaisedForVoting
             ? "0 0 0 2px rgba(139,92,246,0.5), 0 16px 40px rgba(2,6,23,0.22)"
             : `0 0 0 1px ${roleColor}22, 0 16px 40px rgba(2,6,23,0.22)`,
