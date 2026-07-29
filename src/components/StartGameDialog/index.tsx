@@ -71,6 +71,7 @@ export const StartGameDialog = ({
 
   const [activeTab, setActiveTab] = useState(0);
   const updatePlayer = useGameStore((state: any) => state.updatePlayer);
+  const removePlayer = useGameStore((state: any) => state.removePlayer);
   const reorderPlayers = useGameStore((state: any) => state.reorderPlayers);
   const [selectedImmunityPlayerId, setSelectedImmunityPlayerId] = useState<
     number | null
@@ -298,6 +299,14 @@ export const StartGameDialog = ({
                       sx={{ color: "#e9d5ff", minWidth: "auto", px: 1 }}
                     >
                       Edit
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="text"
+                      onClick={() => removePlayer(player.id)}
+                      sx={{ color: "#fda4af", minWidth: "auto", px: 1 }}
+                    >
+                      Delete
                     </Button>
                   </Box>
                 </PlayerItem>

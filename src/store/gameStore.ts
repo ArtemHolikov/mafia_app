@@ -83,25 +83,34 @@ export const useGameStore = create(
         }),
 
       addPlayer: (nickname: string, tableOrder: number) =>
-        set((state: any) => ({
-          players: [
-            ...state.players,
-            {
-              nickname: nickname,
-              tableOrder: tableOrder,
-              role: "Citizen",
-              id: tableOrder,
-              isAlive: true,
-              fouls: 0,
-              isVoted: false,
-              votesReceived: 0,
-              raisedForVoting: false,
-              pendingMafiaKill: false,
-              pendingManiacKill: false,
-              pendingThiefBlock: false,
-            },
-          ],
-        })),
+        set((state: any) => {
+          const nextPlayerId =
+            state.players.reduce(
+              (maxId: number, player: any) =>
+                Math.max(maxId, Number(player.id) || 0),
+              0,
+            ) + 1;
+
+          return {
+            players: [
+              ...state.players,
+              {
+                nickname: nickname,
+                tableOrder: tableOrder,
+                role: "Citizen",
+                id: nextPlayerId,
+                isAlive: true,
+                fouls: 0,
+                isVoted: false,
+                votesReceived: 0,
+                raisedForVoting: false,
+                pendingMafiaKill: false,
+                pendingManiacKill: false,
+                pendingThiefBlock: false,
+              },
+            ],
+          };
+        }),
 
       updatePlayer: (playerId: number, updates: Record<string, any>) =>
         set((state: any) => ({
@@ -109,6 +118,21 @@ export const useGameStore = create(
             player.id === playerId ? { ...player, ...updates } : player,
           ),
         })),
+
+      removePlayer: (playerId: number) =>
+        set((state: any) => {
+          const remainingPlayers = state.players
+            .filter((player: any) => player.id !== playerId)
+            .sort((a: any, b: any) => a.tableOrder - b.tableOrder)
+            .map((player: any, index: number) => ({
+              ...player,
+              tableOrder: index + 1,
+            }));
+
+          return {
+            players: remainingPlayers,
+          };
+        }),
 
       reorderPlayers: (orderedPlayerIds: number[]) =>
         set((state: any) => {

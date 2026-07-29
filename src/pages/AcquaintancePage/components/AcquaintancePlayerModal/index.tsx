@@ -1,12 +1,8 @@
-import { Box, Dialog, Divider, FormControl, MenuItem } from "@mui/material";
+import { Box, Button, Dialog, Divider } from "@mui/material";
 import {
-  ConfirmButton,
-  ConfirmButtonBox,
   DialogBody,
   PlayerInfoText,
   PlayerInfoWrapper,
-  SelectRole,
-  SelectRoleWrapper,
   SettingPlayerInfoTitle,
 } from "./index.styles";
 import { imageToDisplay, MafiaRoles } from "../../../../constants";
@@ -81,9 +77,15 @@ export const AcquaintancePlayerModal = ({
       return isCurrent || availableCount > assignedCount;
     });
 
-  const handleChangeRole = (value: string, label: string) => {
+  const handleSelectRole = (value: string, label: string) => {
+    if (label === selectedRoleLabel) {
+      return;
+    }
+
     setSelectedRoleValue(value);
     setSelectedRoleLabel(label);
+    changeRole(id, label);
+    handleClose();
   };
 
   useEffect(() => {
@@ -93,12 +95,6 @@ export const AcquaintancePlayerModal = ({
       );
     }
   }, [selectedRoleValue]);
-
-  const handleSavePlayer = () => {
-    changeRole(id, selectedRoleLabel);
-
-    handleClose();
-  };
 
   return (
     <Dialog open={open} onClose={handleClose}>
@@ -116,31 +112,54 @@ export const AcquaintancePlayerModal = ({
           </PlayerInfoWrapper>
         </Box>
         <Divider sx={{ width: "100%", height: "2px", background: "#1e1e1e" }} />
-        <Box sx={{ padding: "40px 16px 0" }}>
-          <SelectRoleWrapper>
-            <PlayerInfoText>Set user role</PlayerInfoText>
-            <FormControl size="small">
-              <SelectRole
-                value={selectedRoleValue}
-                onChange={(event) => {
-                  const value = event.target.value as string;
-                  const selected = rolesArray.find((r) => r.value === value);
-                  if (!selected) return;
-                  handleChangeRole(selected.value, selected.label);
-                }}
-              >
-                {rolesArray.map((role) => (
-                  <MenuItem key={role.value} value={role.value}>
-                    {role.label}
-                  </MenuItem>
-                ))}
-              </SelectRole>
-            </FormControl>
-          </SelectRoleWrapper>
+        <Box sx={{ padding: "24px 16px 0" }}>
+          <PlayerInfoText sx={{ mb: 1.5 }}>Pick a role</PlayerInfoText>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
+              gap: 1,
+            }}
+          >
+            {rolesArray.map((roleOption) => {
+              const isSelected = roleOption.label === selectedRoleLabel;
+              const availableCount =
+                selectedGameRoles[
+                  roleOption.label as keyof typeof selectedGameRoles
+                ] ?? 0;
+              const assignedCount = assignedRoleCounts[roleOption.label] ?? 0;
+              const isDisabled = !isSelected && availableCount <= assignedCount;
+
+              return (
+                <Button
+                  key={roleOption.value}
+                  variant={isSelected ? "contained" : "outlined"}
+                  disabled={isDisabled || isSelected}
+                  onClick={() =>
+                    handleSelectRole(roleOption.value, roleOption.label)
+                  }
+                  sx={{
+                    minHeight: 48,
+                    textTransform: "none",
+                    borderRadius: 3,
+                    fontWeight: 700,
+                    borderColor: "rgba(255,255,255,0.16)",
+                    color: isSelected ? "#fff" : "#f8fafc",
+                    background: isSelected
+                      ? "linear-gradient(135deg, #8b5cf6, #7c3aed)"
+                      : "rgba(255,255,255,0.06)",
+                  }}
+                >
+                  {roleOption.label}
+                </Button>
+              );
+            })}
+          </Box>
+          <PlayerInfoText sx={{ mt: 2, color: "rgba(248,250,252,0.7)" }}>
+            The current role button is disabled. Pick any other available role
+            to assign it immediately.
+          </PlayerInfoText>
         </Box>
-        <ConfirmButtonBox>
-          <ConfirmButton onClick={handleSavePlayer}>Confirm</ConfirmButton>
-        </ConfirmButtonBox>
       </DialogBody>
     </Dialog>
   );
