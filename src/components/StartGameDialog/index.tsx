@@ -81,6 +81,7 @@ export const StartGameDialog = ({
   const [editingPlayerId, setEditingPlayerId] = useState<number | null>(null);
   const [nicknameDraft, setNicknameDraft] = useState("");
   const [draggedPlayerId, setDraggedPlayerId] = useState<number | null>(null);
+  const [dragOverPlayerId, setDragOverPlayerId] = useState<number | null>(null);
 
   const sortedPlayers = [...players].sort(
     (a: any, b: any) => a.tableOrder - b.tableOrder,
@@ -151,6 +152,8 @@ export const StartGameDialog = ({
   };
 
   const handlePlayerDrop = (targetPlayerId: number) => {
+    setDragOverPlayerId(null);
+
     if (draggedPlayerId === null || draggedPlayerId === targetPlayerId) {
       setDraggedPlayerId(null);
       return;
@@ -166,8 +169,11 @@ export const StartGameDialog = ({
     }
 
     const nextOrder = [...currentOrder];
-    const [movedPlayerId] = nextOrder.splice(draggedIndex, 1);
-    nextOrder.splice(targetIndex, 0, movedPlayerId);
+    // Swap the two players' positions
+    [nextOrder[draggedIndex], nextOrder[targetIndex]] = [
+      nextOrder[targetIndex],
+      nextOrder[draggedIndex],
+    ];
 
     reorderPlayers(nextOrder);
     setDraggedPlayerId(null);
@@ -238,11 +244,40 @@ export const StartGameDialog = ({
                 <PlayerItem
                   key={player.id}
                   draggable
-                  onDragStart={() => setDraggedPlayerId(player.id)}
-                  onDragOver={(event) => event.preventDefault()}
+                  onDragStart={(event) => {
+                    event.dataTransfer.effectAllowed = "move";
+                    setDraggedPlayerId(player.id);
+                  }}
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = "move";
+                  }}
+                  onDragEnter={() => {
+                    if (draggedPlayerId !== player.id) {
+                      setDragOverPlayerId(player.id);
+                    }
+                  }}
+                  onDragLeave={(event) => {
+                    if (
+                      !event.currentTarget.contains(event.relatedTarget as Node)
+                    ) {
+                      setDragOverPlayerId(null);
+                    }
+                  }}
                   onDrop={() => handlePlayerDrop(player.id)}
-                  onDragEnd={() => setDraggedPlayerId(null)}
-                  sx={{ cursor: "grab" }}
+                  onDragEnd={() => {
+                    setDraggedPlayerId(null);
+                    setDragOverPlayerId(null);
+                  }}
+                  sx={{
+                    cursor: "grab",
+                    opacity: draggedPlayerId === player.id ? 0.4 : 1,
+                    outline:
+                      dragOverPlayerId === player.id
+                        ? "2px solid rgba(139,92,246,0.8)"
+                        : "2px solid transparent",
+                    transition: "opacity 0.15s, outline 0.1s",
+                  }}
                 >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
                     <PlayerItemInfoText>
