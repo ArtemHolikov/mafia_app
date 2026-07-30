@@ -11,7 +11,6 @@ import { imageToDisplay } from "../../../../constants";
 import { useState } from "react";
 import { AcquaintancePlayerModal } from "../AcquaintancePlayerModal";
 import { useGameStore } from "../../../../store/gameStore";
-import { PlayerActionsModal } from "../../../../components/PlayerActionsModal";
 
 import RaisedForVoting from "../../../../images/raisedForVoting.png";
 import MafiaMark from "../../../../images/mafia_mark.png";
@@ -36,6 +35,7 @@ interface PlayerCardProps {
   nickname: string;
   tableOrder: number;
   role: string;
+  onDayPlayerSelect?: (playerId: number) => void;
   voteModeVoterId?: number | null;
   onStartVoteMode?: (voterId: number | null) => void;
   onVoteTargetSelect?: (targetId: number) => void;
@@ -48,6 +48,7 @@ export const PlayerCard = ({
   nickname,
   tableOrder,
   role,
+  onDayPlayerSelect,
   onVoteTargetSelect,
   onStartVoteMode,
   voteModeVoterId,
@@ -76,6 +77,11 @@ export const PlayerCard = ({
   const handleClickPlayerCard = () => {
     if (voteModeVoterId !== null && voteModeVoterId !== undefined) {
       onVoteTargetSelect?.(id);
+      return;
+    }
+
+    if (phase === "day" && onDayPlayerSelect) {
+      onDayPlayerSelect(id);
       return;
     }
 
@@ -156,16 +162,6 @@ export const PlayerCard = ({
           open={openModal}
           setOpen={setOpenModal}
           role={role}
-        />
-      )}
-
-      {(phase === "day acquaintance" || phase === "day") && openModal && (
-        <PlayerActionsModal
-          open={openModal}
-          setOpen={setOpenModal}
-          id={id}
-          nickname={nickname}
-          onVoteModeStart={onStartVoteMode}
         />
       )}
 

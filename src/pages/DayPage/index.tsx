@@ -11,7 +11,8 @@ import {
 } from "@mui/material";
 import {
   ContentShell,
-  GoToDayAcquaintanceButton,
+  NightActionButton,
+  NightActionsWrapper,
   PageWrapper,
   PlayerCardsWrapper,
   SectionTitle,
@@ -56,7 +57,8 @@ export const DayPage = () => {
   const resetDayTimer = useGameStore((state: any) => state.resetDayTimer);
   const [showKilledDialog, setShowKilledDialog] = useState(false);
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
-  const [voteModeVoterId, setVoteModeVoterId] = useState<number | null>(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
+  const [isNominationMode, setIsNominationMode] = useState(false);
   const intervalRef = useRef<number | null>(null);
   const dayTimerSecondsRef = useRef<number>(dayTimerSecondsLeft);
   const alivePlayers = useMemo(
@@ -177,6 +179,7 @@ export const DayPage = () => {
     navigate("/?openLobby=true");
   };
 
+  const addFoul = useGameStore((state: any) => state.addFoul);
   const raisedForVoting = useGameStore((state: any) => state.raisedForVoting);
   const raisedForVotingPlayers = useGameStore(
     (state: any) => state.raisedForVotingPlayers,
@@ -186,9 +189,28 @@ export const DayPage = () => {
   );
 
   const handleVoteTargetSelect = (targetId: number) => {
-    if (voteModeVoterId === null) return;
+    if (!isNominationMode) {
+      return;
+    }
+
     raisedForVoting(targetId);
-    setVoteModeVoterId(null);
+    setIsNominationMode(false);
+  };
+
+  const selectedPlayer = alivePlayers.find(
+    (player: any) => player.id === selectedPlayerId,
+  );
+
+  const handleGiveFoul = () => {
+    if (!selectedPlayer) {
+      return;
+    }
+
+    addFoul(selectedPlayer.id);
+  };
+
+  const handleStartNomination = () => {
+    setIsNominationMode(true);
   };
 
   const goToNight = () => {
@@ -451,25 +473,51 @@ export const DayPage = () => {
             nickname={player.nickname}
             tableOrder={player.tableOrder}
             role={player.role}
-            voteModeVoterId={voteModeVoterId}
-            onStartVoteMode={setVoteModeVoterId}
+            onDayPlayerSelect={setSelectedPlayerId}
+            voteModeVoterId={isNominationMode ? -1 : null}
             onVoteTargetSelect={handleVoteTargetSelect}
           />
         ))}
       </PlayerCardsWrapper>
 
-      <GoToDayAcquaintanceButton
-        onClick={goToNight}
-        disabled={isMafiaWinConditionMet || isTownWinConditionMet}
-      >
-        {raisedForVotingPlayers.length > 0
-          ? `Voting Phase (${raisedForVotingPlayers.length})`
-          : isTownWinConditionMet
-            ? "Town wins"
-            : isMafiaWinConditionMet
-              ? "Mafia wins"
-              : "Proceed to night"}
-      </GoToDayAcquaintanceButton>
+      <NightActionsWrapper>
+        <NightActionButton
+          onClick={handleGiveFoul}
+          disabled={
+            !selectedPlayer ||
+            isNominationMode ||
+            isMafiaWinConditionMet ||
+            isTownWinConditionMet
+          }
+          sx={{ background: "rgba(56,189,248,0.92)", minWidth: 170 }}
+        >
+          Give foul +1
+        </NightActionButton>
+
+        <NightActionButton
+          onClick={handleStartNomination}
+          disabled={isMafiaWinConditionMet || isTownWinConditionMet}
+          sx={{
+            background:
+              "linear-gradient(135deg, rgba(34,197,94,0.95), rgba(22,163,74,0.95))",
+            minWidth: 190,
+          }}
+        >
+          Nominate player
+        </NightActionButton>
+
+        <NightActionButton
+          onClick={goToNight}
+          disabled={
+            isNominationMode || isMafiaWinConditionMet || isTownWinConditionMet
+          }
+          sx={{ minWidth: 190 }}
+        >
+          {raisedForVotingPlayers.length > 0
+            ? `Open voting (${raisedForVotingPlayers.length})`
+            : "Proceed to night"}
+        </NightActionButton>
+      </NightActionsWrapper>
 
       <Dialog open={showKilledDialog} onClose={confirmKills}>
         <DialogTitle>Killed players</DialogTitle>
