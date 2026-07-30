@@ -35,6 +35,7 @@ interface PlayerCardProps {
   nickname: string;
   tableOrder: number;
   role: string;
+  disableVotingModal?: boolean;
   onDayPlayerSelect?: (playerId: number) => void;
   voteModeVoterId?: number | null;
   onStartVoteMode?: (voterId: number | null) => void;
@@ -48,6 +49,7 @@ export const PlayerCard = ({
   nickname,
   tableOrder,
   role,
+  disableVotingModal,
   onDayPlayerSelect,
   onVoteTargetSelect,
   onStartVoteMode,
@@ -82,6 +84,10 @@ export const PlayerCard = ({
 
     if (phase === "day" && onDayPlayerSelect) {
       onDayPlayerSelect(id);
+      return;
+    }
+
+    if (phase === "voting" && disableVotingModal) {
       return;
     }
 

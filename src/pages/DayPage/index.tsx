@@ -59,6 +59,7 @@ export const DayPage = () => {
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
   const [isNominationMode, setIsNominationMode] = useState(false);
+  const [foulFeedback, setFoulFeedback] = useState<string | null>(null);
   const intervalRef = useRef<number | null>(null);
   const dayTimerSecondsRef = useRef<number>(dayTimerSecondsLeft);
   const alivePlayers = useMemo(
@@ -207,7 +208,25 @@ export const DayPage = () => {
     }
 
     addFoul(selectedPlayer.id);
+    const nextFouls = (selectedPlayer.fouls ?? 0) + 1;
+    setFoulFeedback(
+      `${selectedPlayer.nickname} received a foul (${nextFouls}).`,
+    );
   };
+
+  useEffect(() => {
+    if (!foulFeedback) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setFoulFeedback(null);
+    }, 2200);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [foulFeedback]);
 
   const handleStartNomination = () => {
     setIsNominationMode(true);
@@ -518,6 +537,30 @@ export const DayPage = () => {
             : "Proceed to night"}
         </NightActionButton>
       </NightActionsWrapper>
+
+      {foulFeedback && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 84,
+            left: "50%",
+            transform: "translateX(-50%)",
+            px: 2,
+            py: 1,
+            borderRadius: 999,
+            border: "1px solid rgba(56,189,248,0.5)",
+            background:
+              "linear-gradient(120deg, rgba(14,116,144,0.85), rgba(2,132,199,0.85))",
+            color: "#f8fafc",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+            zIndex: 12,
+            boxShadow: "0 10px 24px rgba(14,116,144,0.35)",
+          }}
+        >
+          {foulFeedback}
+        </Box>
+      )}
 
       <Dialog open={showKilledDialog} onClose={confirmKills}>
         <DialogTitle>Killed players</DialogTitle>

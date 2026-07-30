@@ -394,6 +394,135 @@ export const useGameStore = create(
           };
         }),
 
+      finalizeVotingEntries: (entries: Record<number, number>) =>
+        set((state: any) => {
+          const alivePlayersCount = state.players.filter(
+            (player: any) => player.isAlive,
+          ).length;
+
+          const orderedCandidates = state.raisedForVotingPlayers;
+          if (orderedCandidates.length === 0) {
+            return { votingEntries: null };
+          }
+
+          const normalizedEntries = orderedCandidates.reduce(
+            (acc: Record<number, number>, player: any) => {
+              const rawValue = entries?.[player.id] ?? 0;
+              const numericValue = Number(rawValue);
+              acc[player.id] = Number.isFinite(numericValue)
+                ? Math.max(0, numericValue)
+                : 0;
+              return acc;
+            },
+            {},
+          );
+
+          const lastCandidate = orderedCandidates[orderedCandidates.length - 1];
+          const submittedSum = (
+            Object.values(normalizedEntries) as number[]
+          ).reduce((sum: number, value: number) => sum + value, 0);
+          const unusedVotes = Math.max(0, alivePlayersCount - submittedSum);
+          const finalEntries: Record<number, number> = {
+            ...normalizedEntries,
+            [lastCandidate.id]:
+              (normalizedEntries[lastCandidate.id] ?? 0) + unusedVotes,
+          };
+
+          const maxVotes = Math.max(...Object.values(finalEntries));
+          const topPlayers = orderedCandidates.filter(
+            (player: any) => finalEntries[player.id] === maxVotes,
+          );
+
+          const finalize = (eliminatedPlayer: any | null) => {
+            const updatedPlayers = state.players.map((player: any) => {
+              if (!finalEntries.hasOwnProperty(player.id)) {
+                return player;
+              }
+
+              const finalVotes = finalEntries[player.id];
+              return {
+                ...player,
+                votesReceived: finalVotes,
+                raisedForVoting: false,
+                isVoted: eliminatedPlayer?.id === player.id,
+                isAlive:
+                  eliminatedPlayer?.id === player.id ? false : player.isAlive,
+              };
+            });
+
+            const remainingPlayersCount = updatedPlayers.filter(
+              (player: any) => player.isAlive,
+            ).length;
+
+            return {
+              players: updatedPlayers,
+              raisedForVotingPlayers: [],
+              votingEntries: null,
+              votingTie: null,
+              votingResult: {
+                eliminated: Boolean(eliminatedPlayer),
+                eliminatedIds: eliminatedPlayer ? [eliminatedPlayer.id] : [],
+                playerId: eliminatedPlayer?.id ?? null,
+                nickname: eliminatedPlayer?.nickname ?? "",
+                votesReceived: eliminatedPlayer
+                  ? finalEntries[eliminatedPlayer.id]
+                  : maxVotes,
+                alivePlayersCount: remainingPlayersCount,
+                finalEntries,
+              },
+            };
+          };
+
+          if (topPlayers.length === 1) {
+            return finalize(topPlayers[0]);
+          }
+
+          const tiedIds = topPlayers.map((player: any) => player.id);
+
+          if (
+            state.votingTie &&
+            Array.isArray(state.votingTie.ids) &&
+            state.votingTie.attempts >= 1
+          ) {
+            return {
+              players: state.players.map((player: any) => ({
+                ...player,
+                raisedForVoting: false,
+              })),
+              raisedForVotingPlayers: [],
+              votingEntries: null,
+              votingTie: null,
+              votingResult: {
+                type: "tieResolution",
+                eliminated: false,
+                eliminatedIds: tiedIds,
+                playerId: null,
+                nickname: "",
+                votesReceived: maxVotes,
+                alivePlayersCount,
+                finalEntries,
+                tiedIds,
+              },
+            };
+          }
+
+          const tiedPlayers = orderedCandidates.filter((player: any) =>
+            tiedIds.includes(player.id),
+          );
+          return {
+            players: state.players.map((player: any) => ({
+              ...player,
+              raisedForVoting: tiedIds.includes(player.id),
+            })),
+            raisedForVotingPlayers: tiedPlayers,
+            votingEntries: null,
+            votingTie: {
+              ids: tiedIds,
+              attempts: (state.votingTie?.attempts ?? 0) + 1,
+            },
+          };
+        }),
+
       resolveTieResolution: (decision: "leave" | "kick") =>
         set((state: any) => {
           const result = state.votingResult;
