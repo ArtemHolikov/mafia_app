@@ -38,6 +38,9 @@ export const AcquaintancePage = () => {
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
   const [isNominationMode, setIsNominationMode] = useState(false);
   const [foulFeedback, setFoulFeedback] = useState<string | null>(null);
+  const [foulWasGivenForSelection, setFoulWasGivenForSelection] =
+    useState(false);
+  const foulWasGivenForSelectionRef = useRef(false);
 
   const speechTimer = useGameStore((state: any) => state.speechTimer);
   const dayTimerSecondsLeft = useGameStore(
@@ -60,6 +63,15 @@ export const AcquaintancePage = () => {
   useEffect(() => {
     resetDayTimer();
   }, []);
+
+  useEffect(() => {
+    if (phase !== "day acquaintance") {
+      return;
+    }
+
+    foulWasGivenForSelectionRef.current = false;
+    setFoulWasGivenForSelection(false);
+  }, [phase]);
 
   useEffect(() => {
     timerSecondsRef.current = dayTimerSecondsLeft;
@@ -159,11 +171,19 @@ export const AcquaintancePage = () => {
     (player: any) => player.id === selectedPlayerId,
   );
 
+  const handleSelectPlayer = (playerId: number) => {
+    setSelectedPlayerId(playerId);
+    foulWasGivenForSelectionRef.current = false;
+    setFoulWasGivenForSelection(false);
+  };
+
   const handleGiveFoul = () => {
-    if (!selectedPlayer) {
+    if (!selectedPlayer || foulWasGivenForSelectionRef.current) {
       return;
     }
 
+    foulWasGivenForSelectionRef.current = true;
+    setFoulWasGivenForSelection(true);
     addFoul(selectedPlayer.id);
     const nextFouls = (selectedPlayer.fouls ?? 0) + 1;
     setFoulFeedback(
@@ -287,7 +307,7 @@ export const AcquaintancePage = () => {
               nickname={player.nickname}
               role={player.role}
               tableOrder={player.tableOrder}
-              onDayPlayerSelect={setSelectedPlayerId}
+              onDayPlayerSelect={handleSelectPlayer}
               voteModeVoterId={isNominationMode ? -1 : null}
               onVoteTargetSelect={handleVoteTargetSelect}
             />
@@ -299,7 +319,9 @@ export const AcquaintancePage = () => {
         <NightActionsWrapper>
           <NightActionButton
             onClick={handleGiveFoul}
-            disabled={!selectedPlayer || isNominationMode}
+            disabled={
+              !selectedPlayer || isNominationMode || foulWasGivenForSelection
+            }
             sx={{ background: "rgba(56,189,248,0.92)", minWidth: 170 }}
           >
             Give foul +1

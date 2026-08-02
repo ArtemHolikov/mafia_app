@@ -60,6 +60,9 @@ export const DayPage = () => {
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
   const [isNominationMode, setIsNominationMode] = useState(false);
   const [foulFeedback, setFoulFeedback] = useState<string | null>(null);
+  const [foulWasGivenForSelection, setFoulWasGivenForSelection] =
+    useState(false);
+  const foulWasGivenForSelectionRef = useRef(false);
   const intervalRef = useRef<number | null>(null);
   const dayTimerSecondsRef = useRef<number>(dayTimerSecondsLeft);
   const alivePlayers = useMemo(
@@ -95,6 +98,8 @@ export const DayPage = () => {
       setRound(roundParam);
     }
     setPhase("day");
+    foulWasGivenForSelectionRef.current = false;
+    setFoulWasGivenForSelection(false);
 
     resetDayTimer();
 
@@ -202,11 +207,19 @@ export const DayPage = () => {
     (player: any) => player.id === selectedPlayerId,
   );
 
+  const handleSelectPlayer = (playerId: number) => {
+    setSelectedPlayerId(playerId);
+    foulWasGivenForSelectionRef.current = false;
+    setFoulWasGivenForSelection(false);
+  };
+
   const handleGiveFoul = () => {
-    if (!selectedPlayer) {
+    if (!selectedPlayer || foulWasGivenForSelectionRef.current) {
       return;
     }
 
+    foulWasGivenForSelectionRef.current = true;
+    setFoulWasGivenForSelection(true);
     addFoul(selectedPlayer.id);
     const nextFouls = (selectedPlayer.fouls ?? 0) + 1;
     setFoulFeedback(
@@ -492,7 +505,7 @@ export const DayPage = () => {
             nickname={player.nickname}
             tableOrder={player.tableOrder}
             role={player.role}
-            onDayPlayerSelect={setSelectedPlayerId}
+            onDayPlayerSelect={handleSelectPlayer}
             voteModeVoterId={isNominationMode ? -1 : null}
             onVoteTargetSelect={handleVoteTargetSelect}
           />
@@ -506,7 +519,8 @@ export const DayPage = () => {
             !selectedPlayer ||
             isNominationMode ||
             isMafiaWinConditionMet ||
-            isTownWinConditionMet
+            isTownWinConditionMet ||
+            foulWasGivenForSelection
           }
           sx={{ background: "rgba(56,189,248,0.92)", minWidth: 170 }}
         >
