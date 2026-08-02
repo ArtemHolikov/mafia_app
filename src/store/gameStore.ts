@@ -3,6 +3,34 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 const STORAGE_KEY = "mafia-game-store";
 
+const normalizePlayersOrder = (players: any[]) =>
+  [...players]
+    .sort((a: any, b: any) => {
+      const aOrder = Number.isFinite(Number(a?.tableOrder))
+        ? Number(a.tableOrder)
+        : Number.MAX_SAFE_INTEGER;
+      const bOrder = Number.isFinite(Number(b?.tableOrder))
+        ? Number(b.tableOrder)
+        : Number.MAX_SAFE_INTEGER;
+
+      if (aOrder !== bOrder) {
+        return aOrder - bOrder;
+      }
+
+      const aId = Number.isFinite(Number(a?.id))
+        ? Number(a.id)
+        : Number.MAX_SAFE_INTEGER;
+      const bId = Number.isFinite(Number(b?.id))
+        ? Number(b.id)
+        : Number.MAX_SAFE_INTEGER;
+
+      return aId - bId;
+    })
+    .map((player: any, index: number) => ({
+      ...player,
+      tableOrder: index + 1,
+    }));
+
 export type phaseNames =
   | "lobby"
   | "night"
@@ -92,18 +120,21 @@ export const useGameStore = create(
 
       setPlayers: (playersArray: any[]) =>
         set({
-          players: playersArray.map((player: any) => ({
-            ...player,
-            pendingMafiaKill: player.pendingMafiaKill ?? false,
-            pendingManiacKill: player.pendingManiacKill ?? false,
-            pendingThiefBlock: player.pendingThiefBlock ?? false,
-          })),
+          players: normalizePlayersOrder(
+            playersArray.map((player: any) => ({
+              ...player,
+              pendingMafiaKill: player.pendingMafiaKill ?? false,
+              pendingManiacKill: player.pendingManiacKill ?? false,
+              pendingThiefBlock: player.pendingThiefBlock ?? false,
+            })),
+          ),
         }),
 
       addPlayer: (nickname: string, tableOrder: number) =>
         set((state: any) => {
+          const normalizedPlayers = normalizePlayersOrder(state.players);
           const nextPlayerId =
-            state.players.reduce(
+            normalizedPlayers.reduce(
               (maxId: number, player: any) =>
                 Math.max(maxId, Number(player.id) || 0),
               0,
@@ -111,10 +142,13 @@ export const useGameStore = create(
 
           return {
             players: [
-              ...state.players,
+              ...normalizedPlayers,
               {
                 nickname: nickname,
-                tableOrder: tableOrder,
+                tableOrder:
+                  Number.isFinite(Number(tableOrder)) && Number(tableOrder) > 0
+                    ? Number(tableOrder)
+                    : normalizedPlayers.length + 1,
                 role: "Citizen",
                 id: nextPlayerId,
                 isAlive: true,
@@ -126,7 +160,10 @@ export const useGameStore = create(
                 pendingManiacKill: false,
                 pendingThiefBlock: false,
               },
-            ],
+            ].map((player: any, index: number) => ({
+              ...player,
+              tableOrder: index + 1,
+            })),
           };
         }),
 
@@ -270,8 +307,10 @@ export const useGameStore = create(
               (player: any) => player.isAlive,
             ).length;
 
+            const normalizedPlayers = normalizePlayersOrder(updatedPlayers);
+
             return {
-              players: updatedPlayers,
+              players: normalizedPlayers,
               raisedForVotingPlayers: [],
               votingEntries: null,
               votingTie: null,
@@ -355,10 +394,12 @@ export const useGameStore = create(
             state.votingTie.attempts >= 1
           ) {
             return {
-              players: state.players.map((player: any) => ({
-                ...player,
-                raisedForVoting: false,
-              })),
+              players: normalizePlayersOrder(
+                state.players.map((player: any) => ({
+                  ...player,
+                  raisedForVoting: false,
+                })),
+              ),
               raisedForVotingPlayers: [],
               votingEntries: null,
               votingTie: null,
@@ -454,8 +495,10 @@ export const useGameStore = create(
               (player: any) => player.isAlive,
             ).length;
 
+            const normalizedPlayers = normalizePlayersOrder(updatedPlayers);
+
             return {
-              players: updatedPlayers,
+              players: normalizedPlayers,
               raisedForVotingPlayers: [],
               votingEntries: null,
               votingTie: null,
@@ -485,10 +528,12 @@ export const useGameStore = create(
             state.votingTie.attempts >= 1
           ) {
             return {
-              players: state.players.map((player: any) => ({
-                ...player,
-                raisedForVoting: false,
-              })),
+              players: normalizePlayersOrder(
+                state.players.map((player: any) => ({
+                  ...player,
+                  raisedForVoting: false,
+                })),
+              ),
               raisedForVotingPlayers: [],
               votingEntries: null,
               votingTie: null,
@@ -556,8 +601,10 @@ export const useGameStore = create(
             };
           });
 
+          const normalizedPlayers = normalizePlayersOrder(updatedPlayers);
+
           return {
-            players: updatedPlayers,
+            players: normalizedPlayers,
             raisedForVotingPlayers: [],
             votingEntries: null,
             votingTie: null,
@@ -567,7 +614,7 @@ export const useGameStore = create(
               eliminatedIds: decision === "kick" ? tiedIds : [],
               playerId: null,
               nickname: "",
-              alivePlayersCount: updatedPlayers.filter(
+              alivePlayersCount: normalizedPlayers.filter(
                 (player: any) => player.isAlive,
               ).length,
             },
@@ -588,22 +635,24 @@ export const useGameStore = create(
       resetForLobby: () =>
         set((state: any) => ({
           phase: "lobby",
-          players: state.players.map((player: any, index: number) => ({
-            ...player,
-            id: player.id ?? index + 1,
-            nickname: player.nickname,
-            tableOrder: player.tableOrder ?? index + 1,
-            role: "Citizen",
-            isAlive: true,
-            fouls: 0,
-            isVoted: false,
-            votesReceived: 0,
-            raisedForVoting: false,
-            pendingMafiaKill: false,
-            pendingManiacKill: false,
-            pendingThiefBlock: false,
-            immunityNights: 0,
-          })),
+          players: normalizePlayersOrder(
+            state.players.map((player: any, index: number) => ({
+              ...player,
+              id: player.id ?? index + 1,
+              nickname: player.nickname,
+              tableOrder: player.tableOrder ?? index + 1,
+              role: "Citizen",
+              isAlive: true,
+              fouls: 0,
+              isVoted: false,
+              votesReceived: 0,
+              raisedForVoting: false,
+              pendingMafiaKill: false,
+              pendingManiacKill: false,
+              pendingThiefBlock: false,
+              immunityNights: 0,
+            })),
+          ),
           raisedForVotingPlayers: [],
           votingEntries: null,
           votingTie: null,
@@ -620,8 +669,10 @@ export const useGameStore = create(
 
       killPlayer: (playerId: number) =>
         set((state: any) => ({
-          players: state.players.map((player: any) =>
-            player.id === playerId ? { ...player, isAlive: false } : player,
+          players: normalizePlayersOrder(
+            state.players.map((player: any) =>
+              player.id === playerId ? { ...player, isAlive: false } : player,
+            ),
           ),
         })),
 
@@ -741,22 +792,24 @@ export const useGameStore = create(
 
       commitNightDeaths: () =>
         set((state: any) => ({
-          players: state.players.map((player: any) => {
-            const hasMafiaKill = Boolean(player.pendingMafiaKill);
-            const hasManiacKill = Boolean(player.pendingManiacKill);
-            const killCount = Number(hasMafiaKill) + Number(hasManiacKill);
-            const isImmune = (player.immunityNights ?? 0) > 0;
-            const shouldDie = killCount > 0 && !isImmune;
+          players: normalizePlayersOrder(
+            state.players.map((player: any) => {
+              const hasMafiaKill = Boolean(player.pendingMafiaKill);
+              const hasManiacKill = Boolean(player.pendingManiacKill);
+              const killCount = Number(hasMafiaKill) + Number(hasManiacKill);
+              const isImmune = (player.immunityNights ?? 0) > 0;
+              const shouldDie = killCount > 0 && !isImmune;
 
-            return {
-              ...player,
-              isAlive: player.isAlive ? !shouldDie : player.isAlive,
-              pendingMafiaKill: false,
-              pendingManiacKill: false,
-              pendingThiefBlock: false,
-              immunityNights: Math.max(0, (player.immunityNights ?? 0) - 1),
-            };
-          }),
+              return {
+                ...player,
+                isAlive: player.isAlive ? !shouldDie : player.isAlive,
+                pendingMafiaKill: false,
+                pendingManiacKill: false,
+                pendingThiefBlock: false,
+                immunityNights: Math.max(0, (player.immunityNights ?? 0) - 1),
+              };
+            }),
+          ),
         })),
 
       clearNightMarks: () =>

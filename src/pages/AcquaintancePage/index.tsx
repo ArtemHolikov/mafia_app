@@ -3,6 +3,8 @@ import { useMemo, useState, useRef, useEffect } from "react";
 import {
   ContentShell,
   GoToDayAcquaintanceButton,
+  NightActionButton,
+  NightActionsWrapper,
   PageWrapper,
   PlayerCardsWrapper,
   SectionChip,
@@ -29,10 +31,13 @@ export const AcquaintancePage = () => {
   const clearRaisedForVoting = useGameStore(
     (state: any) => state.clearRaisedForVoting,
   );
+  const addFoul = useGameStore((state: any) => state.addFoul);
   const selectedGameRoles = useGameStore(
     (state: any) => state.selectedGameRoles,
   );
-  const [voteModeVoterId, setVoteModeVoterId] = useState<number | null>(null);
+  const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
+  const [isNominationMode, setIsNominationMode] = useState(false);
+  const [foulFeedback, setFoulFeedback] = useState<string | null>(null);
 
   const speechTimer = useGameStore((state: any) => state.speechTimer);
   const dayTimerSecondsLeft = useGameStore(
@@ -145,9 +150,43 @@ export const AcquaintancePage = () => {
   };
 
   const handleVoteTargetSelect = (targetId: number) => {
-    if (voteModeVoterId === null) return;
+    if (!isNominationMode) return;
     raisedForVoting(targetId);
-    setVoteModeVoterId(null);
+    setIsNominationMode(false);
+  };
+
+  const selectedPlayer = displayedPlayers.find(
+    (player: any) => player.id === selectedPlayerId,
+  );
+
+  const handleGiveFoul = () => {
+    if (!selectedPlayer) {
+      return;
+    }
+
+    addFoul(selectedPlayer.id);
+    const nextFouls = (selectedPlayer.fouls ?? 0) + 1;
+    setFoulFeedback(
+      `${selectedPlayer.nickname} received a foul (${nextFouls}).`,
+    );
+  };
+
+  useEffect(() => {
+    if (!foulFeedback) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setFoulFeedback(null);
+    }, 2200);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [foulFeedback]);
+
+  const handleStartNomination = () => {
+    setIsNominationMode(true);
   };
 
   const buttonTextToDisplay =
@@ -248,13 +287,60 @@ export const AcquaintancePage = () => {
               nickname={player.nickname}
               role={player.role}
               tableOrder={player.tableOrder}
-              voteModeVoterId={voteModeVoterId}
-              onStartVoteMode={setVoteModeVoterId}
+              onDayPlayerSelect={setSelectedPlayerId}
+              voteModeVoterId={isNominationMode ? -1 : null}
               onVoteTargetSelect={handleVoteTargetSelect}
             />
           ))}
         </PlayerCardsWrapper>
       </ContentShell>
+
+      {phase === "day acquaintance" && (
+        <NightActionsWrapper>
+          <NightActionButton
+            onClick={handleGiveFoul}
+            disabled={!selectedPlayer || isNominationMode}
+            sx={{ background: "rgba(56,189,248,0.92)", minWidth: 170 }}
+          >
+            Give foul +1
+          </NightActionButton>
+
+          <NightActionButton
+            onClick={handleStartNomination}
+            sx={{
+              background:
+                "linear-gradient(135deg, rgba(34,197,94,0.95), rgba(22,163,74,0.95))",
+              minWidth: 190,
+            }}
+          >
+            Nominate player
+          </NightActionButton>
+        </NightActionsWrapper>
+      )}
+
+      {foulFeedback && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 84,
+            left: "50%",
+            transform: "translateX(-50%)",
+            px: 2,
+            py: 1,
+            borderRadius: 999,
+            border: "1px solid rgba(56,189,248,0.5)",
+            background:
+              "linear-gradient(120deg, rgba(14,116,144,0.85), rgba(2,132,199,0.85))",
+            color: "#f8fafc",
+            fontWeight: 600,
+            fontSize: "0.9rem",
+            zIndex: 12,
+            boxShadow: "0 10px 24px rgba(14,116,144,0.35)",
+          }}
+        >
+          {foulFeedback}
+        </Box>
+      )}
 
       <GoToDayAcquaintanceButton
         onClick={switchToNextPhase}

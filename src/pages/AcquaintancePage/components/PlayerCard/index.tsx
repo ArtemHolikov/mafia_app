@@ -82,7 +82,10 @@ export const PlayerCard = ({
       return;
     }
 
-    if (phase === "day" && onDayPlayerSelect) {
+    if (
+      (phase === "day" || phase === "day acquaintance") &&
+      onDayPlayerSelect
+    ) {
       onDayPlayerSelect(id);
       return;
     }
@@ -107,7 +110,10 @@ export const PlayerCard = ({
   return (
     <>
       <CardWrapper
-        onClick={handleClickPlayerCard}
+        onClick={(event) => {
+          event.stopPropagation();
+          handleClickPlayerCard();
+        }}
         sx={{
           background: isPlayerRaisedForVoting ? "rgba(139,92,246,0.22)" : "",
           border: `3px solid ${
