@@ -37,7 +37,7 @@ import {
 import { useGameStore } from "../../store/gameStore";
 import { NameTextField } from "./components/NameTextField";
 import { useNavigate } from "react-router-dom";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 
 interface StartGameDialogProps {
@@ -69,6 +69,7 @@ export const StartGameDialog = ({
     (state: any) => state.setPlayerImmunity,
   );
   const setPhase = useGameStore((state: any) => state.setPhase);
+  const addPlayer = useGameStore((state: any) => state.addPlayer);
 
   const navigate = useNavigate();
 
@@ -85,6 +86,8 @@ export const StartGameDialog = ({
   const [nicknameDraft, setNicknameDraft] = useState("");
   const [draggedPlayerId, setDraggedPlayerId] = useState<number | null>(null);
   const [dragOverPlayerId, setDragOverPlayerId] = useState<number | null>(null);
+  const [initialPlayersCount, setInitialPlayersCount] = useState(10);
+  const didDragRef = useRef(false);
 
   const sortedPlayers = [...players].sort(
     (a: any, b: any) => a.tableOrder - b.tableOrder,
@@ -204,6 +207,26 @@ export const StartGameDialog = ({
     setIsImmunityModalOpen(false);
   };
 
+  const handleInitialPlayersCountChange = (value: number) => {
+    if (!Number.isFinite(value)) {
+      setInitialPlayersCount(1);
+      return;
+    }
+
+    const nextValue = Math.min(20, Math.max(1, Math.floor(value)));
+    setInitialPlayersCount(nextValue);
+  };
+
+  const handleGenerateInitialPlayers = () => {
+    const countToGenerate = Math.min(20, Math.max(1, initialPlayersCount));
+    const baseOrder = players.length;
+
+    Array.from({ length: countToGenerate }).forEach((_, index) => {
+      const playerNumber = index + 1;
+      addPlayer(`Player ${playerNumber}`, baseOrder + playerNumber);
+    });
+  };
+
   return (
     <Dialog open={isOpen} onClose={handleClose}>
       <StartGameDialogBody>
@@ -220,6 +243,7 @@ export const StartGameDialog = ({
           indicatorColor="secondary"
         >
           <Tab label="Players" />
+          <Tab label="Time" />
           <Tab label="Immunity" disabled={players.length === 0} />
           <Tab label="Roles" />
         </Tabs>
@@ -237,79 +261,22 @@ export const StartGameDialog = ({
               <SettingsLobbyTitle>Players</SettingsLobbyTitle>
               <TotalCountChip>{players.length} total</TotalCountChip>
             </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-              <TextField
-                type="number"
-                label="Speaker time"
-                size="small"
-                value={speechTimer}
-                onChange={(event) =>
-                  handleSpeechTimerChange(Number(event.target.value))
-                }
-                sx={{
-                  width: 160,
-                  background: "rgba(255,255,255,0.06)",
-                  borderRadius: 2,
-
-                  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                    {
-                      display: "none",
-                      margin: 0,
-                    },
-                  "& input[type=number]": {
-                    MozAppearance: "textfield",
-                  },
-                }}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
-                        sec
-                      </Typography>
-                    ),
-                  },
-                }}
-              />
-              <TextField
-                type="number"
-                label="Defense time"
-                size="small"
-                value={defenseTimer}
-                onChange={(event) =>
-                  handleDefenseTimerChange(Number(event.target.value))
-                }
-                sx={{
-                  width: 160,
-                  background: "rgba(255,255,255,0.06)",
-                  borderRadius: 2,
-                  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                    {
-                      display: "none",
-                      margin: 0,
-                    },
-                  "& input[type=number]": {
-                    MozAppearance: "textfield",
-                  },
-                }}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
-                        sec
-                      </Typography>
-                    ),
-                  },
-                }}
-              />
-            </Box>
-            <NameTextField />
+            {sortedPlayers.length > 0 && <NameTextField />}
             <PlayersList>
               {sortedPlayers.map((player: any) => (
                 <PlayerItem
                   key={player.id}
                   draggable
+                  onClick={() => {
+                    if (didDragRef.current || editingPlayerId === player.id) {
+                      return;
+                    }
+
+                    handleStartPlayerEdit(player);
+                  }}
                   onDragStart={(event) => {
                     event.dataTransfer.effectAllowed = "move";
+                    didDragRef.current = true;
                     setDraggedPlayerId(player.id);
                   }}
                   onDragOver={(event) => {
@@ -332,6 +299,9 @@ export const StartGameDialog = ({
                   onDragEnd={() => {
                     setDraggedPlayerId(null);
                     setDragOverPlayerId(null);
+                    window.setTimeout(() => {
+                      didDragRef.current = false;
+                    }, 0);
                   }}
                   sx={{
                     cursor: "grab",
@@ -392,7 +362,10 @@ export const StartGameDialog = ({
                     <Button
                       size="small"
                       variant="text"
-                      onClick={() => handleStartPlayerEdit(player)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleStartPlayerEdit(player);
+                      }}
                       sx={{ color: "#e9d5ff", minWidth: "auto", px: 1 }}
                     >
                       Edit
@@ -400,7 +373,10 @@ export const StartGameDialog = ({
                     <Button
                       size="small"
                       variant="text"
-                      onClick={() => removePlayer(player.id)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        removePlayer(player.id);
+                      }}
                       sx={{ color: "#fda4af", minWidth: "auto", px: 1 }}
                     >
                       Delete
@@ -410,13 +386,213 @@ export const StartGameDialog = ({
               ))}
 
               {sortedPlayers.length === 0 && (
-                <NoPlayersMessage>No players yet</NoPlayersMessage>
+                <Box
+                  sx={{
+                    mt: 0.5,
+                    p: 2.5,
+                    borderRadius: 3,
+                    border: "1px solid rgba(255,255,255,0.14)",
+                    background:
+                      "linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
+                    backdropFilter: "blur(8px)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 1.25,
+                    boxShadow: "0 10px 28px rgba(2,6,23,0.22)",
+                  }}
+                >
+                  <NoPlayersMessage sx={{ padding: 0, color: "#e2e8f0" }}>
+                    No players yet
+                  </NoPlayersMessage>
+                  <Typography
+                    sx={{
+                      fontSize: "0.85rem",
+                      color: "rgba(248,250,252,0.72)",
+                      textAlign: "center",
+                    }}
+                  >
+                    Select count and generate initial players
+                  </Typography>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      marginBottom: "10px",
+                    }}
+                  >
+                    <Button
+                      variant="outlined"
+                      onClick={() =>
+                        handleInitialPlayersCountChange(initialPlayersCount - 1)
+                      }
+                      sx={{ minWidth: 40, px: 0 }}
+                    >
+                      -
+                    </Button>
+                    <TextField
+                      type="number"
+                      size="small"
+                      value={initialPlayersCount}
+                      onChange={(event) =>
+                        handleInitialPlayersCountChange(
+                          Number(event.target.value),
+                        )
+                      }
+                      sx={{
+                        width: 86,
+                        background: "rgba(255,255,255,0.09)",
+                        borderRadius: 2,
+                        "& input": {
+                          textAlign: "center",
+                          fontWeight: 700,
+                          color: "#f8fafc",
+                        },
+                        "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                          {
+                            display: "none",
+                            margin: 0,
+                          },
+                        "& input[type=number]": {
+                          MozAppearance: "textfield",
+                        },
+                      }}
+                      slotProps={{
+                        htmlInput: {
+                          min: 1,
+                          max: 20,
+                        },
+                      }}
+                    />
+                    <Button
+                      variant="outlined"
+                      onClick={() =>
+                        handleInitialPlayersCountChange(initialPlayersCount + 1)
+                      }
+                      sx={{ minWidth: 40, px: 0 }}
+                    >
+                      +
+                    </Button>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    onClick={handleGenerateInitialPlayers}
+                    sx={{
+                      mt: 0.25,
+                      width: "100%",
+                      textTransform: "none",
+                      fontWeight: 700,
+                      background:
+                        "linear-gradient(135deg, rgba(16,185,129,0.95), rgba(14,116,144,0.95))",
+                    }}
+                  >
+                    Generate players
+                  </Button>
+                </Box>
               )}
             </PlayersList>
           </TabPanelBox>
         )}
 
         {activeTab === 1 && (
+          <TabPanelBox>
+            <SettingsLobbyTitle>Time</SettingsLobbyTitle>
+            <Box
+              sx={{
+                display: "grid",
+                gap: 1.25,
+                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+              }}
+            >
+              <Box>
+                <Typography
+                  sx={{
+                    color: "rgba(248,250,252,0.92)",
+                    fontWeight: 700,
+                    mb: 1,
+                  }}
+                >
+                  Speaker time
+                </Typography>
+                <TextField
+                  fullWidth
+                  type="number"
+                  size="small"
+                  value={speechTimer}
+                  onChange={(event) =>
+                    handleSpeechTimerChange(Number(event.target.value))
+                  }
+                  sx={{
+                    background: "rgba(255,255,255,0.08)",
+                    borderRadius: 2,
+                    "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                      {
+                        display: "none",
+                        margin: 0,
+                      },
+                    "& input[type=number]": {
+                      MozAppearance: "textfield",
+                    },
+                  }}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
+                          sec
+                        </Typography>
+                      ),
+                    },
+                  }}
+                />
+              </Box>
+
+              <Box>
+                <Typography
+                  sx={{
+                    color: "rgba(248,250,252,0.92)",
+                    fontWeight: 700,
+                    mb: 1,
+                  }}
+                >
+                  Defense time
+                </Typography>
+                <TextField
+                  fullWidth
+                  type="number"
+                  size="small"
+                  value={defenseTimer}
+                  onChange={(event) =>
+                    handleDefenseTimerChange(Number(event.target.value))
+                  }
+                  sx={{
+                    background: "rgba(255,255,255,0.08)",
+                    borderRadius: 2,
+                    "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                      {
+                        display: "none",
+                        margin: 0,
+                      },
+                    "& input[type=number]": {
+                      MozAppearance: "textfield",
+                    },
+                  }}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
+                          sec
+                        </Typography>
+                      ),
+                    },
+                  }}
+                />
+              </Box>
+            </Box>
+          </TabPanelBox>
+        )}
+
+        {activeTab === 2 && (
           <TabPanelBox>
             <SettingsLobbyTitle>Immunity</SettingsLobbyTitle>
             <ImmunityButton onClick={() => handleOpenImmunityModal(null)}>
@@ -453,7 +629,7 @@ export const StartGameDialog = ({
           </TabPanelBox>
         )}
 
-        {activeTab === 2 && (
+        {activeTab === 3 && (
           <TabPanelBox>
             <SettingsLobbyTitle>Roles</SettingsLobbyTitle>
             <Box

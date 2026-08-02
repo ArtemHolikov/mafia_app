@@ -66,7 +66,7 @@ export const GoToAcquaintancePhase = styled(Button)({
   background: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
   color: "#fff",
   width: "100%",
-  marginTop: 18,
+  marginTop: 36,
   padding: "12px 16px",
 });
 
