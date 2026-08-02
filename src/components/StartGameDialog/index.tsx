@@ -243,9 +243,9 @@ export const StartGameDialog = ({
           indicatorColor="secondary"
         >
           <Tab label="Players" />
-          <Tab label="Time" />
+          <Tab label="Time" disabled={players.length === 0} />
           <Tab label="Immunity" disabled={players.length === 0} />
-          <Tab label="Roles" />
+          <Tab label="Roles" disabled={players.length === 0} />
         </Tabs>
 
         {activeTab === 0 && (
