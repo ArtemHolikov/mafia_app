@@ -241,18 +241,49 @@ export const useGameStore = create(
         })),
 
       addFoul: (playerId: number) =>
-        set((state: any) => ({
-          players: state.players.map((player: any) =>
-            player.id === playerId
-              ? { ...player, fouls: player.fouls + 1 }
-              : player,
-          ),
-        })),
+        set((state: any) => {
+          const updatedPlayers = state.players.map((player: any) => {
+            if (player.id !== playerId) {
+              return player;
+            }
+
+            const nextFouls = (player.fouls ?? 0) + 1;
+
+            if (nextFouls >= 4) {
+              return {
+                ...player,
+                fouls: nextFouls,
+                isAlive: false,
+                raisedForVoting: false,
+                pendingMafiaKill: false,
+                pendingManiacKill: false,
+                pendingThiefBlock: false,
+              };
+            }
+
+            return {
+              ...player,
+              fouls: nextFouls,
+            };
+          });
+
+          return {
+            players: normalizePlayersOrder(updatedPlayers),
+            raisedForVotingPlayers: state.raisedForVotingPlayers.filter(
+              (raisedPlayer: any) => {
+                const current = updatedPlayers.find(
+                  (p: any) => p.id === raisedPlayer.id,
+                );
+                return Boolean(current?.isAlive && current?.raisedForVoting);
+              },
+            ),
+          };
+        }),
 
       submitReceivedVotes: (playerId: number, votesReceived: number) =>
         set((state: any) => {
           const alivePlayersCount = state.players.filter(
-            (player: any) => player.isAlive,
+            (player: any) => player.isAlive && (player.fouls ?? 0) < 3,
           ).length;
 
           if (state.raisedForVotingPlayers.length === 0) {
@@ -438,7 +469,7 @@ export const useGameStore = create(
       finalizeVotingEntries: (entries: Record<number, number>) =>
         set((state: any) => {
           const alivePlayersCount = state.players.filter(
-            (player: any) => player.isAlive,
+            (player: any) => player.isAlive && (player.fouls ?? 0) < 3,
           ).length;
 
           const orderedCandidates = state.raisedForVotingPlayers;

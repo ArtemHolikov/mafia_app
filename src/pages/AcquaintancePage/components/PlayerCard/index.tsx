@@ -18,6 +18,7 @@ import ManiacMark from "../../../../images/maniac_mark.png";
 import ThiefMark from "../../../../images/thief_mark.png";
 import DoubleKill from "../../../../images/double_kill.png";
 import { PlayerVotingModal } from "../../../../components/PlayerVotingModal";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
 const ROLE_COLORS: Record<string, string> = {
   Don: "#ef4444",
@@ -130,6 +131,20 @@ export const PlayerCard = ({
             {tableOrder} | {nickname}
           </OrderNicknameText>
           <RoleText sx={{ color: roleColor }}>{role}</RoleText>
+          <Typography sx={{ fontSize: "0.85rem", color: "#f8fafc", mt: 0.7 }}>
+            Fouls: {playerRecord?.fouls ?? 0}
+          </Typography>
+          {(playerRecord?.fouls ?? 0) >= 3 && (
+            <Typography
+              sx={{
+                fontSize: "0.78rem",
+                color: "rgba(251,191,36,0.95)",
+                mt: 0.4,
+              }}
+            >
+              Vote disabled
+            </Typography>
+          )}
           {currentVotes > 0 && (
             <Typography sx={{ fontSize: "0.85rem", color: "#f8fafc", mt: 1 }}>
               Votes: {currentVotes}
@@ -164,6 +179,27 @@ export const PlayerCard = ({
           <RaisedForVotingBox>
             <img src={RaisedForVoting} width={200} height={150} />
           </RaisedForVotingBox>
+        )}
+        {(playerRecord?.fouls ?? 0) === 2 && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 10,
+              right: 10,
+              zIndex: 2,
+              width: 30,
+              height: 30,
+              borderRadius: "50%",
+              background: "rgba(17,24,39,0.74)",
+              border: "1px solid rgba(251,191,36,0.55)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            title="Warning: player has 2+ fouls"
+          >
+            <WarningAmberIcon sx={{ fontSize: 19, color: "#fbbf24" }} />
+          </Box>
         )}
       </CardWrapper>
 

@@ -26,7 +26,9 @@ export const PlayerVotingModal = ({
 
   const alivePlayersCount = useGameStore(
     (state: any) =>
-      state.players.filter((player: any) => player.isAlive).length,
+      state.players.filter(
+        (player: any) => player.isAlive && (player.fouls ?? 0) < 3,
+      ).length,
   );
   const votingEntries = useGameStore((state: any) => state.votingEntries);
   const raisedForVotingPlayers = useGameStore(
