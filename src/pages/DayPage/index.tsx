@@ -58,11 +58,13 @@ export const DayPage = () => {
   const [showKilledDialog, setShowKilledDialog] = useState(false);
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
-  const [isNominationMode, setIsNominationMode] = useState(false);
   const [foulFeedback, setFoulFeedback] = useState<string | null>(null);
   const [foulWasGivenForSelection, setFoulWasGivenForSelection] =
     useState(false);
   const foulWasGivenForSelectionRef = useRef(false);
+  const [nominationWasGivenForSelection, setNominationWasGivenForSelection] =
+    useState(false);
+  const nominationWasGivenForSelectionRef = useRef(false);
   const intervalRef = useRef<number | null>(null);
   const dayTimerSecondsRef = useRef<number>(dayTimerSecondsLeft);
   const alivePlayers = useMemo(
@@ -98,8 +100,11 @@ export const DayPage = () => {
       setRound(roundParam);
     }
     setPhase("day");
+    setSelectedPlayerId(null);
     foulWasGivenForSelectionRef.current = false;
     setFoulWasGivenForSelection(false);
+    nominationWasGivenForSelectionRef.current = false;
+    setNominationWasGivenForSelection(false);
 
     resetDayTimer();
 
@@ -194,23 +199,23 @@ export const DayPage = () => {
     (state: any) => state.clearRaisedForVoting,
   );
 
-  const handleVoteTargetSelect = (targetId: number) => {
-    if (!isNominationMode) {
-      return;
-    }
-
-    raisedForVoting(targetId);
-    setIsNominationMode(false);
-  };
-
   const selectedPlayer = alivePlayers.find(
     (player: any) => player.id === selectedPlayerId,
+  );
+
+  const selectedPlayerAlreadyRaised = Boolean(
+    selectedPlayer &&
+    raisedForVotingPlayers.some(
+      (player: any) => player.id === selectedPlayer.id,
+    ),
   );
 
   const handleSelectPlayer = (playerId: number) => {
     setSelectedPlayerId(playerId);
     foulWasGivenForSelectionRef.current = false;
     setFoulWasGivenForSelection(false);
+    nominationWasGivenForSelectionRef.current = false;
+    setNominationWasGivenForSelection(false);
   };
 
   const handleGiveFoul = () => {
@@ -227,6 +232,20 @@ export const DayPage = () => {
     );
   };
 
+  const handleNominatePlayer = () => {
+    if (
+      !selectedPlayer ||
+      nominationWasGivenForSelectionRef.current ||
+      selectedPlayerAlreadyRaised
+    ) {
+      return;
+    }
+
+    nominationWasGivenForSelectionRef.current = true;
+    setNominationWasGivenForSelection(true);
+    raisedForVoting(selectedPlayer.id);
+  };
+
   useEffect(() => {
     if (!foulFeedback) {
       return;
@@ -240,10 +259,6 @@ export const DayPage = () => {
       window.clearTimeout(timeoutId);
     };
   }, [foulFeedback]);
-
-  const handleStartNomination = () => {
-    setIsNominationMode(true);
-  };
 
   const goToNight = () => {
     if (isMafiaWinConditionMet || isTownWinConditionMet) {
@@ -506,8 +521,6 @@ export const DayPage = () => {
             tableOrder={player.tableOrder}
             role={player.role}
             onDayPlayerSelect={handleSelectPlayer}
-            voteModeVoterId={isNominationMode ? -1 : null}
-            onVoteTargetSelect={handleVoteTargetSelect}
           />
         ))}
       </PlayerCardsWrapper>
@@ -517,10 +530,10 @@ export const DayPage = () => {
           onClick={handleGiveFoul}
           disabled={
             !selectedPlayer ||
-            isNominationMode ||
             isMafiaWinConditionMet ||
             isTownWinConditionMet ||
-            foulWasGivenForSelection
+            foulWasGivenForSelection ||
+            nominationWasGivenForSelection
           }
           sx={{ background: "rgba(56,189,248,0.92)", minWidth: 170 }}
         >
@@ -528,8 +541,15 @@ export const DayPage = () => {
         </NightActionButton>
 
         <NightActionButton
-          onClick={handleStartNomination}
-          disabled={isMafiaWinConditionMet || isTownWinConditionMet}
+          onClick={handleNominatePlayer}
+          disabled={
+            !selectedPlayer ||
+            nominationWasGivenForSelection ||
+            foulWasGivenForSelection ||
+            selectedPlayerAlreadyRaised ||
+            isMafiaWinConditionMet ||
+            isTownWinConditionMet
+          }
           sx={{
             background:
               "linear-gradient(135deg, rgba(34,197,94,0.95), rgba(22,163,74,0.95))",
@@ -541,9 +561,7 @@ export const DayPage = () => {
 
         <NightActionButton
           onClick={goToNight}
-          disabled={
-            isNominationMode || isMafiaWinConditionMet || isTownWinConditionMet
-          }
+          disabled={isMafiaWinConditionMet || isTownWinConditionMet}
           sx={{ minWidth: 190 }}
         >
           {raisedForVotingPlayers.length > 0

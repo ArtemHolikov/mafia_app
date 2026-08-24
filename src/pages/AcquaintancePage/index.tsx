@@ -36,11 +36,13 @@ export const AcquaintancePage = () => {
     (state: any) => state.selectedGameRoles,
   );
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
-  const [isNominationMode, setIsNominationMode] = useState(false);
   const [foulFeedback, setFoulFeedback] = useState<string | null>(null);
   const [foulWasGivenForSelection, setFoulWasGivenForSelection] =
     useState(false);
   const foulWasGivenForSelectionRef = useRef(false);
+  const [nominationWasGivenForSelection, setNominationWasGivenForSelection] =
+    useState(false);
+  const nominationWasGivenForSelectionRef = useRef(false);
 
   const speechTimer = useGameStore((state: any) => state.speechTimer);
   const dayTimerSecondsLeft = useGameStore(
@@ -65,12 +67,11 @@ export const AcquaintancePage = () => {
   }, []);
 
   useEffect(() => {
-    if (phase !== "day acquaintance") {
-      return;
-    }
-
+    setSelectedPlayerId(null);
     foulWasGivenForSelectionRef.current = false;
     setFoulWasGivenForSelection(false);
+    nominationWasGivenForSelectionRef.current = false;
+    setNominationWasGivenForSelection(false);
   }, [phase]);
 
   useEffect(() => {
@@ -161,20 +162,23 @@ export const AcquaintancePage = () => {
     }
   };
 
-  const handleVoteTargetSelect = (targetId: number) => {
-    if (!isNominationMode) return;
-    raisedForVoting(targetId);
-    setIsNominationMode(false);
-  };
-
   const selectedPlayer = displayedPlayers.find(
     (player: any) => player.id === selectedPlayerId,
+  );
+
+  const selectedPlayerAlreadyRaised = Boolean(
+    selectedPlayer &&
+    raisedForVotingPlayers.some(
+      (player: any) => player.id === selectedPlayer.id,
+    ),
   );
 
   const handleSelectPlayer = (playerId: number) => {
     setSelectedPlayerId(playerId);
     foulWasGivenForSelectionRef.current = false;
     setFoulWasGivenForSelection(false);
+    nominationWasGivenForSelectionRef.current = false;
+    setNominationWasGivenForSelection(false);
   };
 
   const handleGiveFoul = () => {
@@ -191,6 +195,20 @@ export const AcquaintancePage = () => {
     );
   };
 
+  const handleNominatePlayer = () => {
+    if (
+      !selectedPlayer ||
+      nominationWasGivenForSelectionRef.current ||
+      selectedPlayerAlreadyRaised
+    ) {
+      return;
+    }
+
+    nominationWasGivenForSelectionRef.current = true;
+    setNominationWasGivenForSelection(true);
+    raisedForVoting(selectedPlayer.id);
+  };
+
   useEffect(() => {
     if (!foulFeedback) {
       return;
@@ -204,10 +222,6 @@ export const AcquaintancePage = () => {
       window.clearTimeout(timeoutId);
     };
   }, [foulFeedback]);
-
-  const handleStartNomination = () => {
-    setIsNominationMode(true);
-  };
 
   const buttonTextToDisplay =
     phase === "night acquaintance"
@@ -308,8 +322,6 @@ export const AcquaintancePage = () => {
               role={player.role}
               tableOrder={player.tableOrder}
               onDayPlayerSelect={handleSelectPlayer}
-              voteModeVoterId={isNominationMode ? -1 : null}
-              onVoteTargetSelect={handleVoteTargetSelect}
             />
           ))}
         </PlayerCardsWrapper>
@@ -319,16 +331,19 @@ export const AcquaintancePage = () => {
         <NightActionsWrapper>
           <NightActionButton
             onClick={handleGiveFoul}
-            disabled={
-              !selectedPlayer || isNominationMode || foulWasGivenForSelection
-            }
+            disabled={!selectedPlayer || foulWasGivenForSelection}
             sx={{ background: "rgba(56,189,248,0.92)", minWidth: 170 }}
           >
             Give foul +1
           </NightActionButton>
 
           <NightActionButton
-            onClick={handleStartNomination}
+            onClick={handleNominatePlayer}
+            disabled={
+              !selectedPlayer ||
+              nominationWasGivenForSelection ||
+              selectedPlayerAlreadyRaised
+            }
             sx={{
               background:
                 "linear-gradient(135deg, rgba(34,197,94,0.95), rgba(22,163,74,0.95))",
