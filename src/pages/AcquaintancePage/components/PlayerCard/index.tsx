@@ -132,20 +132,20 @@ export const PlayerCard = ({
             selectedForDay || selectedForNightTarget
               ? "rgba(56,189,248,0.2)"
               : isPlayerRaisedForVoting
-                ? "rgba(139,92,246,0.22)"
+                ? "rgba(11,184,171,0.2)"
                 : "",
           border: `3px solid ${
             selectedForDay || selectedForNightTarget
               ? "#38bdf8"
               : isPlayerRaisedForVoting
-                ? "rgba(139,92,246,0.7)"
+                ? "rgba(45,211,195,0.72)"
                 : `${roleColor}63`
           }`,
           boxShadow:
             selectedForDay || selectedForNightTarget
               ? "0 0 0 3px rgba(56,189,248,0.32), 0 0 26px rgba(56,189,248,0.3), 0 16px 40px rgba(2,6,23,0.22)"
               : isPlayerRaisedForVoting
-                ? "0 0 0 2px rgba(139,92,246,0.5), 0 16px 40px rgba(2,6,23,0.22)"
+                ? "0 0 0 2px rgba(45,211,195,0.42), 0 16px 40px rgba(2,6,23,0.22)"
                 : `0 0 0 1px ${roleColor}22, 0 16px 40px rgba(2,6,23,0.22)`,
           opacity: isDisabledByImmunity ? 0.55 : 1,
         }}

@@ -1,10 +1,10 @@
 import { Box, Dialog, Divider, Typography } from "@mui/material";
-import { DialogBody } from "../PlayerActionsModal/index.styles";
 import { SettingPlayerInfoTitle } from "../../pages/AcquaintancePage/components/AcquaintancePlayerModal/index.styles";
 import {
   CountOfVotesField,
   CountOfVotesTitle,
   SubmitButton,
+  VotingDialogBody,
 } from "./index.styles";
 import { useGameStore } from "../../store/gameStore";
 import { useEffect, useState } from "react";
@@ -83,8 +83,22 @@ export const PlayerVotingModal = ({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogBody>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      fullWidth
+      maxWidth="xs"
+      sx={{
+        "& .MuiDialog-paper": {
+          overflow: "hidden",
+          borderRadius: 3,
+          background: "#07111d",
+          boxShadow:
+            "0 28px 84px rgba(2,6,23,0.78), 0 0 42px rgba(34,211,238,0.1)",
+        },
+      }}
+    >
+      <VotingDialogBody>
         <SettingPlayerInfoTitle>
           {id} | {nickname}
         </SettingPlayerInfoTitle>
@@ -94,7 +108,16 @@ export const PlayerVotingModal = ({
           Enter how many votes this player received.
         </Typography>
         <Typography
-          sx={{ color: "rgba(248,250,252,0.7)", textAlign: "center", mb: 2 }}
+          sx={{
+            color: "#a5f3fc",
+            textAlign: "center",
+            mb: 2,
+            px: 1.5,
+            py: 1,
+            borderRadius: 1.5,
+            border: "1px solid rgba(103,232,249,0.14)",
+            bgcolor: "rgba(34,211,238,0.055)",
+          }}
         >
           Remaining votes available: {remainingVotes}
         </Typography>
@@ -102,12 +125,12 @@ export const PlayerVotingModal = ({
           sx={{
             width: "100%",
             height: "1px",
-            background: "rgba(255,255,255,0.12)",
+            background: "rgba(103,232,249,0.22)",
           }}
         />
         <Box
           sx={{
-            paddingTop: 3,
+            paddingTop: 2.5,
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -138,7 +161,7 @@ export const PlayerVotingModal = ({
         <SubmitButton onClick={handleSubmitReceivedVotes}>
           Save votes
         </SubmitButton>
-      </DialogBody>
+      </VotingDialogBody>
     </Dialog>
   );
 };

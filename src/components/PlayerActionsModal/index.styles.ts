@@ -27,7 +27,8 @@ export const ActionButton = styled(Button)({
   marginBottom: 12,
   transition: "transform 0.2s ease, background-color 0.2s ease",
   "&:hover": {
-    background: "rgba(139, 92, 246, 0.16)",
+    background: "rgba(11, 184, 171, 0.16)",
+    borderColor: "rgba(45,211,195,0.38)",
     transform: "translateY(-1px)",
   },
 });

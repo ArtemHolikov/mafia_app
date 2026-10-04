@@ -46,11 +46,11 @@ export const SectionTitle = styled(Typography)({
 export const SectionChip = styled(Box)({
   padding: "8px 14px",
   borderRadius: 999,
-  background: "rgba(139, 92, 246, 0.2)",
-  color: "#e9d5ff",
+  background: "rgba(11, 184, 171, 0.14)",
+  color: "#99f6e4",
   fontSize: "0.95rem",
   fontWeight: 600,
-  border: "1px solid rgba(167, 139, 250, 0.2)",
+  border: "1px solid rgba(45, 211, 195, 0.24)",
 });
 
 export const GoToDayAcquaintanceButton = styled(Button)({
@@ -58,11 +58,15 @@ export const GoToDayAcquaintanceButton = styled(Button)({
   bottom: 20,
   right: 20,
   padding: "12px 20px",
-  background: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
-  color: "#fff",
+  background: "#0bb8ab",
+  color: "#04121b",
   borderRadius: 999,
-  boxShadow: "0 12px 30px rgba(76, 29, 149, 0.35)",
+  boxShadow: "0 0 24px rgba(11,184,171,0.28)",
   zIndex: 20,
+  "&:hover": {
+    background: "#2bd3c3",
+    boxShadow: "0 0 30px rgba(45,211,195,0.38)",
+  },
 });
 
 export const NightActionsWrapper = styled(Box)({
