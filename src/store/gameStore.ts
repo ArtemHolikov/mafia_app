@@ -285,45 +285,90 @@ export const useGameStore = create(
           const alivePlayersCount = state.players.filter(
             (player: any) => player.isAlive && (player.fouls ?? 0) < 3,
           ).length;
+          const orderedCandidates = state.raisedForVotingPlayers;
 
-          if (state.raisedForVotingPlayers.length === 0) {
+          if (
+            orderedCandidates.length === 0 ||
+            !orderedCandidates.some((player: any) => player.id === playerId)
+          ) {
             return { votingEntries: null };
           }
 
-          const currentEntries = state.votingEntries ?? {};
+          const previousEntries = state.votingEntries ?? {};
+          let remainingVotes = alivePlayersCount;
+          const currentEntries = orderedCandidates.reduce(
+            (entries: Record<number, number>, player: any) => {
+              if (
+                !Object.prototype.hasOwnProperty.call(
+                  previousEntries,
+                  player.id,
+                )
+              ) {
+                return entries;
+              }
+
+              const value = Number(previousEntries[player.id]);
+              if (!Number.isInteger(value) || value < 0) {
+                return entries;
+              }
+
+              entries[player.id] = Math.min(value, remainingVotes);
+              remainingVotes -= entries[player.id];
+              return entries;
+            },
+            {} as Record<number, number>,
+          );
+          const numericVotes = Number(votesReceived);
+          if (!Number.isInteger(numericVotes) || numericVotes < 0) {
+            return {};
+          }
+          const otherVotes = Object.entries(currentEntries).reduce(
+            (sum: number, [entryId, value]: [string, unknown]) =>
+              Number(entryId) === playerId ? sum : sum + Number(value),
+            0,
+          );
           const nextEntries: Record<number, number> = {
             ...currentEntries,
-            [playerId]: votesReceived,
+            [playerId]: Math.min(
+              numericVotes,
+              Math.max(0, alivePlayersCount - otherVotes),
+            ),
           };
 
-          const orderedCandidates = state.raisedForVotingPlayers;
           const totalCandidates = orderedCandidates.length;
           const entriesCount = Object.keys(nextEntries).length;
 
-          // Helper to finalize with given entries - unused votes go to specified receiverId
-          const finalize = (
-            entries: Record<number, number>,
-            receiverId?: number,
-          ) => {
-            const finalEntries: Record<number, number> = { ...entries };
-            if (receiverId !== undefined) {
-              finalEntries[receiverId] = finalEntries[receiverId] ?? 0;
-            }
-
-            const maxVotes = Math.max(...Object.values(finalEntries));
-            const topPlayers = orderedCandidates.filter(
-              (p: any) => finalEntries[p.id] === maxVotes,
+          const finalize = (entries: Record<number, number>) => {
+            const finalEntries = orderedCandidates.reduce(
+              (normalized: Record<number, number>, player: any) => {
+                normalized[player.id] = entries[player.id] ?? 0;
+                return normalized;
+              },
+              {} as Record<number, number>,
             );
+            const maxVotes = Math.max(
+              ...(Object.values(finalEntries) as number[]),
+            );
+            const topPlayers =
+              maxVotes > 0
+                ? orderedCandidates.filter(
+                    (player: any) => finalEntries[player.id] === maxVotes,
+                  )
+                : [];
 
             const eliminatedPlayer =
               topPlayers.length === 1 ? topPlayers[0] : null;
 
             const updatedPlayers = state.players.map((player: any) => {
-              if (!finalEntries.hasOwnProperty(player.id)) {
+              if (
+                !orderedCandidates.some(
+                  (candidate: any) => candidate.id === player.id,
+                )
+              ) {
                 return player;
               }
 
-              const finalVotes = finalEntries[player.id];
+              const finalVotes = finalEntries[player.id] ?? 0;
               return {
                 ...player,
                 votesReceived: finalVotes,
@@ -371,7 +416,7 @@ export const useGameStore = create(
 
             // If current has majority
             if (currentVotes > alivePlayersCount / 2) {
-              return finalize(nextEntries, playerId);
+              return finalize(nextEntries);
             }
 
             // If current is guaranteed top (others cannot catch up even if remaining votes go to them)
@@ -385,35 +430,37 @@ export const useGameStore = create(
             });
 
             if (guaranteed) {
-              // assign leftover votes to current player and finalize
-              return finalize(nextEntries, playerId);
+              return finalize(nextEntries);
             }
 
             // otherwise store the partial entries and continue
             return { votingEntries: nextEntries };
           }
 
-          // All entries submitted - assign unused votes to last candidate
-          const lastCandidate = orderedCandidates[orderedCandidates.length - 1];
-          const submittedSum = Object.values(nextEntries).reduce(
-            (s: number, v: number) => s + v,
-            0,
+          const finalEntries = orderedCandidates.reduce(
+            (entries: Record<number, number>, player: any) => {
+              entries[player.id] = nextEntries[player.id] ?? 0;
+              return entries;
+            },
+            {} as Record<number, number>,
           );
-          const unusedVotes = Math.max(0, alivePlayersCount - submittedSum);
-          const finalEntries: Record<number, number> = {
-            ...nextEntries,
-            [lastCandidate.id]:
-              (nextEntries[lastCandidate.id] ?? 0) + unusedVotes,
-          };
 
-          const maxVotes = Math.max(...Object.values(finalEntries));
-          const topPlayers = orderedCandidates.filter(
-            (p: any) => finalEntries[p.id] === maxVotes,
+          const maxVotes = Math.max(
+            ...(Object.values(finalEntries) as number[]),
           );
+          const topPlayers =
+            maxVotes > 0
+              ? orderedCandidates.filter(
+                  (player: any) => finalEntries[player.id] === maxVotes,
+                )
+              : [];
 
           if (topPlayers.length === 1) {
-            // single winner -> eliminate
-            return finalize(finalEntries, undefined);
+            return finalize(finalEntries);
+          }
+
+          if (topPlayers.length === 0) {
+            return finalize(finalEntries);
           }
 
           // tie detected
@@ -481,37 +528,44 @@ export const useGameStore = create(
             (acc: Record<number, number>, player: any) => {
               const rawValue = entries?.[player.id] ?? 0;
               const numericValue = Number(rawValue);
-              acc[player.id] = Number.isFinite(numericValue)
-                ? Math.max(0, numericValue)
-                : 0;
+              acc[player.id] =
+                Number.isInteger(numericValue) && numericValue >= 0
+                  ? numericValue
+                  : 0;
               return acc;
             },
-            {},
+            {} as Record<number, number>,
           );
 
-          const lastCandidate = orderedCandidates[orderedCandidates.length - 1];
           const submittedSum = (
             Object.values(normalizedEntries) as number[]
           ).reduce((sum: number, value: number) => sum + value, 0);
-          const unusedVotes = Math.max(0, alivePlayersCount - submittedSum);
-          const finalEntries: Record<number, number> = {
-            ...normalizedEntries,
-            [lastCandidate.id]:
-              (normalizedEntries[lastCandidate.id] ?? 0) + unusedVotes,
-          };
+          if (submittedSum > alivePlayersCount) {
+            return {};
+          }
+          const finalEntries = normalizedEntries;
 
-          const maxVotes = Math.max(...Object.values(finalEntries));
-          const topPlayers = orderedCandidates.filter(
-            (player: any) => finalEntries[player.id] === maxVotes,
+          const maxVotes = Math.max(
+            ...(Object.values(finalEntries) as number[]),
           );
+          const topPlayers =
+            maxVotes > 0
+              ? orderedCandidates.filter(
+                  (player: any) => finalEntries[player.id] === maxVotes,
+                )
+              : [];
 
           const finalize = (eliminatedPlayer: any | null) => {
             const updatedPlayers = state.players.map((player: any) => {
-              if (!finalEntries.hasOwnProperty(player.id)) {
+              if (
+                !orderedCandidates.some(
+                  (candidate: any) => candidate.id === player.id,
+                )
+              ) {
                 return player;
               }
 
-              const finalVotes = finalEntries[player.id];
+              const finalVotes = finalEntries[player.id] ?? 0;
               return {
                 ...player,
                 votesReceived: finalVotes,
@@ -549,6 +603,10 @@ export const useGameStore = create(
 
           if (topPlayers.length === 1) {
             return finalize(topPlayers[0]);
+          }
+
+          if (topPlayers.length === 0) {
+            return finalize(null);
           }
 
           const tiedIds = topPlayers.map((player: any) => player.id);
@@ -661,6 +719,8 @@ export const useGameStore = create(
             raisedForVoting: false,
           })),
           raisedForVotingPlayers: [],
+          votingEntries: null,
+          votingTie: null,
         })),
 
       resetForLobby: () =>

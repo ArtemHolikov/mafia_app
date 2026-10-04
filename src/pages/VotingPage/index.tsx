@@ -7,6 +7,7 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  TextField,
   Typography,
 } from "@mui/material";
 import { useMemo, useRef, useEffect, useState } from "react";
@@ -64,6 +65,7 @@ export const VotingPage = () => {
     (state: any) => state.resetDefenseTimer,
   );
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
+  const [tieResolutionVotes, setTieResolutionVotes] = useState(0);
 
   const intervalRef = useRef<number | null>(null);
   const defenseTimerSecondsRef = useRef<number>(defenseTimerSecondsLeft);
@@ -111,6 +113,12 @@ export const VotingPage = () => {
 
   const alivePlayers = useMemo(
     () => players.filter((player: any) => player.isAlive),
+    [players],
+  );
+  const eligibleVoterCount = useMemo(
+    () =>
+      players.filter((player: any) => player.isAlive && (player.fouls ?? 0) < 3)
+        .length,
     [players],
   );
   const mafiaRoles = new Set(["Don", "Mafia", "Thief"]);
@@ -180,6 +188,16 @@ export const VotingPage = () => {
 
     goToNight();
   };
+
+  const submitTieResolutionVote = () => {
+    handleTieResolution(
+      tieResolutionVotes > eligibleVoterCount / 2 ? "kick" : "leave",
+    );
+  };
+
+  useEffect(() => {
+    setTieResolutionVotes(0);
+  }, [votingResult]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -278,7 +296,14 @@ export const VotingPage = () => {
         Return to night
       </GoToDayAcquaintanceButton>
 
-      <Dialog open={Boolean(votingResult)} onClose={goToNight}>
+      <Dialog
+        open={Boolean(votingResult)}
+        onClose={() => {
+          if (votingResult?.type !== "tieResolution") {
+            goToNight();
+          }
+        }}
+      >
         <DialogTitle>
           {votingResult?.type === "tieResolution"
             ? "Tie resolution"
@@ -287,7 +312,7 @@ export const VotingPage = () => {
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
             {votingResult?.type === "tieResolution"
-              ? `Both ${votingResult.tiedIds?.map((id: number) => `#${id}`).join(" and ")} received the same number of votes. Decide whether to eliminate both players.`
+              ? `${votingResult.tiedIds?.map((id: number) => `#${id}`).join(", ")} received the same number of votes.`
               : votingResult
                 ? votingResult.eliminated
                   ? `${votingResult.nickname} has been voted out with ${votingResult.votesReceived} vote(s).`
@@ -296,7 +321,7 @@ export const VotingPage = () => {
           </DialogContentText>
           <DialogContentText sx={{ color: "rgba(248,250,252,0.75)" }}>
             {votingResult?.type === "tieResolution"
-              ? "If most alive players vote to remove both tied players, they will be eliminated. Otherwise they stay alive and the game goes to night."
+              ? `Enter the number of eligible voters who chose to eliminate the tied players. They are eliminated only if more than half of the ${eligibleVoterCount} eligible voters voted to remove them.`
               : votingResult
                 ? `Alive players remaining: ${votingResult.alivePlayersCount}`
                 : "Proceed to night after confirming the result."}
@@ -304,21 +329,34 @@ export const VotingPage = () => {
         </DialogContent>
         <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
           {votingResult?.type === "tieResolution" ? (
-            <>
-              <Button
-                onClick={() => handleTieResolution("leave")}
-                color="inherit"
-              >
-                Leave both
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <TextField
+                label="Votes to eliminate"
+                type="number"
+                value={tieResolutionVotes}
+                onChange={(event) => {
+                  const value = Number(event.target.value);
+                  if (Number.isInteger(value)) {
+                    setTieResolutionVotes(
+                      Math.min(Math.max(0, value), eligibleVoterCount),
+                    );
+                  }
+                }}
+                slotProps={{
+                  input: {
+                    inputProps: {
+                      min: 0,
+                      max: eligibleVoterCount,
+                      step: 1,
+                    },
+                  },
+                }}
+                sx={{ width: 190 }}
+              />
+              <Button onClick={submitTieResolutionVote} variant="contained">
+                Submit tie vote
               </Button>
-              <Button
-                onClick={() => handleTieResolution("kick")}
-                variant="contained"
-                color="error"
-              >
-                Kick both
-              </Button>
-            </>
+            </Box>
           ) : (
             <Button onClick={goToNight} variant="contained" sx={{ mr: 1 }}>
               Confirm and go to night

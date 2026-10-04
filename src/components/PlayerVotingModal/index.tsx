@@ -65,12 +65,22 @@ export const PlayerVotingModal = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const value = Number(e.target.value);
-    const normalizedValue = Number.isNaN(value) ? 0 : Math.max(0, value);
-    setCountOfVotes(Math.min(normalizedValue, remainingVotes));
+    if (!Number.isInteger(value)) {
+      return;
+    }
+
+    setCountOfVotes(Math.min(Math.max(0, value), remainingVotes));
   };
 
   const handleSubmitReceivedVotes = () => {
-    submitReceivedVotes(id, countOfVotes);
+    if (!Number.isInteger(countOfVotes)) {
+      return;
+    }
+
+    submitReceivedVotes(
+      id,
+      Math.min(Math.max(0, countOfVotes), remainingVotes),
+    );
     handleClose();
   };
 
@@ -113,7 +123,7 @@ export const PlayerVotingModal = ({
             type="number"
             slotProps={{
               input: {
-                inputProps: { min: 0, max: remainingVotes },
+                inputProps: { min: 0, max: remainingVotes, step: 1 },
                 sx: {
                   "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
                     {
