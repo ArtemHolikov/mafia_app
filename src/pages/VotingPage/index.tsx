@@ -27,6 +27,10 @@ import { useNavigate } from "react-router-dom";
 
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import HowToVoteRoundedIcon from "@mui/icons-material/HowToVoteRounded";
+import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
 
 export const VotingPage = () => {
   const navigate = useNavigate();
@@ -303,33 +307,252 @@ export const VotingPage = () => {
             goToNight();
           }
         }}
+        fullWidth
+        maxWidth="sm"
+        sx={{
+          "& .MuiDialog-paper": {
+            overflow: "hidden",
+            border: `1px solid ${votingResult?.type === "tieResolution" ? "rgba(251,191,36,0.25)" : votingResult?.eliminated ? "rgba(251,113,133,0.25)" : "rgba(74,222,128,0.22)"}`,
+            background:
+              "radial-gradient(ellipse at top left, rgba(22,101,52,0.16), transparent 58%), linear-gradient(145deg, #111827, #090e19)",
+          },
+        }}
       >
-        <DialogTitle>
-          {votingResult?.type === "tieResolution"
-            ? "Tie resolution"
-            : "Voting results"}
+        <DialogTitle
+          sx={{ display: "flex", alignItems: "center", gap: 2, pt: 3, px: 3 }}
+        >
+          <Box
+            sx={{
+              width: 46,
+              height: 46,
+              flex: "0 0 auto",
+              display: "grid",
+              placeItems: "center",
+              borderRadius: 2.5,
+              color:
+                votingResult?.type === "tieResolution"
+                  ? "#fcd34d"
+                  : votingResult?.eliminated
+                    ? "#fda4af"
+                    : "#86efac",
+              bgcolor:
+                votingResult?.type === "tieResolution"
+                  ? "rgba(245,158,11,0.13)"
+                  : votingResult?.eliminated
+                    ? "rgba(244,63,94,0.13)"
+                    : "rgba(34,197,94,0.12)",
+              border: "1px solid rgba(255,255,255,0.1)",
+            }}
+          >
+            {votingResult?.type === "tieResolution" ? (
+              <GavelRoundedIcon />
+            ) : (
+              <HowToVoteRoundedIcon />
+            )}
+          </Box>
+          <Box>
+            <Typography
+              sx={{
+                color:
+                  votingResult?.type === "tieResolution"
+                    ? "#fcd34d"
+                    : votingResult?.eliminated
+                      ? "#fda4af"
+                      : "#86efac",
+                fontSize: "0.7rem",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+              }}
+            >
+              Round {round} · ballot report
+            </Typography>
+            <Typography
+              component="div"
+              sx={{ color: "#f8fafc", fontSize: "1.35rem", fontWeight: 750 }}
+            >
+              {votingResult?.type === "tieResolution"
+                ? "The vote is tied"
+                : votingResult?.eliminated
+                  ? "Player eliminated"
+                  : "No elimination"}
+            </Typography>
+          </Box>
         </DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ mb: 2 }}>
-            {votingResult?.type === "tieResolution"
-              ? `${votingResult.tiedIds?.map((id: number) => `#${id}`).join(", ")} received the same number of votes.`
-              : votingResult
-                ? votingResult.eliminated
-                  ? `${votingResult.nickname} has been voted out with ${votingResult.votesReceived} vote(s).`
-                  : "No player was eliminated this round."
-                : "Voting results are ready."}
-          </DialogContentText>
-          <DialogContentText sx={{ color: "rgba(248,250,252,0.75)" }}>
+        <DialogContent sx={{ px: 3, pt: 1, pb: 2 }}>
+          {votingResult?.type === "tieResolution" ? (
+            <>
+              <DialogContentText
+                sx={{ color: "rgba(248,250,252,0.68)", mb: 2 }}
+              >
+                The tied candidates received equal votes. Record the table's
+                decision below.
+              </DialogContentText>
+              <Box sx={{ display: "grid", gap: 1, mb: 2 }}>
+                {votingResult.tiedIds?.map((id: number) => {
+                  const tiedPlayer = players.find(
+                    (player: any) => player.id === id,
+                  );
+                  return (
+                    <Box
+                      key={id}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1.5,
+                        p: 1.5,
+                        borderRadius: 2,
+                        border: "1px solid rgba(251,191,36,0.18)",
+                        bgcolor: "rgba(245,158,11,0.055)",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 38,
+                          height: 38,
+                          display: "grid",
+                          placeItems: "center",
+                          flex: "0 0 auto",
+                          borderRadius: 1.5,
+                          bgcolor: "rgba(245,158,11,0.12)",
+                          color: "#fcd34d",
+                          fontWeight: 800,
+                          fontSize: "0.8rem",
+                        }}
+                      >
+                        {String(tiedPlayer?.tableOrder ?? id).padStart(2, "0")}
+                      </Box>
+                      <Box sx={{ minWidth: 0, flex: 1 }}>
+                        <Typography
+                          sx={{
+                            color: "#f8fafc",
+                            fontWeight: 700,
+                            overflowWrap: "anywhere",
+                          }}
+                        >
+                          {tiedPlayer?.nickname ?? `Player #${id}`}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            color: "rgba(248,250,252,0.58)",
+                            fontSize: "0.82rem",
+                          }}
+                        >
+                          {tiedPlayer?.role ?? "Candidate"}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        sx={{
+                          color: "#fcd34d",
+                          fontWeight: 800,
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {votingResult.finalEntries?.[id] ??
+                          votingResult.votesReceived}{" "}
+                        votes
+                      </Typography>
+                    </Box>
+                  );
+                })}
+              </Box>
+            </>
+          ) : votingResult?.eliminated ? (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1.75,
+                mb: 2,
+                borderRadius: 2,
+                border: "1px solid rgba(251,113,133,0.2)",
+                bgcolor: "rgba(244,63,94,0.06)",
+              }}
+            >
+              <Box
+                sx={{
+                  width: 42,
+                  height: 42,
+                  display: "grid",
+                  placeItems: "center",
+                  flex: "0 0 auto",
+                  borderRadius: 1.5,
+                  bgcolor: "rgba(244,63,94,0.13)",
+                  color: "#fda4af",
+                }}
+              >
+                <CheckCircleRoundedIcon />
+              </Box>
+              <Box sx={{ minWidth: 0, flex: 1 }}>
+                <Typography
+                  sx={{
+                    color: "#f8fafc",
+                    fontWeight: 750,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  {votingResult.nickname}
+                </Typography>
+                <Typography
+                  sx={{ color: "rgba(248,250,252,0.58)", fontSize: "0.82rem" }}
+                >
+                  Received the most votes
+                </Typography>
+              </Box>
+              <Box sx={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                <Typography
+                  sx={{
+                    color: "#fda4af",
+                    fontSize: "1.25rem",
+                    fontWeight: 800,
+                    lineHeight: 1.1,
+                  }}
+                >
+                  {votingResult.votesReceived}
+                </Typography>
+                <Typography
+                  sx={{ color: "rgba(248,250,252,0.55)", fontSize: "0.72rem" }}
+                >
+                  votes
+                </Typography>
+              </Box>
+            </Box>
+          ) : (
+            <DialogContentText sx={{ color: "rgba(248,250,252,0.68)", mb: 2 }}>
+              No candidate received a vote this round.
+            </DialogContentText>
+          )}
+          <DialogContentText sx={{ color: "rgba(248,250,252,0.66)" }}>
             {votingResult?.type === "tieResolution"
               ? `Enter the number of eligible voters who chose to eliminate the tied players. They are eliminated only if more than half of the ${eligibleVoterCount} eligible voters voted to remove them.`
               : votingResult
-                ? `Alive players remaining: ${votingResult.alivePlayersCount}`
+                ? `${votingResult.alivePlayersCount} players remain alive.`
                 : "Proceed to night after confirming the result."}
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
+        <DialogActions
+          sx={{
+            justifyContent: "center",
+            px: 3,
+            pb: 3,
+            pt: 1,
+            flexWrap: "wrap",
+            gap: 1.5,
+          }}
+        >
           {votingResult?.type === "tieResolution" ? (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                flexWrap: "wrap",
+                gap: 1.5,
+                width: "100%",
+              }}
+            >
               <TextField
                 label="Votes to eliminate"
                 type="number"
@@ -351,14 +574,32 @@ export const VotingPage = () => {
                     },
                   },
                 }}
-                sx={{ width: 190 }}
+                sx={{ width: "min(100%, 260px)" }}
               />
-              <Button onClick={submitTieResolutionVote} variant="contained">
+              <Button
+                onClick={submitTieResolutionVote}
+                variant="contained"
+                startIcon={<GavelRoundedIcon />}
+                sx={{
+                  width: "100%",
+                  borderRadius: 1.5,
+                  py: 1.1,
+                }}
+              >
                 Submit tie vote
               </Button>
             </Box>
           ) : (
-            <Button onClick={goToNight} variant="contained" sx={{ mr: 1 }}>
+            <Button
+              onClick={goToNight}
+              variant="contained"
+              startIcon={<DoneRoundedIcon />}
+              sx={{
+                width: "100%",
+                borderRadius: 1.5,
+                py: 1.1,
+              }}
+            >
               Confirm and go to night
             </Button>
           )}

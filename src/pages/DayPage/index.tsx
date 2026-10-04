@@ -27,6 +27,9 @@ import { FlickeringBox, MafiaFlickeringBox } from "./index.styles";
 
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import NightsStayRoundedIcon from "@mui/icons-material/NightsStayRounded";
+import PersonOffRoundedIcon from "@mui/icons-material/PersonOffRounded";
+import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
 
 export const DayPage = () => {
   const navigate = useNavigate();
@@ -594,23 +597,152 @@ export const DayPage = () => {
         </Box>
       )}
 
-      <Dialog open={showKilledDialog} onClose={confirmKills}>
-        <DialogTitle>Killed players</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
+      <Dialog
+        open={showKilledDialog}
+        onClose={confirmKills}
+        fullWidth
+        maxWidth="sm"
+        sx={{
+          "& .MuiDialog-paper": {
+            overflow: "hidden",
+            border: "1px solid rgba(251,113,133,0.24)",
+            background:
+              "radial-gradient(ellipse at top left, rgba(136,19,55,0.2), transparent 58%), linear-gradient(145deg, #111827, #090e19)",
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{ display: "flex", alignItems: "center", gap: 2, pt: 3, px: 3 }}
+        >
+          <Box
+            sx={{
+              width: 46,
+              height: 46,
+              flex: "0 0 auto",
+              display: "grid",
+              placeItems: "center",
+              borderRadius: 2.5,
+              color: "#fda4af",
+              bgcolor: "rgba(244,63,94,0.13)",
+              border: "1px solid rgba(251,113,133,0.25)",
+            }}
+          >
+            <NightsStayRoundedIcon />
+          </Box>
+          <Box>
+            <Typography
+              sx={{
+                color: "#fda4af",
+                fontSize: "0.7rem",
+                fontWeight: 800,
+                textTransform: "uppercase",
+                letterSpacing: "0.12em",
+              }}
+            >
+              Night report
+            </Typography>
+            <Typography
+              component="div"
+              sx={{ color: "#f8fafc", fontSize: "1.35rem", fontWeight: 750 }}
+            >
+              {killedPlayers.length > 0 ? "Players targeted" : "No casualties"}
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              ml: "auto",
+              px: 1.25,
+              py: 0.5,
+              borderRadius: 1.5,
+              bgcolor: "rgba(255,255,255,0.06)",
+              color: "rgba(248,250,252,0.78)",
+              fontSize: "0.78rem",
+              fontWeight: 700,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {killedPlayers.length}{" "}
+            {killedPlayers.length === 1 ? "player" : "players"}
+          </Box>
+        </DialogTitle>
+        <DialogContent sx={{ px: 3, pt: 1, pb: 2 }}>
+          <DialogContentText sx={{ color: "rgba(248,250,252,0.66)", mb: 2 }}>
             {killedPlayers.length > 0
-              ? `The following player${killedPlayers.length > 1 ? "s were" : " was"} targeted during the night:`
-              : "No players were killed during the night."}
+              ? "These players were marked during the night. Confirm to apply the results."
+              : "No players were targeted. Confirm to begin the day."}
           </DialogContentText>
-          {killedPlayers.map((player: any) => (
-            <DialogContentText key={player.id} sx={{ mt: 1 }}>
-              {player.tableOrder} | {player.nickname} — {player.role}
-            </DialogContentText>
-          ))}
+          <Box sx={{ display: "grid", gap: 1 }}>
+            {killedPlayers.map((player: any) => (
+              <Box
+                key={player.id}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  minWidth: 0,
+                  p: 1.5,
+                  borderRadius: 2,
+                  border: "1px solid rgba(251,113,133,0.18)",
+                  bgcolor: "rgba(244,63,94,0.055)",
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 38,
+                    height: 38,
+                    flex: "0 0 auto",
+                    display: "grid",
+                    placeItems: "center",
+                    borderRadius: 1.5,
+                    bgcolor: "rgba(251,113,133,0.12)",
+                    color: "#fda4af",
+                    fontWeight: 800,
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  {String(player.tableOrder).padStart(2, "0")}
+                </Box>
+                <Box sx={{ minWidth: 0, flex: 1 }}>
+                  <Typography
+                    sx={{
+                      color: "#f8fafc",
+                      fontWeight: 700,
+                      overflowWrap: "anywhere",
+                    }}
+                  >
+                    {player.nickname}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "rgba(248,250,252,0.58)",
+                      fontSize: "0.82rem",
+                    }}
+                  >
+                    {player.role}
+                  </Typography>
+                </Box>
+                <PersonOffRoundedIcon
+                  sx={{ color: "#fb7185", flex: "0 0 auto" }}
+                />
+              </Box>
+            ))}
+          </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={confirmKills} variant="contained">
-            Confirm
+        <DialogActions sx={{ justifyContent: "center", px: 3, pb: 3, pt: 1 }}>
+          <Button
+            onClick={confirmKills}
+            variant="contained"
+            startIcon={<DoneRoundedIcon />}
+            sx={{
+              width: "100%",
+              px: 2.5,
+              py: 1.1,
+              borderRadius: 1.5,
+              bgcolor: "#e11d48",
+              "&:hover": { bgcolor: "#be123c" },
+            }}
+          >
+            Confirm night report
           </Button>
         </DialogActions>
       </Dialog>
