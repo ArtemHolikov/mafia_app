@@ -283,7 +283,7 @@ export const useGameStore = create(
       submitReceivedVotes: (playerId: number, votesReceived: number) =>
         set((state: any) => {
           const alivePlayersCount = state.players.filter(
-            (player: any) => player.isAlive && (player.fouls ?? 0) < 3,
+            (player: any) => player.isAlive,
           ).length;
           const orderedCandidates = state.raisedForVotingPlayers;
 
@@ -516,7 +516,7 @@ export const useGameStore = create(
       finalizeVotingEntries: (entries: Record<number, number>) =>
         set((state: any) => {
           const alivePlayersCount = state.players.filter(
-            (player: any) => player.isAlive && (player.fouls ?? 0) < 3,
+            (player: any) => player.isAlive,
           ).length;
 
           const orderedCandidates = state.raisedForVotingPlayers;

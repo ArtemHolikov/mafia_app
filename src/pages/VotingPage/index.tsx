@@ -121,9 +121,7 @@ export const VotingPage = () => {
     [players],
   );
   const eligibleVoterCount = useMemo(
-    () =>
-      players.filter((player: any) => player.isAlive && (player.fouls ?? 0) < 3)
-        .length,
+    () => players.filter((player: any) => player.isAlive).length,
     [players],
   );
   const mafiaRoles = new Set(["Don", "Mafia", "Thief"]);
