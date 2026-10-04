@@ -1,20 +1,21 @@
 import { Box, Button, Select, styled, Typography } from "@mui/material";
 
 export const DialogBody = styled(Box)({
-  width: "min(92vw, 560px)",
-  padding: "24px",
+  width: "min(92vw, 620px)",
+  padding: "clamp(18px, 4vw, 28px)",
   background:
-    "linear-gradient(145deg, rgba(17,24,39,0.97), rgba(10,14,26,0.98))",
-  border: "1px solid rgba(255,255,255,0.1)",
-  boxShadow: "0 25px 60px rgba(2, 6, 23, 0.45)",
+    "radial-gradient(ellipse at top left, rgba(8,145,178,0.16), transparent 52%), linear-gradient(145deg, #0e1b2a, #07111d)",
+  border: "1px solid rgba(103,232,249,0.24)",
+  boxShadow: "0 28px 80px rgba(2,6,23,0.75), 0 0 36px rgba(34,211,238,0.1)",
 });
 
 export const SettingPlayerInfoTitle = styled(Typography)({
   fontSize: "1.3rem",
   fontWeight: 700,
-  color: "#f8fafc",
+  color: "#cffafe",
   textAlign: "center",
   marginBottom: 8,
+  textShadow: "0 0 18px rgba(34,211,238,0.2)",
 });
 
 export const PlayerInfoWrapper = styled(Box)({
@@ -22,11 +23,11 @@ export const PlayerInfoWrapper = styled(Box)({
   alignItems: "center",
   justifyContent: "space-between",
   gap: 16,
-  padding: "16px 0 20px",
-  borderRadius: 18,
-  background: "rgba(255,255,255,0.05)",
-  paddingLeft: 16,
-  paddingRight: 16,
+  padding: "16px",
+  borderRadius: 12,
+  background: "linear-gradient(135deg, rgba(8,47,60,0.44), rgba(4,14,25,0.72))",
+  border: "1px solid rgba(103,232,249,0.16)",
+  boxShadow: "inset 0 1px rgba(255,255,255,0.035)",
 });
 
 export const PlayerInfoText = styled(Typography)({
@@ -55,13 +56,18 @@ export const SelectRole = styled(Select)({
 });
 
 export const ConfirmButton = styled(Button)({
-  background: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
+  background: "linear-gradient(110deg, #06b6d4, #10b981)",
   width: "100%",
-  color: "#fff",
+  color: "#04121b",
   fontWeight: 700,
   fontSize: "1rem",
   padding: "12px 16px",
-  borderRadius: 16,
+  borderRadius: 10,
+  boxShadow: "0 0 20px rgba(34,211,238,0.18)",
+  "&:hover": {
+    background: "linear-gradient(110deg, #22d3ee, #34d399)",
+    boxShadow: "0 0 28px rgba(34,211,238,0.3)",
+  },
 });
 
 export const ConfirmButtonBox = styled(Box)({

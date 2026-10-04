@@ -97,10 +97,30 @@ export const AcquaintancePlayerModal = ({
   }, [selectedRoleValue]);
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      fullWidth
+      maxWidth="sm"
+      sx={{
+        "& .MuiDialog-paper": {
+          overflow: "hidden",
+          borderRadius: 3,
+          background: "#07111d",
+          boxShadow:
+            "0 28px 84px rgba(2,6,23,0.78), 0 0 42px rgba(34,211,238,0.1)",
+        },
+      }}
+    >
       <DialogBody>
         <SettingPlayerInfoTitle>Setup Player</SettingPlayerInfoTitle>
-        <Divider sx={{ width: "100%", height: "2px", background: "#1e1e1e" }} />
+        <Divider
+          sx={{
+            width: "100%",
+            height: "1px",
+            background: "rgba(103,232,249,0.2)",
+          }}
+        />
         <Box sx={{ padding: "16px" }}>
           <PlayerInfoWrapper>
             <Box>
@@ -111,7 +131,13 @@ export const AcquaintancePlayerModal = ({
             <img src={roleImageToDisplay} width={120} height={120} />
           </PlayerInfoWrapper>
         </Box>
-        <Divider sx={{ width: "100%", height: "2px", background: "#1e1e1e" }} />
+        <Divider
+          sx={{
+            width: "100%",
+            height: "1px",
+            background: "rgba(103,232,249,0.2)",
+          }}
+        />
         <Box sx={{ padding: "24px 16px 0" }}>
           <PlayerInfoText sx={{ mb: 1.5 }}>Pick a role</PlayerInfoText>
           <Box
@@ -141,13 +167,30 @@ export const AcquaintancePlayerModal = ({
                   sx={{
                     minHeight: 48,
                     textTransform: "none",
-                    borderRadius: 3,
+                    borderRadius: 1.5,
                     fontWeight: 700,
-                    borderColor: "rgba(255,255,255,0.16)",
-                    color: isSelected ? "#fff" : "#f8fafc",
+                    borderColor: isSelected
+                      ? "rgba(103,232,249,0.55)"
+                      : "rgba(103,232,249,0.2)",
+                    color: isSelected ? "#04121b" : "#cffafe",
                     background: isSelected
-                      ? "linear-gradient(135deg, #8b5cf6, #7c3aed)"
-                      : "rgba(255,255,255,0.06)",
+                      ? "linear-gradient(110deg, #22d3ee, #34d399)"
+                      : "rgba(8,47,60,0.24)",
+                    boxShadow: isSelected
+                      ? "0 0 22px rgba(34,211,238,0.25)"
+                      : "none",
+                    "&:hover": {
+                      borderColor: "rgba(103,232,249,0.58)",
+                      background: "rgba(8,47,60,0.52)",
+                    },
+                    "&.Mui-disabled": isSelected
+                      ? {
+                          color: "#04121b",
+                          background:
+                            "linear-gradient(110deg, #0b6775, #397e65)",
+                          opacity: 1,
+                        }
+                      : {},
                   }}
                 >
                   {roleOption.label}
