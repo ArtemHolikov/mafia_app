@@ -8,19 +8,37 @@ import {
 } from "@mui/material";
 
 export const StartGameDialogBody = styled(Box)({
-  width: "min(92vw, 560px)",
-  maxHeight: "85vh",
-  overflow: "hidden",
-  padding: "24px",
+  width: "min(94vw, 820px)",
+  maxHeight: "90vh",
+  overflowY: "auto",
+  padding: "clamp(18px, 3vw, 30px)",
   background:
-    "linear-gradient(145deg, rgba(17,24,39,0.98), rgba(10,14,26,0.98))",
+    "radial-gradient(ellipse at top left, rgba(8,145,178,0.14), transparent 46%), linear-gradient(145deg, #0e1b2a, #07111d 72%)",
+  border: "1px solid rgba(103,232,249,0.22)",
+  boxShadow: "0 30px 90px rgba(2,6,23,0.72), 0 0 38px rgba(34,211,238,0.08)",
+  scrollbarColor: "rgba(103,232,249,0.35) transparent",
+  scrollbarWidth: "thin",
+  "& .MuiOutlinedInput-root": {
+    color: "#f8fafc",
+    background: "rgba(4,14,25,0.72)",
+    borderRadius: 10,
+    "& fieldset": { borderColor: "rgba(148,211,225,0.2)" },
+    "&:hover fieldset": { borderColor: "rgba(103,232,249,0.5)" },
+    "&.Mui-focused fieldset": {
+      borderColor: "#22d3ee",
+      boxShadow: "0 0 0 3px rgba(34,211,238,0.1)",
+    },
+  },
+  "& .MuiInputLabel-root": { color: "rgba(207,250,254,0.62)" },
+  "& .MuiInputLabel-root.Mui-focused": { color: "#67e8f9" },
 });
 
 export const SettingsLobbyTitle = styled(Typography)({
   fontSize: "1.2rem",
   fontWeight: 700,
-  color: "#f8fafc",
+  color: "#cffafe",
   padding: "4px 0 12px",
+  textShadow: "0 0 18px rgba(34,211,238,0.16)",
 });
 
 export const PlayersBox = styled(Box)({
@@ -40,13 +58,18 @@ export const PlayersList = styled(MenuList)({
 });
 
 export const PlayerItem = styled(MenuItem)({
-  borderRadius: 14,
+  borderRadius: 10,
   padding: "10px 12px",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.06)",
+  background: "rgba(9,25,38,0.8)",
+  border: "1px solid rgba(103,232,249,0.12)",
+  transition: "border-color 160ms ease, background 160ms ease",
+  "&:hover": {
+    background: "rgba(8,47,60,0.52)",
+    borderColor: "rgba(103,232,249,0.38)",
+  },
 });
 
 export const PlayerItemInfoText = styled(Typography)({
@@ -63,11 +86,18 @@ export const NoPlayersMessage = styled(Typography)({
 });
 
 export const GoToAcquaintancePhase = styled(Button)({
-  background: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
-  color: "#fff",
+  background: "linear-gradient(110deg, #06b6d4, #10b981)",
+  color: "#04121b",
   width: "100%",
-  marginTop: 36,
-  padding: "12px 16px",
+  marginTop: 26,
+  padding: "13px 16px",
+  borderRadius: 10,
+  fontWeight: 800,
+  boxShadow: "0 0 22px rgba(34,211,238,0.16)",
+  "&:hover": {
+    background: "linear-gradient(110deg, #22d3ee, #34d399)",
+    boxShadow: "0 0 28px rgba(34,211,238,0.28)",
+  },
 });
 
 export const TabPanelBox = styled(Box)(({ theme }) => ({
@@ -81,11 +111,11 @@ export const TotalCountChip = styled(Box)(({ theme }) => ({
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
-  background: "rgba(139, 92, 246, 0.18)",
-  color: "#e9d5ff",
-  border: "1px solid rgba(167, 139, 250, 0.25)",
-  borderRadius: 999,
-  padding: "8px 14px",
+  background: "rgba(34, 211, 238, 0.08)",
+  color: "#a5f3fc",
+  border: "1px solid rgba(103, 232, 249, 0.22)",
+  borderRadius: 8,
+  padding: "7px 12px",
   fontWeight: 700,
   fontSize: "0.95rem",
 }));
@@ -96,7 +126,7 @@ export const RoleRow = styled(Box)(({ theme }) => ({
   justifyContent: "space-between",
   gap: 12,
   padding: "14px 0",
-  borderBottom: "1px solid rgba(255,255,255,0.08)",
+  borderBottom: "1px solid rgba(103,232,249,0.1)",
 }));
 
 export const RoleInfo = styled(Box)(({ theme }) => ({
@@ -121,12 +151,16 @@ export const RoleToggleField = styled(Box)(({ theme }) => ({
 
 export const ImmunityButton = styled(Button)(({ theme }) => ({
   width: "100%",
-  borderRadius: 14,
+  borderRadius: 10,
   padding: "14px 0",
-  background: "rgba(255,255,255,0.08)",
-  color: "#fff",
+  background: "rgba(34,211,238,0.07)",
+  color: "#a5f3fc",
   fontWeight: 700,
-  border: "1px dashed rgba(255,255,255,0.14)",
+  border: "1px dashed rgba(103,232,249,0.3)",
+  "&:hover": {
+    background: "rgba(34,211,238,0.12)",
+    borderColor: "rgba(103,232,249,0.55)",
+  },
   textTransform: "none",
 }));
 
@@ -142,7 +176,7 @@ export const ImmunityItem = styled(Box)(({ theme }) => ({
   justifyContent: "space-between",
   gap: 12,
   padding: "12px 14px",
-  borderRadius: 14,
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: 10,
+  background: "rgba(9,25,38,0.8)",
+  border: "1px solid rgba(103,232,249,0.12)",
 }));

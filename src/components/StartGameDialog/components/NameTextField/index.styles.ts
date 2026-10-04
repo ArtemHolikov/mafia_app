@@ -16,8 +16,15 @@ export const PlayerOrderField = styled(TextField)({
 });
 
 export const AddPlayerButton = styled(Button)({
-  background: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
-  color: "#fff",
+  background: "linear-gradient(110deg, #06b6d4, #10b981)",
+  color: "#04121b",
   minWidth: 92,
   padding: "12px 16px",
+  borderRadius: 10,
+  fontWeight: 800,
+  boxShadow: "0 0 18px rgba(34,211,238,0.16)",
+  "&:hover": {
+    background: "linear-gradient(110deg, #22d3ee, #34d399)",
+    boxShadow: "0 0 24px rgba(34,211,238,0.28)",
+  },
 });

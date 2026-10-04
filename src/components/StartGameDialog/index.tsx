@@ -228,7 +228,21 @@ export const StartGameDialog = ({
   };
 
   return (
-    <Dialog open={isOpen} onClose={handleClose}>
+    <Dialog
+      open={isOpen}
+      onClose={handleClose}
+      fullWidth
+      maxWidth="md"
+      sx={{
+        "& .MuiDialog-paper": {
+          overflow: "hidden",
+          borderRadius: 3,
+          background: "#07111d",
+          boxShadow:
+            "0 30px 100px rgba(2,6,23,0.78), 0 0 44px rgba(34,211,238,0.1)",
+        },
+      }}
+    >
       <StartGameDialogBody>
         <SettingsLobbyTitle>Lobby setup</SettingsLobbyTitle>
         <Typography sx={{ color: "rgba(248,250,252,0.75)", mb: 2 }}>
@@ -238,9 +252,29 @@ export const StartGameDialog = ({
         <Tabs
           value={activeTab}
           onChange={handleTabChange}
-          sx={{ mb: 2 }}
-          textColor="secondary"
-          indicatorColor="secondary"
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            mb: 2,
+            minHeight: 44,
+            borderBottom: "1px solid rgba(103,232,249,0.12)",
+            "& .MuiTabs-indicator": {
+              height: 2,
+              borderRadius: 2,
+              background: "linear-gradient(90deg, #22d3ee, #34d399)",
+              boxShadow: "0 0 12px rgba(34,211,238,0.48)",
+            },
+            "& .MuiTab-root": {
+              minHeight: 44,
+              color: "rgba(207,250,254,0.55)",
+              fontWeight: 700,
+              textTransform: "none",
+            },
+            "& .MuiTab-root.Mui-selected": { color: "#a5f3fc" },
+            "& .MuiTab-root.Mui-disabled": {
+              color: "rgba(148,163,184,0.3)",
+            },
+          }}
         >
           <Tab label="Players" />
           <Tab label="Time" disabled={players.length === 0} />
@@ -308,7 +342,7 @@ export const StartGameDialog = ({
                     opacity: draggedPlayerId === player.id ? 0.4 : 1,
                     outline:
                       dragOverPlayerId === player.id
-                        ? "2px solid rgba(139,92,246,0.8)"
+                        ? "2px solid rgba(103,232,249,0.8)"
                         : "2px solid transparent",
                     transition: "opacity 0.15s, outline 0.1s",
                   }}
@@ -366,7 +400,7 @@ export const StartGameDialog = ({
                         event.stopPropagation();
                         handleStartPlayerEdit(player);
                       }}
-                      sx={{ color: "#e9d5ff", minWidth: "auto", px: 1 }}
+                      sx={{ color: "#a5f3fc", minWidth: "auto", px: 1 }}
                     >
                       Edit
                     </Button>
@@ -728,7 +762,7 @@ export const StartGameDialog = ({
                               onChange={(_, checked) =>
                                 handleRoleToggle(role, checked)
                               }
-                              color="secondary"
+                              color="info"
                             />
                           }
                           label={roleCount > 0 ? "Enabled" : "Disabled"}
@@ -751,8 +785,24 @@ export const StartGameDialog = ({
         </GoToAcquaintancePhase>
       </StartGameDialogBody>
 
-      <Dialog open={isImmunityModalOpen} onClose={handleCloseImmunityModal}>
-        <DialogTitle>Set immunity</DialogTitle>
+      <Dialog
+        open={isImmunityModalOpen}
+        onClose={handleCloseImmunityModal}
+        fullWidth
+        maxWidth="xs"
+        sx={{
+          "& .MuiDialog-paper": {
+            border: "1px solid rgba(103,232,249,0.22)",
+            background:
+              "radial-gradient(ellipse at top left, rgba(8,145,178,0.16), transparent 56%), linear-gradient(145deg, #0e1b2a, #07111d)",
+            boxShadow:
+              "0 24px 72px rgba(2,6,23,0.72), 0 0 32px rgba(34,211,238,0.1)",
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: "#cffafe", fontWeight: 800 }}>
+          Set immunity
+        </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
             Choose a player and how many nights they should be immune to
@@ -795,9 +845,22 @@ export const StartGameDialog = ({
             sx={{ background: "rgba(255,255,255,0.06)", borderRadius: 2 }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseImmunityModal}>Cancel</Button>
-          <Button variant="contained" onClick={handleSaveImmunityModal}>
+        <DialogActions sx={{ px: 3, pb: 2.5, gap: 1 }}>
+          <Button
+            onClick={handleCloseImmunityModal}
+            sx={{ color: "rgba(207,250,254,0.68)" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveImmunityModal}
+            sx={{
+              background: "linear-gradient(110deg, #06b6d4, #10b981)",
+              color: "#04121b",
+              fontWeight: 800,
+            }}
+          >
             Save
           </Button>
         </DialogActions>

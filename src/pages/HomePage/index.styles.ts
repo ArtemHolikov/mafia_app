@@ -3,7 +3,7 @@ import { styled, Box, Button, Chip, Typography } from "@mui/material";
 export const AppWrapper = styled(Box, {
   shouldForwardProp: (prop) => prop !== "bgimage",
 })<{ bgimage?: string }>(({ bgimage }) => ({
-  backgroundImage: `linear-gradient(135deg, rgba(2, 6, 23, 0.9), rgba(15, 23, 42, 0.75)), url(${bgimage})`,
+  backgroundImage: `linear-gradient(110deg, rgba(2, 6, 23, 0.9), rgba(7, 24, 36, 0.76)), url(${bgimage})`,
   backgroundSize: "cover",
   backgroundPosition: "center",
   backgroundRepeat: "no-repeat",
@@ -17,14 +17,25 @@ export const AppWrapper = styled(Box, {
 }));
 
 export const HeroCard = styled(Box)({
-  width: "min(100%, 640px)",
-  padding: "40px",
-  borderRadius: 28,
-  background: "rgba(15, 23, 42, 0.78)",
-  border: "1px solid rgba(255,255,255,0.14)",
-  boxShadow: "0 24px 70px rgba(2, 6, 23, 0.38)",
-  backdropFilter: "blur(16px)",
+  width: "min(100%, 700px)",
+  padding: "clamp(24px, 5vw, 48px)",
+  borderRadius: 20,
+  background: "linear-gradient(145deg, rgba(11,25,38,0.92), rgba(5,13,24,0.9))",
+  border: "1px solid rgba(103,232,249,0.2)",
+  boxShadow:
+    "0 28px 80px rgba(2,6,23,0.52), inset 0 1px rgba(255,255,255,0.07), 0 0 42px rgba(34,211,238,0.08)",
+  backdropFilter: "blur(18px)",
   color: "#f8fafc",
+  position: "relative",
+  overflow: "hidden",
+  "&::before": {
+    content: '""',
+    position: "absolute",
+    inset: "0 auto 0 0",
+    width: 3,
+    background: "linear-gradient(180deg, #67e8f9, #34d399)",
+    boxShadow: "0 0 22px rgba(103,232,249,0.65)",
+  },
 });
 
 export const HeroTitle = styled(Typography)({
@@ -50,16 +61,23 @@ export const FeatureList = styled(Box)({
 });
 
 export const FeatureChip = styled(Chip)({
-  backgroundColor: "rgba(139, 92, 246, 0.16)",
-  color: "#e9d5ff",
-  border: "1px solid rgba(167, 139, 250, 0.24)",
+  backgroundColor: "rgba(34, 211, 238, 0.08)",
+  color: "#a5f3fc",
+  border: "1px solid rgba(103, 232, 249, 0.2)",
   fontWeight: 600,
 });
 
 export const StartGameButton = styled(Button)({
-  background: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
-  color: "#fff",
+  background: "linear-gradient(110deg, #06b6d4, #10b981)",
+  color: "#04121b",
   fontSize: "1rem",
-  padding: "12px 22px",
+  padding: "13px 24px",
   minWidth: 180,
+  borderRadius: 12,
+  fontWeight: 800,
+  boxShadow: "0 0 24px rgba(34,211,238,0.2)",
+  "&:hover": {
+    background: "linear-gradient(110deg, #22d3ee, #34d399)",
+    boxShadow: "0 0 32px rgba(34,211,238,0.34)",
+  },
 });
