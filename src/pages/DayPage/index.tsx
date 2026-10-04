@@ -229,6 +229,9 @@ export const DayPage = () => {
     setFoulFeedback(
       `${selectedPlayer.nickname} received a foul (${nextFouls}).`,
     );
+    setSelectedPlayerId(null);
+    setFoulWasGivenForSelection(false);
+    setNominationWasGivenForSelection(false);
   };
 
   const handleNominatePlayer = () => {
@@ -243,6 +246,9 @@ export const DayPage = () => {
     nominationWasGivenForSelectionRef.current = true;
     setNominationWasGivenForSelection(true);
     raisedForVoting(selectedPlayer.id);
+    setSelectedPlayerId(null);
+    setFoulWasGivenForSelection(false);
+    setNominationWasGivenForSelection(false);
   };
 
   useEffect(() => {
@@ -519,6 +525,7 @@ export const DayPage = () => {
             nickname={player.nickname}
             tableOrder={player.tableOrder}
             role={player.role}
+            selectedForDay={player.id === selectedPlayerId}
             onDayPlayerSelect={handleSelectPlayer}
           />
         ))}

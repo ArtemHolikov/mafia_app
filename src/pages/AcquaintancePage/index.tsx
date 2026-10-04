@@ -193,6 +193,9 @@ export const AcquaintancePage = () => {
     setFoulFeedback(
       `${selectedPlayer.nickname} received a foul (${nextFouls}).`,
     );
+    setSelectedPlayerId(null);
+    setFoulWasGivenForSelection(false);
+    setNominationWasGivenForSelection(false);
   };
 
   const handleNominatePlayer = () => {
@@ -207,6 +210,9 @@ export const AcquaintancePage = () => {
     nominationWasGivenForSelectionRef.current = true;
     setNominationWasGivenForSelection(true);
     raisedForVoting(selectedPlayer.id);
+    setSelectedPlayerId(null);
+    setFoulWasGivenForSelection(false);
+    setNominationWasGivenForSelection(false);
   };
 
   useEffect(() => {
@@ -321,6 +327,7 @@ export const AcquaintancePage = () => {
               nickname={player.nickname}
               role={player.role}
               tableOrder={player.tableOrder}
+              selectedForDay={player.id === selectedPlayerId}
               onDayPlayerSelect={handleSelectPlayer}
             />
           ))}

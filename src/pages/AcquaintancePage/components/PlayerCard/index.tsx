@@ -37,6 +37,7 @@ interface PlayerCardProps {
   tableOrder: number;
   role: string;
   disableVotingModal?: boolean;
+  selectedForDay?: boolean;
   onDayPlayerSelect?: (playerId: number) => void;
   voteModeVoterId?: number | null;
   onStartVoteMode?: (voterId: number | null) => void;
@@ -51,6 +52,7 @@ export const PlayerCard = ({
   tableOrder,
   role,
   disableVotingModal,
+  selectedForDay = false,
   onDayPlayerSelect,
   onVoteTargetSelect,
   onStartVoteMode,
@@ -116,13 +118,23 @@ export const PlayerCard = ({
           handleClickPlayerCard();
         }}
         sx={{
-          background: isPlayerRaisedForVoting ? "rgba(139,92,246,0.22)" : "",
+          background: selectedForDay
+            ? "rgba(56,189,248,0.2)"
+            : isPlayerRaisedForVoting
+              ? "rgba(139,92,246,0.22)"
+              : "",
           border: `3px solid ${
-            isPlayerRaisedForVoting ? "rgba(139,92,246,0.7)" : `${roleColor}63`
+            selectedForDay
+              ? "#38bdf8"
+              : isPlayerRaisedForVoting
+                ? "rgba(139,92,246,0.7)"
+                : `${roleColor}63`
           }`,
-          boxShadow: isPlayerRaisedForVoting
-            ? "0 0 0 2px rgba(139,92,246,0.5), 0 16px 40px rgba(2,6,23,0.22)"
-            : `0 0 0 1px ${roleColor}22, 0 16px 40px rgba(2,6,23,0.22)`,
+          boxShadow: selectedForDay
+            ? "0 0 0 3px rgba(56,189,248,0.32), 0 0 26px rgba(56,189,248,0.3), 0 16px 40px rgba(2,6,23,0.22)"
+            : isPlayerRaisedForVoting
+              ? "0 0 0 2px rgba(139,92,246,0.5), 0 16px 40px rgba(2,6,23,0.22)"
+              : `0 0 0 1px ${roleColor}22, 0 16px 40px rgba(2,6,23,0.22)`,
           opacity: isDisabledByImmunity ? 0.55 : 1,
         }}
       >
