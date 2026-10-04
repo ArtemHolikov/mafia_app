@@ -23,6 +23,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
+import { GameOverDialog } from "../../components/GameOverDialog";
 import { FlickeringBox, MafiaFlickeringBox } from "./index.styles";
 
 import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
@@ -82,13 +83,8 @@ export const DayPage = () => {
   const townAliveCount = alivePlayers.filter(
     (player: any) => !mafiaRoles.has(player.role),
   ).length;
-  const hasAnyMafiaRole = mafiaAliveCount > 0;
-  const hasAnyTownRole = townAliveCount > 0;
   const isMafiaWinConditionMet =
-    hasAnyMafiaRole &&
-    hasAnyTownRole &&
-    mafiaAliveCount === townAliveCount &&
-    [1, 2, 3].includes(mafiaAliveCount);
+    mafiaAliveCount > 0 && mafiaAliveCount >= townAliveCount;
   const isTownWinConditionMet = mafiaAliveCount === 0 && townAliveCount > 0;
   const killedPlayers = useMemo(
     () =>
@@ -747,26 +743,18 @@ export const DayPage = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
+      <GameOverDialog
         open={showWinnerDialog}
         onClose={() => setShowWinnerDialog(false)}
-      >
-        <DialogTitle>
-          {isTownWinConditionMet ? "Town wins" : "Mafia wins"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {isTownWinConditionMet
-              ? "All mafia members have been eliminated. Town wins the game!"
-              : "Mafia reached a tied score with the town and wins the game."}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleReturnToLobby} variant="contained">
-            Back to lobby settings
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onReturnToLobby={handleReturnToLobby}
+        winner={isTownWinConditionMet ? "Town" : "Mafia"}
+        message={
+          isTownWinConditionMet
+            ? "All mafia members have been eliminated. Town wins the game!"
+            : "Mafia reached a tied score with the town and wins the game."
+        }
+        players={players}
+      />
     </PageWrapper>
   );
 };

@@ -22,6 +22,7 @@ import {
 } from "../AcquaintancePage/index.styles";
 import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
+import { GameOverDialog } from "../../components/GameOverDialog";
 import backgroundImage from "../../images/backgroundPhoto.png";
 import { useNavigate } from "react-router-dom";
 
@@ -133,9 +134,7 @@ export const VotingPage = () => {
     (player: any) => !mafiaRoles.has(player.role),
   ).length;
   const isMafiaWinConditionMet =
-    mafiaAliveCount > 0 &&
-    mafiaAliveCount === townAliveCount &&
-    [1, 2, 3].includes(mafiaAliveCount);
+    mafiaAliveCount > 0 && mafiaAliveCount >= townAliveCount;
 
   const getVictoryState = (playersState: any[] = players) => {
     const aliveStatePlayers = playersState.filter(
@@ -150,9 +149,7 @@ export const VotingPage = () => {
 
     return {
       isMafiaWinConditionMet:
-        mafiaStateAliveCount > 0 &&
-        mafiaStateAliveCount === townStateAliveCount &&
-        [1, 2, 3].includes(mafiaStateAliveCount),
+        mafiaStateAliveCount > 0 && mafiaStateAliveCount >= townStateAliveCount,
       isTownWinConditionMet:
         mafiaStateAliveCount === 0 && townStateAliveCount > 0,
     };
@@ -606,32 +603,21 @@ export const VotingPage = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog
+      <GameOverDialog
         open={showWinnerDialog}
         onClose={() => setShowWinnerDialog(false)}
-      >
-        <DialogTitle>
-          {isMafiaWinConditionMet ? "Mafia wins" : "Town wins"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {isMafiaWinConditionMet
-              ? "The remaining players are tied at a mafia win condition."
-              : "All mafia roles were eliminated. The town wins."}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              resetForLobby();
-              navigate("/?openLobby=true");
-            }}
-            variant="contained"
-          >
-            Back to lobby settings
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onReturnToLobby={() => {
+          resetForLobby();
+          navigate("/?openLobby=true");
+        }}
+        winner={isMafiaWinConditionMet ? "Mafia" : "Town"}
+        message={
+          isMafiaWinConditionMet
+            ? "The remaining players are tied at a mafia win condition."
+            : "All mafia roles were eliminated. The town wins."
+        }
+        players={players}
+      />
     </PageWrapper>
   );
 };
