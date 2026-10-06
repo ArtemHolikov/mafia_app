@@ -268,7 +268,7 @@ export const DayPage = () => {
 
   const openingSpeaker = useMemo(() => {
     if (sortedPlayers.length === 0) return null;
-    const startIndex = (roundParam - 1) % sortedPlayers.length;
+    const startIndex = roundParam % sortedPlayers.length;
     for (let i = 0; i < sortedPlayers.length; i += 1) {
       const index = (startIndex + i) % sortedPlayers.length;
       const player = sortedPlayers[index];
