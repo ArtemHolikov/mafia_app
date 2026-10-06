@@ -1,4 +1,4 @@
-import { Box, IconButton, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useMemo, useState, useRef, useEffect } from "react";
 import {
   ContentShell,
@@ -15,8 +15,7 @@ import backgroundImage from "../../images/backgroundPhoto.png";
 import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "./components/PlayerCard";
 import { useNavigate } from "react-router-dom";
-import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
+import { CountdownTimer } from "../../components/CountdownTimer";
 
 export const AcquaintancePage = () => {
   const navigate = useNavigate();
@@ -59,9 +58,6 @@ export const AcquaintancePage = () => {
   );
   const resetDayTimer = useGameStore((state: any) => state.resetDayTimer);
 
-  const intervalRef = useRef<number | null>(null);
-  const timerSecondsRef = useRef<number>(dayTimerSecondsLeft);
-
   useEffect(() => {
     resetDayTimer();
   }, []);
@@ -73,49 +69,6 @@ export const AcquaintancePage = () => {
     nominationWasGivenForSelectionRef.current = false;
     setNominationWasGivenForSelection(false);
   }, [phase]);
-
-  useEffect(() => {
-    timerSecondsRef.current = dayTimerSecondsLeft;
-  }, [dayTimerSecondsLeft]);
-
-  useEffect(() => {
-    if (!isDayTimerRunning) return;
-
-    intervalRef.current = window.setInterval(() => {
-      const current = Number.isFinite(timerSecondsRef.current)
-        ? timerSecondsRef.current
-        : speechTimer;
-      if (current <= 1) {
-        window.clearInterval(intervalRef.current!);
-        intervalRef.current = null;
-        setDayTimerRunning(false);
-        setDayTimerSecondsLeft(0);
-        timerSecondsRef.current = 0;
-        return;
-      }
-      const next = current - 1;
-      timerSecondsRef.current = next;
-      setDayTimerSecondsLeft(next);
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [
-    isDayTimerRunning,
-    setDayTimerSecondsLeft,
-    setDayTimerRunning,
-    speechTimer,
-  ]);
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  };
 
   const displayedPlayers = useMemo(
     () =>
@@ -256,65 +209,15 @@ export const AcquaintancePage = () => {
             </Typography>
           </Box>
           {phase === "day acquaintance" && (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 2,
-                px: 3,
-                py: 1.5,
-                borderRadius: 3,
-                border: "1px solid rgba(255,255,255,0.18)",
-                bgcolor: "rgba(255,255,255,0.04)",
-                minWidth: 220,
-              }}
-            >
-              <Typography
-                sx={{
-                  color: "rgba(248,250,252,0.72)",
-                  fontSize: "0.75rem",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  textAlign: "center",
-                }}
-              >
-                Speaker time
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-around",
-                  width: "100%",
-                }}
-              >
-                <Typography
-                  sx={{ color: "#fff", fontWeight: 700, fontSize: "1.35rem" }}
-                >
-                  {formatTime(
-                    Number.isFinite(dayTimerSecondsLeft)
-                      ? dayTimerSecondsLeft
-                      : speechTimer,
-                  )}
-                </Typography>
-                <Box>
-                  <IconButton
-                    onClick={() =>
-                      isDayTimerRunning
-                        ? setDayTimerRunning(false)
-                        : setDayTimerRunning(true)
-                    }
-                  >
-                    <PlayCircleFilledIcon />
-                  </IconButton>
-                  <IconButton onClick={resetDayTimer}>
-                    <RestartAltIcon />
-                  </IconButton>
-                </Box>
-              </Box>
-            </Box>
+            <CountdownTimer
+              label="Speaker time"
+              secondsLeft={dayTimerSecondsLeft}
+              totalSeconds={speechTimer}
+              running={isDayTimerRunning}
+              onSecondsChange={setDayTimerSecondsLeft}
+              onRunningChange={setDayTimerRunning}
+              onReset={resetDayTimer}
+            />
           )}
           <SectionChip>{displayedPlayers.length} players</SectionChip>
         </TopBar>

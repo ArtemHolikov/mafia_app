@@ -65,6 +65,10 @@ export const StartGameDialog = ({
   const setSpeechTimer = useGameStore((state: any) => state.setSpeechTimer);
   const defenseTimer = useGameStore((state: any) => state.defenseTimer);
   const setDefenseTimer = useGameStore((state: any) => state.setDefenseTimer);
+  const finalWordTimer = useGameStore((state: any) => state.finalWordTimer);
+  const setFinalWordTimer = useGameStore(
+    (state: any) => state.setFinalWordTimer,
+  );
   const setPlayerImmunity = useGameStore(
     (state: any) => state.setPlayerImmunity,
   );
@@ -598,6 +602,48 @@ export const StartGameDialog = ({
                   value={defenseTimer}
                   onChange={(event) =>
                     handleDefenseTimerChange(Number(event.target.value))
+                  }
+                  sx={{
+                    background: "rgba(255,255,255,0.08)",
+                    borderRadius: 2,
+                    "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+                      {
+                        display: "none",
+                        margin: 0,
+                      },
+                    "& input[type=number]": {
+                      MozAppearance: "textfield",
+                    },
+                  }}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
+                          sec
+                        </Typography>
+                      ),
+                    },
+                  }}
+                />
+              </Box>
+
+              <Box>
+                <Typography
+                  sx={{
+                    color: "rgba(248,250,252,0.92)",
+                    fontWeight: 700,
+                    mb: 1,
+                  }}
+                >
+                  Final word time
+                </Typography>
+                <TextField
+                  fullWidth
+                  type="number"
+                  size="small"
+                  value={finalWordTimer}
+                  onChange={(event) =>
+                    setFinalWordTimer(Math.max(5, Number(event.target.value)))
                   }
                   sx={{
                     background: "rgba(255,255,255,0.08)",

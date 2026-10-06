@@ -58,6 +58,9 @@ export const useGameStore = create(
       isDayTimerRunning: false,
       defenseTimerSecondsLeft: 30,
       isDefenseTimerRunning: false,
+      finalWordTimer: 60, // Timer for the final word of an eliminated player
+      finalWordTimerSecondsLeft: 60,
+      isFinalWordTimerRunning: false,
       round: 1, // Current round number
       lastDoctorHealedPlayerId: null,
       lastDoctorHealRound: 0,
@@ -93,6 +96,21 @@ export const useGameStore = create(
 
       setDefenseTimer: (seconds: number) =>
         set({ defenseTimer: Math.max(5, seconds) }),
+
+      setFinalWordTimer: (seconds: number) =>
+        set({ finalWordTimer: Math.max(5, seconds) }),
+
+      setFinalWordTimerSecondsLeft: (seconds: number) =>
+        set({ finalWordTimerSecondsLeft: Math.max(0, seconds) }),
+
+      setFinalWordTimerRunning: (running: boolean) =>
+        set({ isFinalWordTimerRunning: running }),
+
+      resetFinalWordTimer: () =>
+        set((state: any) => ({
+          finalWordTimerSecondsLeft: state.finalWordTimer,
+          isFinalWordTimerRunning: false,
+        })),
 
       setDayTimerSecondsLeft: (seconds: number) =>
         set({ dayTimerSecondsLeft: Math.max(0, seconds) }),
@@ -752,6 +770,8 @@ export const useGameStore = create(
           speechTimer: state.speechTimer,
           dayTimerSecondsLeft: state.speechTimer,
           isDayTimerRunning: false,
+          finalWordTimerSecondsLeft: state.finalWordTimer,
+          isFinalWordTimerRunning: false,
           round: 1,
           lastDoctorHealedPlayerId: null,
           lastDoctorHealRound: 0,
@@ -954,6 +974,7 @@ export const useGameStore = create(
         votingResult: state.votingResult,
         playersCount: state.playersCount,
         speechTimer: state.speechTimer,
+        finalWordTimer: state.finalWordTimer,
         dayTimerSecondsLeft: state.dayTimerSecondsLeft,
         isDayTimerRunning: state.isDayTimerRunning,
         round: state.round,

@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  IconButton,
+  Divider,
   Typography,
 } from "@mui/material";
 import {
@@ -24,10 +24,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
 import { GameOverDialog } from "../../components/GameOverDialog";
+import { CountdownTimer } from "../../components/CountdownTimer";
 import { FlickeringBox, MafiaFlickeringBox } from "./index.styles";
 
-import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import NightsStayRoundedIcon from "@mui/icons-material/NightsStayRounded";
 import PersonOffRoundedIcon from "@mui/icons-material/PersonOffRounded";
 import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
@@ -59,6 +58,22 @@ export const DayPage = () => {
     (state: any) => state.setDayTimerRunning,
   );
   const resetDayTimer = useGameStore((state: any) => state.resetDayTimer);
+  const finalWordTimer = useGameStore((state: any) => state.finalWordTimer);
+  const finalWordTimerSecondsLeft = useGameStore(
+    (state: any) => state.finalWordTimerSecondsLeft,
+  );
+  const isFinalWordTimerRunning = useGameStore(
+    (state: any) => state.isFinalWordTimerRunning,
+  );
+  const setFinalWordTimerSecondsLeft = useGameStore(
+    (state: any) => state.setFinalWordTimerSecondsLeft,
+  );
+  const setFinalWordTimerRunning = useGameStore(
+    (state: any) => state.setFinalWordTimerRunning,
+  );
+  const resetFinalWordTimer = useGameStore(
+    (state: any) => state.resetFinalWordTimer,
+  );
   const [showKilledDialog, setShowKilledDialog] = useState(false);
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
@@ -69,8 +84,6 @@ export const DayPage = () => {
   const [nominationWasGivenForSelection, setNominationWasGivenForSelection] =
     useState(false);
   const nominationWasGivenForSelectionRef = useRef(false);
-  const intervalRef = useRef<number | null>(null);
-  const dayTimerSecondsRef = useRef<number>(dayTimerSecondsLeft);
   const alivePlayers = useMemo(
     () => players.filter((player: any) => player.isAlive),
     [players],
@@ -108,6 +121,7 @@ export const DayPage = () => {
     resetDayTimer();
 
     if (killedPlayers.length > 0) {
+      resetFinalWordTimer();
       setShowKilledDialog(true);
       setShowWinnerDialog(false);
     }
@@ -137,50 +151,11 @@ export const DayPage = () => {
     setPhase,
   ]);
 
-  useEffect(() => {
-    dayTimerSecondsRef.current = dayTimerSecondsLeft;
-  }, [dayTimerSecondsLeft]);
-
-  useEffect(() => {
-    if (!isDayTimerRunning) {
-      return;
-    }
-
-    intervalRef.current = window.setInterval(() => {
-      const currentSeconds = Number.isFinite(dayTimerSecondsRef.current)
-        ? dayTimerSecondsRef.current
-        : speechTimer;
-      if (currentSeconds <= 1) {
-        window.clearInterval(intervalRef.current!);
-        intervalRef.current = null;
-        setDayTimerRunning(false);
-        setDayTimerSecondsLeft(0);
-        dayTimerSecondsRef.current = 0;
-        return;
-      }
-
-      const nextSeconds = currentSeconds - 1;
-      dayTimerSecondsRef.current = nextSeconds;
-      setDayTimerSecondsLeft(nextSeconds);
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [
-    isDayTimerRunning,
-    setDayTimerSecondsLeft,
-    setDayTimerRunning,
-    speechTimer,
-  ]);
-
   const confirmKills = () => {
     if (killedPlayers.length > 0) {
       commitNightDeaths();
     }
+    setFinalWordTimerRunning(false);
     setShowKilledDialog(false);
   };
 
@@ -286,10 +261,6 @@ export const DayPage = () => {
     navigate(`/night?round=${nextNightRound}`);
   };
 
-  const handleTimerStart = () => setDayTimerRunning(true);
-  const handleTimerStop = () => setDayTimerRunning(false);
-  const handleTimerReset = () => resetDayTimer();
-
   const sortedPlayers = useMemo(
     () => [...players].sort((a: any, b: any) => a.tableOrder - b.tableOrder),
     [players],
@@ -307,12 +278,6 @@ export const DayPage = () => {
     }
     return null;
   }, [sortedPlayers, roundParam]);
-
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remaining = seconds % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`;
-  };
 
   return (
     <PageWrapper bgimage={backgroundImage}>
@@ -341,69 +306,15 @@ export const DayPage = () => {
                 {openingSpeaker?.nickname ?? "No alive starter"}
               </Typography>
             </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 2,
-                px: 3,
-                py: 1.5,
-                borderRadius: 3,
-                border: "1px solid rgba(255,255,255,0.18)",
-                bgcolor: "rgba(255,255,255,0.04)",
-                minWidth: 260,
-                width: 260,
-              }}
-            >
-              <Typography
-                sx={{
-                  color: "rgba(248,250,252,0.72)",
-                  fontSize: "0.75rem",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  textAlign: "center",
-                }}
-              >
-                Speaker time
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-around",
-                  width: "100%",
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "#fff",
-                    fontWeight: 700,
-                    fontSize: "1.35rem",
-                    textAlign: "center",
-                  }}
-                >
-                  {formatTime(
-                    Number.isFinite(dayTimerSecondsLeft)
-                      ? dayTimerSecondsLeft
-                      : speechTimer,
-                  )}
-                </Typography>
-                <Box>
-                  <IconButton
-                    onClick={
-                      isDayTimerRunning ? handleTimerStop : handleTimerStart
-                    }
-                  >
-                    <PlayCircleFilledIcon />
-                  </IconButton>
-                  <IconButton onClick={handleTimerReset}>
-                    <RestartAltIcon />
-                  </IconButton>
-                </Box>
-              </Box>
-            </Box>
+            <CountdownTimer
+              label="Speaker time"
+              secondsLeft={dayTimerSecondsLeft}
+              totalSeconds={speechTimer}
+              running={isDayTimerRunning}
+              onSecondsChange={setDayTimerSecondsLeft}
+              onRunningChange={setDayTimerRunning}
+              onReset={resetDayTimer}
+            />
             <Box
               sx={{
                 display: "flex",
@@ -615,7 +526,14 @@ export const DayPage = () => {
         }}
       >
         <DialogTitle
-          sx={{ display: "flex", alignItems: "center", gap: 2, pt: 3, px: 3 }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2,
+            pt: 3,
+            px: 3,
+          }}
         >
           <Box
             sx={{
@@ -668,6 +586,23 @@ export const DayPage = () => {
             {killedPlayers.length === 1 ? "player" : "players"}
           </Box>
         </DialogTitle>
+        {killedPlayers.length > 0 && (
+          <Box sx={{ px: 3, pb: 2 }}>
+            <Divider sx={{ borderColor: "rgba(251,113,133,0.2)", mb: 2 }} />
+            <CountdownTimer
+              label="Final word"
+              secondsLeft={finalWordTimerSecondsLeft}
+              totalSeconds={finalWordTimer}
+              running={isFinalWordTimerRunning}
+              onSecondsChange={setFinalWordTimerSecondsLeft}
+              onRunningChange={setFinalWordTimerRunning}
+              onReset={resetFinalWordTimer}
+              width="100%"
+              accentColor="#fb7185"
+            />
+            <Divider sx={{ borderColor: "rgba(251,113,133,0.2)", mt: 2 }} />
+          </Box>
+        )}
         <DialogContent sx={{ px: 3, pt: 1, pb: 2 }}>
           <DialogContentText sx={{ color: "rgba(248,250,252,0.66)", mb: 2 }}>
             {killedPlayers.length > 0

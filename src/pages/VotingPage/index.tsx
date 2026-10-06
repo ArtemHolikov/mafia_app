@@ -6,11 +6,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  IconButton,
+  Divider,
   TextField,
   Typography,
 } from "@mui/material";
-import { useMemo, useRef, useEffect, useState } from "react";
+import { useMemo, useEffect, useState } from "react";
 import {
   ContentShell,
   GoToDayAcquaintanceButton,
@@ -23,11 +23,10 @@ import {
 import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
 import { GameOverDialog } from "../../components/GameOverDialog";
+import { CountdownTimer } from "../../components/CountdownTimer";
 import backgroundImage from "../../images/backgroundPhoto.png";
 import { useNavigate } from "react-router-dom";
 
-import PlayCircleFilledIcon from "@mui/icons-material/PlayCircleFilled";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import HowToVoteRoundedIcon from "@mui/icons-material/HowToVoteRounded";
 import GavelRoundedIcon from "@mui/icons-material/GavelRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
@@ -72,49 +71,30 @@ export const VotingPage = () => {
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
   const [tieResolutionVotes, setTieResolutionVotes] = useState(0);
 
-  const intervalRef = useRef<number | null>(null);
-  const defenseTimerSecondsRef = useRef<number>(defenseTimerSecondsLeft);
+  const finalWordTimer = useGameStore((state: any) => state.finalWordTimer);
+  const finalWordTimerSecondsLeft = useGameStore(
+    (state: any) => state.finalWordTimerSecondsLeft,
+  );
+  const isFinalWordTimerRunning = useGameStore(
+    (state: any) => state.isFinalWordTimerRunning,
+  );
+  const setFinalWordTimerSecondsLeft = useGameStore(
+    (state: any) => state.setFinalWordTimerSecondsLeft,
+  );
+  const setFinalWordTimerRunning = useGameStore(
+    (state: any) => state.setFinalWordTimerRunning,
+  );
+  const resetFinalWordTimer = useGameStore(
+    (state: any) => state.resetFinalWordTimer,
+  );
 
   useEffect(() => {
     resetDefenseTimer();
   }, []);
 
   useEffect(() => {
-    defenseTimerSecondsRef.current = defenseTimerSecondsLeft;
-  }, [defenseTimerSecondsLeft]);
-
-  useEffect(() => {
-    if (!isDefenseTimerRunning) return;
-
-    intervalRef.current = window.setInterval(() => {
-      const current = Number.isFinite(defenseTimerSecondsRef.current)
-        ? defenseTimerSecondsRef.current
-        : defenseTimer;
-      if (current <= 1) {
-        window.clearInterval(intervalRef.current!);
-        intervalRef.current = null;
-        setDefenseTimerRunning(false);
-        setDefenseTimerSecondsLeft(0);
-        defenseTimerSecondsRef.current = 0;
-        return;
-      }
-      const next = current - 1;
-      defenseTimerSecondsRef.current = next;
-      setDefenseTimerSecondsLeft(next);
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [
-    isDefenseTimerRunning,
-    setDefenseTimerSecondsLeft,
-    setDefenseTimerRunning,
-    defenseTimer,
-  ]);
+    resetFinalWordTimer();
+  }, [votingResult, resetFinalWordTimer]);
 
   const alivePlayers = useMemo(
     () => players.filter((player: any) => player.isAlive),
@@ -198,12 +178,6 @@ export const VotingPage = () => {
     setTieResolutionVotes(0);
   }, [votingResult]);
 
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-  };
-
   return (
     <PageWrapper bgimage={backgroundImage}>
       <ContentShell>
@@ -216,65 +190,15 @@ export const VotingPage = () => {
               Review the players who have been raised for discussion.
             </Typography>
           </Box>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 2,
-              px: 3,
-              py: 1.5,
-              borderRadius: 3,
-              border: "1px solid rgba(255,255,255,0.18)",
-              bgcolor: "rgba(255,255,255,0.04)",
-              minWidth: 220,
-            }}
-          >
-            <Typography
-              sx={{
-                color: "rgba(248,250,252,0.72)",
-                fontSize: "0.75rem",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                textAlign: "center",
-              }}
-            >
-              Defense time
-            </Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-around",
-                width: "100%",
-              }}
-            >
-              <Typography
-                sx={{ color: "#fff", fontWeight: 700, fontSize: "1.35rem" }}
-              >
-                {formatTime(
-                  Number.isFinite(defenseTimerSecondsLeft)
-                    ? defenseTimerSecondsLeft
-                    : defenseTimer,
-                )}
-              </Typography>
-              <Box>
-                <IconButton
-                  onClick={() =>
-                    isDefenseTimerRunning
-                      ? setDefenseTimerRunning(false)
-                      : setDefenseTimerRunning(true)
-                  }
-                >
-                  <PlayCircleFilledIcon />
-                </IconButton>
-                <IconButton onClick={resetDefenseTimer}>
-                  <RestartAltIcon />
-                </IconButton>
-              </Box>
-            </Box>
-          </Box>
+          <CountdownTimer
+            label="Defense time"
+            secondsLeft={defenseTimerSecondsLeft}
+            totalSeconds={defenseTimer}
+            running={isDefenseTimerRunning}
+            onSecondsChange={setDefenseTimerSecondsLeft}
+            onRunningChange={setDefenseTimerRunning}
+            onReset={resetDefenseTimer}
+          />
           <SectionChip>{raisedForVotingPlayers.length} nominated</SectionChip>
         </TopBar>
 
@@ -314,7 +238,14 @@ export const VotingPage = () => {
         }}
       >
         <DialogTitle
-          sx={{ display: "flex", alignItems: "center", gap: 2, pt: 3, px: 3 }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: 2,
+            pt: 3,
+            px: 3,
+          }}
         >
           <Box
             sx={{
@@ -374,6 +305,23 @@ export const VotingPage = () => {
             </Typography>
           </Box>
         </DialogTitle>
+        {votingResult?.eliminated && votingResult?.type !== "tieResolution" && (
+          <Box sx={{ px: 3, pb: 2 }}>
+            <Divider sx={{ borderColor: "rgba(251,113,133,0.2)", mb: 2 }} />
+            <CountdownTimer
+              label="Final word"
+              secondsLeft={finalWordTimerSecondsLeft}
+              totalSeconds={finalWordTimer}
+              running={isFinalWordTimerRunning}
+              onSecondsChange={setFinalWordTimerSecondsLeft}
+              onRunningChange={setFinalWordTimerRunning}
+              onReset={resetFinalWordTimer}
+              width="100%"
+              accentColor="#fb7185"
+            />
+            <Divider sx={{ borderColor: "rgba(251,113,133,0.2)", mt: 2 }} />
+          </Box>
+        )}
         <DialogContent sx={{ px: 3, pt: 1, pb: 2 }}>
           {votingResult?.type === "tieResolution" ? (
             <>
@@ -453,66 +401,74 @@ export const VotingPage = () => {
               </Box>
             </>
           ) : votingResult?.eliminated ? (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                p: 1.75,
-                mb: 2,
-                borderRadius: 2,
-                border: "1px solid rgba(251,113,133,0.2)",
-                bgcolor: "rgba(244,63,94,0.06)",
-              }}
-            >
+            <>
               <Box
                 sx={{
-                  width: 42,
-                  height: 42,
-                  display: "grid",
-                  placeItems: "center",
-                  flex: "0 0 auto",
-                  borderRadius: 1.5,
-                  bgcolor: "rgba(244,63,94,0.13)",
-                  color: "#fda4af",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  p: 1.75,
+                  mb: 2,
+                  borderRadius: 2,
+                  border: "1px solid rgba(251,113,133,0.2)",
+                  bgcolor: "rgba(244,63,94,0.06)",
                 }}
               >
-                <CheckCircleRoundedIcon />
-              </Box>
-              <Box sx={{ minWidth: 0, flex: 1 }}>
-                <Typography
+                <Box
                   sx={{
-                    color: "#f8fafc",
-                    fontWeight: 750,
-                    overflowWrap: "anywhere",
-                  }}
-                >
-                  {votingResult.nickname}
-                </Typography>
-                <Typography
-                  sx={{ color: "rgba(248,250,252,0.58)", fontSize: "0.82rem" }}
-                >
-                  Received the most votes
-                </Typography>
-              </Box>
-              <Box sx={{ textAlign: "right", whiteSpace: "nowrap" }}>
-                <Typography
-                  sx={{
+                    width: 42,
+                    height: 42,
+                    display: "grid",
+                    placeItems: "center",
+                    flex: "0 0 auto",
+                    borderRadius: 1.5,
+                    bgcolor: "rgba(244,63,94,0.13)",
                     color: "#fda4af",
-                    fontSize: "1.25rem",
-                    fontWeight: 800,
-                    lineHeight: 1.1,
                   }}
                 >
-                  {votingResult.votesReceived}
-                </Typography>
-                <Typography
-                  sx={{ color: "rgba(248,250,252,0.55)", fontSize: "0.72rem" }}
-                >
-                  votes
-                </Typography>
+                  <CheckCircleRoundedIcon />
+                </Box>
+                <Box sx={{ minWidth: 0, flex: 1 }}>
+                  <Typography
+                    sx={{
+                      color: "#f8fafc",
+                      fontWeight: 750,
+                      overflowWrap: "anywhere",
+                    }}
+                  >
+                    {votingResult.nickname}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "rgba(248,250,252,0.58)",
+                      fontSize: "0.82rem",
+                    }}
+                  >
+                    Received the most votes
+                  </Typography>
+                </Box>
+                <Box sx={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                  <Typography
+                    sx={{
+                      color: "#fda4af",
+                      fontSize: "1.25rem",
+                      fontWeight: 800,
+                      lineHeight: 1.1,
+                    }}
+                  >
+                    {votingResult.votesReceived}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "rgba(248,250,252,0.55)",
+                      fontSize: "0.72rem",
+                    }}
+                  >
+                    votes
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
+            </>
           ) : (
             <DialogContentText sx={{ color: "rgba(248,250,252,0.68)", mb: 2 }}>
               No candidate received a vote this round.
