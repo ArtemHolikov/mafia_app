@@ -81,3 +81,17 @@ export const StartGameButton = styled(Button)({
     boxShadow: "0 0 32px rgba(34,211,238,0.34)",
   },
 });
+
+export const ResetGameButton = styled(Button)({
+  color: "#f8fafc",
+  fontSize: "1rem",
+  padding: "13px 24px",
+  minWidth: 180,
+  borderRadius: 12,
+  fontWeight: 700,
+  border: "1px solid rgba(248,250,252,0.36)",
+  "&:hover": {
+    background: "rgba(248,250,252,0.1)",
+    borderColor: "rgba(248,250,252,0.64)",
+  },
+});

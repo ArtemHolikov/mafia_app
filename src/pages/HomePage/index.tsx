@@ -6,6 +6,7 @@ import {
   HeroTitle,
   HeroSubtitle,
   StartGameButton,
+  ResetGameButton,
   FeatureList,
   FeatureChip,
 } from "./index.styles";
@@ -39,9 +40,19 @@ export const HomePage = () => {
           <FeatureChip label="Phase-driven flow" />
           <FeatureChip label="Modern UI" />
         </FeatureList>
-        <StartGameButton onClick={() => setIsOpen(true)}>
-          Start game
-        </StartGameButton>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+          <StartGameButton onClick={() => setIsOpen(true)}>
+            Start game
+          </StartGameButton>
+          <ResetGameButton
+            onClick={() => {
+              window.localStorage.clear();
+              window.location.reload();
+            }}
+          >
+            Reset game
+          </ResetGameButton>
+        </Box>
       </HeroCard>
       <StartGameDialog isOpen={isOpen} setIsOpen={setIsOpen} />
     </AppWrapper>
