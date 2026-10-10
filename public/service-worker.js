@@ -1,4 +1,4 @@
-const CACHE_NAME = "mafia-manager-v1";
+const CACHE_NAME = "mafia-manager-v2";
 const APP_SHELL_URL = new URL("./", self.registration.scope).toString();
 const TIMER_ANNOUNCEMENT_URL = new URL(
   "timer-announcement.mp3",
