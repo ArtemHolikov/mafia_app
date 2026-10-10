@@ -1,5 +1,9 @@
 const CACHE_NAME = "mafia-manager-v1";
 const APP_SHELL_URL = new URL("./", self.registration.scope).toString();
+const TIMER_ANNOUNCEMENT_URL = new URL(
+  "timer-announcement.mp3",
+  self.registration.scope,
+).toString();
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -11,6 +15,14 @@ self.addEventListener("install", (event) => {
           throw new Error(`Unable to cache app shell: ${shellResponse.status}`);
         }
         await cache.put(APP_SHELL_URL, shellResponse.clone());
+
+        const announcementResponse = await fetch(TIMER_ANNOUNCEMENT_URL);
+        if (!announcementResponse.ok) {
+          throw new Error(
+            `Unable to cache timer announcement: ${announcementResponse.status}`,
+          );
+        }
+        await cache.put(TIMER_ANNOUNCEMENT_URL, announcementResponse);
 
         const shellHtml = await shellResponse.text();
         const assetPaths = Array.from(
@@ -90,7 +102,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (!["script", "style", "image", "font"].includes(request.destination)) {
+  if (
+    !["script", "style", "image", "font", "audio"].includes(
+      request.destination,
+    )
+  ) {
     return;
   }
 

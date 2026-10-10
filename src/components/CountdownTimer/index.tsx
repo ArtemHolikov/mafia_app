@@ -19,6 +19,7 @@ interface CountdownTimerProps {
 }
 
 const RESET_DELAY_MS = 1200;
+const ANNOUNCEMENT_SECONDS = 16;
 
 const formatTime = (seconds: number) => {
   const m = Math.floor(seconds / 60);
@@ -40,6 +41,8 @@ export const CountdownTimer = ({
 }: CountdownTimerProps) => {
   const safeSeconds = Number.isFinite(secondsLeft) ? secondsLeft : totalSeconds;
   const secondsRef = useRef(safeSeconds);
+  const hasPlayedAnnouncementRef = useRef(false);
+  const announcementAudioRef = useRef<HTMLAudioElement | null>(null);
   const callbacksRef = useRef({ onSecondsChange, onRunningChange, onReset });
 
   useEffect(() => {
@@ -61,6 +64,33 @@ export const CountdownTimer = ({
 
     return () => window.clearInterval(intervalId);
   }, [running]);
+
+  useEffect(() => {
+    if (safeSeconds > ANNOUNCEMENT_SECONDS || safeSeconds === 0) {
+      hasPlayedAnnouncementRef.current = false;
+      return;
+    }
+
+    if (
+      !running ||
+      safeSeconds !== ANNOUNCEMENT_SECONDS ||
+      hasPlayedAnnouncementRef.current
+    ) {
+      return;
+    }
+
+    const audio =
+      announcementAudioRef.current ??
+      new Audio(
+        `${(process.env.PUBLIC_URL || "/mafia_app").replace(/\/$/, "")}/timer-announcement.mp3`,
+      );
+    announcementAudioRef.current = audio;
+    audio.currentTime = 0;
+    hasPlayedAnnouncementRef.current = true;
+    void audio.play().catch((error: unknown) => {
+      console.error("Unable to play the timer announcement audio.", error);
+    });
+  }, [running, safeSeconds]);
 
   // Restore the configured time shortly after reaching 00:00
   useEffect(() => {
