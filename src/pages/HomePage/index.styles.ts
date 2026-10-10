@@ -14,6 +14,14 @@ export const AppWrapper = styled(Box, {
   justifyContent: "center",
   padding: "24px",
   position: "relative",
+  boxSizing: "border-box",
+  "@supports (height: 100dvh)": {
+    minHeight: "100dvh",
+  },
+  "@media (max-width: 600px)": {
+    alignItems: "flex-start",
+    padding: "calc(16px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom))",
+  },
 }));
 
 export const HeroCard = styled(Box)({
@@ -28,6 +36,7 @@ export const HeroCard = styled(Box)({
   color: "#f8fafc",
   position: "relative",
   overflow: "hidden",
+  boxSizing: "border-box",
   "&::before": {
     content: '""',
     position: "absolute",
@@ -35,6 +44,10 @@ export const HeroCard = styled(Box)({
     width: 3,
     background: "linear-gradient(180deg, #67e8f9, #34d399)",
     boxShadow: "0 0 22px rgba(103,232,249,0.65)",
+  },
+  "@media (max-width: 600px)": {
+    padding: "24px 20px",
+    borderRadius: 16,
   },
 });
 
@@ -80,6 +93,11 @@ export const StartGameButton = styled(Button)({
     background: "linear-gradient(110deg, #22d3ee, #34d399)",
     boxShadow: "0 0 32px rgba(34,211,238,0.34)",
   },
+  "@media (max-width: 400px)": {
+    flex: 1,
+    minWidth: 0,
+    padding: "12px 14px",
+  },
 });
 
 export const ResetGameButton = styled(Button)({
@@ -93,5 +111,10 @@ export const ResetGameButton = styled(Button)({
   "&:hover": {
     background: "rgba(248,250,252,0.1)",
     borderColor: "rgba(248,250,252,0.64)",
+  },
+  "@media (max-width: 400px)": {
+    flex: 1,
+    minWidth: 0,
+    padding: "12px 14px",
   },
 });

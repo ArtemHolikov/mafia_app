@@ -2,7 +2,7 @@ import { Button, styled, TextField } from "@mui/material";
 
 export const PlayersTextField = styled(TextField)({
   flex: 1,
-  minWidth: 200,
+  minWidth: 0,
   flexDirection: "row",
   width: "100%",
 
@@ -12,13 +12,13 @@ export const PlayersTextField = styled(TextField)({
 });
 
 export const PlayerOrderField = styled(TextField)({
-  width: 84,
+  width: "min(84px, 24vw)",
 });
 
 export const AddPlayerButton = styled(Button)({
   background: "linear-gradient(110deg, #06b6d4, #10b981)",
   color: "#04121b",
-  minWidth: 92,
+  minWidth: 72,
   padding: "12px 16px",
   borderRadius: 10,
   fontWeight: 800,

@@ -35,7 +35,8 @@ export const NameTextField = () => {
         </AddPlayerButton>
       </Box>
       <Typography sx={{ color: "rgba(248,250,252,0.7)", fontSize: "0.85rem" }}>
-        Type a nickname and press Enter or click Add. Drag to reorder.
+        Type a nickname and press Enter or click Add. Drag to reorder on
+        desktop; use the arrows on mobile.
       </Typography>
     </Box>
   );

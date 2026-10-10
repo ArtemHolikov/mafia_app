@@ -1,7 +1,9 @@
 import { Box, Button, Select, styled, Typography } from "@mui/material";
 
 export const DialogBody = styled(Box)({
-  width: "min(92vw, 620px)",
+  width: "100%",
+  maxWidth: 620,
+  boxSizing: "border-box",
   padding: "clamp(18px, 4vw, 28px)",
   background:
     "radial-gradient(ellipse at top left, rgba(8,145,178,0.16), transparent 52%), linear-gradient(145deg, #0e1b2a, #07111d)",
@@ -28,6 +30,12 @@ export const PlayerInfoWrapper = styled(Box)({
   background: "linear-gradient(135deg, rgba(8,47,60,0.44), rgba(4,14,25,0.72))",
   border: "1px solid rgba(103,232,249,0.16)",
   boxShadow: "inset 0 1px rgba(255,255,255,0.035)",
+  "@media (max-width: 480px)": {
+    alignItems: "flex-start",
+    flexDirection: "column",
+    padding: 12,
+    gap: 8,
+  },
 });
 
 export const PlayerInfoText = styled(Typography)({
@@ -43,10 +51,15 @@ export const SelectRoleWrapper = styled(Box)({
   justifyContent: "space-between",
   gap: 12,
   padding: "12px 0",
+  "@media (max-width: 480px)": {
+    alignItems: "stretch",
+    flexDirection: "column",
+  },
 });
 
 export const SelectRole = styled(Select)({
-  minWidth: 200,
+  minWidth: 0,
+  width: "100%",
   borderRadius: 16,
   background: "rgba(255,255,255,0.08)",
   color: "#f8fafc",

@@ -9,9 +9,15 @@ export const PageWrapper = styled(Box, {
   backgroundRepeat: "no-repeat",
   minHeight: "100vh",
   width: "100%",
-  padding: "24px 24px 96px",
+  padding: "24px 24px calc(96px + env(safe-area-inset-bottom))",
   overflow: "auto",
   position: "relative",
+  "@supports (height: 100dvh)": {
+    minHeight: "100dvh",
+  },
+  "@media (max-width: 600px)": {
+    padding: "16px 12px calc(190px + env(safe-area-inset-bottom))",
+  },
 }));
 
 export const ContentShell = styled(Box)({
@@ -26,6 +32,15 @@ export const TopBar = styled(Box)({
   gap: 16,
   padding: "16px 0 28px",
   flexWrap: "wrap",
+  "@media (max-width: 600px)": {
+    alignItems: "stretch",
+    gap: 12,
+    padding: "8px 0 18px",
+    "& > *": {
+      minWidth: 0,
+      maxWidth: "100%",
+    },
+  },
 });
 
 export const PlayerCardsWrapper = styled(Box)({
@@ -33,6 +48,10 @@ export const PlayerCardsWrapper = styled(Box)({
   gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
   gap: "20px",
   marginTop: 8,
+  "@media (max-width: 600px)": {
+    gridTemplateColumns: "minmax(0, 1fr)",
+    gap: 12,
+  },
 });
 
 export const SectionTitle = styled(Typography)({
@@ -67,6 +86,14 @@ export const GoToDayAcquaintanceButton = styled(Button)({
     background: "#2bd3c3",
     boxShadow: "0 0 30px rgba(45,211,195,0.38)",
   },
+  "@media (max-width: 600px)": {
+    left: 12,
+    right: 12,
+    bottom: "calc(12px + env(safe-area-inset-bottom))",
+    width: "auto",
+    padding: "12px 16px",
+    minHeight: 48,
+  },
 });
 
 export const NightActionsWrapper = styled(Box)({
@@ -79,6 +106,22 @@ export const NightActionsWrapper = styled(Box)({
   gap: 12,
   padding: "0 24px",
   zIndex: 10,
+  "@media (max-width: 600px)": {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    bottom: "calc(72px + env(safe-area-inset-bottom))",
+    gap: 8,
+    padding: "0 12px",
+    "& > *": {
+      width: "100%",
+      minWidth: "0 !important",
+      padding: "10px 8px",
+      fontSize: "0.82rem",
+      lineHeight: 1.2,
+      whiteSpace: "normal",
+      minHeight: 42,
+    },
+  },
 });
 
 export const NightActionButton = styled(Button)({

@@ -275,10 +275,18 @@ export const NightPage = () => {
           <Box
             sx={{
               display: "flex",
+              flexWrap: "wrap",
               alignItems: "center",
               justifyContent: "space-between",
               gap: 3,
               width: "100%",
+              "@media (max-width: 600px)": {
+                gap: 1.5,
+                "& > *": {
+                  minWidth: 0,
+                  width: "100%",
+                },
+              },
             }}
           >
             <Box>
@@ -299,6 +307,11 @@ export const NightPage = () => {
                 minWidth: 120,
                 padding: "15px 40px",
                 alignItems: "center",
+                "@media (max-width: 600px)": {
+                  width: "100%",
+                  minWidth: 0,
+                  padding: "12px 16px",
+                },
               }}
             >
               <Typography

@@ -2,6 +2,16 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Mobile app
+
+The production app can be installed from a supported mobile browser using its
+**Add to Home Screen** or **Install app** option. On iOS, open the app in Safari,
+tap **Share**, then **Add to Home Screen**. On Android, use the browser menu and
+choose **Install app**.
+
+After the first successful online load, the app shell and its main assets are
+available offline. Game data is stored locally on the device.
+
 ## Available Scripts
 
 In the project directory, you can run:

@@ -8,10 +8,12 @@ import {
 } from "@mui/material";
 
 export const StartGameDialogBody = styled(Box)({
-  width: "min(94vw, 820px)",
-  maxHeight: "90vh",
+  width: "100%",
+  maxWidth: 820,
+  maxHeight: "min(90vh, 900px)",
   overflowY: "auto",
   padding: "clamp(18px, 3vw, 30px)",
+  boxSizing: "border-box",
   background:
     "radial-gradient(ellipse at top left, rgba(8,145,178,0.14), transparent 46%), linear-gradient(145deg, #0e1b2a, #07111d 72%)",
   border: "1px solid rgba(103,232,249,0.22)",
@@ -31,6 +33,9 @@ export const StartGameDialogBody = styled(Box)({
   },
   "& .MuiInputLabel-root": { color: "rgba(207,250,254,0.62)" },
   "& .MuiInputLabel-root.Mui-focused": { color: "#67e8f9" },
+  "@supports (height: 100dvh)": {
+    maxHeight: "calc(100dvh - 16px)",
+  },
 });
 
 export const SettingsLobbyTitle = styled(Typography)({
@@ -55,6 +60,7 @@ export const PlayersList = styled(MenuList)({
   scrollbarColor: "grey transparent",
   scrollbarWidth: "thin",
   gap: 8,
+  minWidth: 0,
 });
 
 export const PlayerItem = styled(MenuItem)({
@@ -66,9 +72,22 @@ export const PlayerItem = styled(MenuItem)({
   background: "rgba(9,25,38,0.8)",
   border: "1px solid rgba(103,232,249,0.12)",
   transition: "border-color 160ms ease, background 160ms ease",
+  minWidth: 0,
   "&:hover": {
     background: "rgba(8,47,60,0.52)",
     borderColor: "rgba(103,232,249,0.38)",
+  },
+  "@media (max-width: 480px)": {
+    alignItems: "flex-start",
+    flexDirection: "column",
+    gap: 8,
+    "& > *": {
+      width: "100%",
+      minWidth: 0,
+    },
+    "& > :last-child": {
+      justifyContent: "flex-end",
+    },
   },
 });
 
@@ -76,6 +95,7 @@ export const PlayerItemInfoText = styled(Typography)({
   color: "#f8fafc",
   fontWeight: 600,
   fontSize: "0.95rem",
+  overflowWrap: "anywhere",
 });
 
 export const NoPlayersMessage = styled(Typography)({
@@ -127,12 +147,17 @@ export const RoleRow = styled(Box)(({ theme }) => ({
   gap: 12,
   padding: "14px 0",
   borderBottom: "1px solid rgba(103,232,249,0.1)",
+  "@media (max-width: 480px)": {
+    gap: 6,
+    padding: "10px 0",
+  },
 }));
 
 export const RoleInfo = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: 10,
+  minWidth: 0,
 }));
 
 export const RoleCountField = styled(Box)(({ theme }) => ({
@@ -140,6 +165,10 @@ export const RoleCountField = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: 8,
+  "@media (max-width: 480px)": {
+    minWidth: 0,
+    gap: 6,
+  },
 }));
 
 export const RoleToggleField = styled(Box)(({ theme }) => ({
@@ -147,6 +176,9 @@ export const RoleToggleField = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-end",
+  "@media (max-width: 480px)": {
+    minWidth: 0,
+  },
 }));
 
 export const ImmunityButton = styled(Button)(({ theme }) => ({
@@ -179,4 +211,9 @@ export const ImmunityItem = styled(Box)(({ theme }) => ({
   borderRadius: 10,
   background: "rgba(9,25,38,0.8)",
   border: "1px solid rgba(103,232,249,0.12)",
+  "@media (max-width: 480px)": {
+    alignItems: "flex-start",
+    padding: "10px",
+    gap: 8,
+  },
 }));

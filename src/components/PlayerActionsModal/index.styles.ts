@@ -1,7 +1,9 @@
 import { Box, Button, styled } from "@mui/material";
 
 export const DialogBody = styled(Box)({
-  width: "min(92vw, 360px)",
+  width: "100%",
+  maxWidth: 360,
+  boxSizing: "border-box",
   padding: "24px",
   background:
     "linear-gradient(145deg, rgba(17,24,39,0.97), rgba(10,14,26,0.98))",

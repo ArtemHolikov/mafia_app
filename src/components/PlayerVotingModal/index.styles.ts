@@ -1,7 +1,9 @@
 import { Box, Button, styled, TextField, Typography } from "@mui/material";
 
 export const VotingDialogBody = styled(Box)({
-  width: "min(92vw, 420px)",
+  width: "100%",
+  maxWidth: 420,
+  boxSizing: "border-box",
   padding: "clamp(20px, 5vw, 28px)",
   background:
     "radial-gradient(ellipse at top left, rgba(8,145,178,0.16), transparent 52%), linear-gradient(145deg, #0e1b2a, #07111d)",
@@ -10,7 +12,7 @@ export const VotingDialogBody = styled(Box)({
 });
 
 export const CountOfVotesField = styled(TextField)({
-  width: "120px",
+  width: "min(120px, 35vw)",
   textAlign: "center",
   "& .MuiOutlinedInput-root": {
     borderRadius: 10,

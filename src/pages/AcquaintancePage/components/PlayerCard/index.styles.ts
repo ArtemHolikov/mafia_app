@@ -17,10 +17,24 @@ export const CardWrapper = styled(Box)({
   userSelect: "none",
   position: "relative",
   cursor: "pointer",
+  minWidth: 0,
+  boxSizing: "border-box",
 
   "&:hover": {
     transform: "translateY(-2px)",
     background: "rgba(255, 255, 255, 0.16)",
+  },
+  "@media (max-width: 600px)": {
+    minHeight: 112,
+    padding: 16,
+    borderRadius: 16,
+    gap: 12,
+    "& > img": {
+      width: 64,
+      height: 64,
+      objectFit: "contain",
+      flex: "0 0 auto",
+    },
   },
 });
 
@@ -29,6 +43,7 @@ export const OrderNicknameText = styled(Typography)({
   lineHeight: 1.5,
   fontWeight: 600,
   zIndex: 1,
+  overflowWrap: "anywhere",
 });
 
 export const RoleText = styled(Typography)({

@@ -8,6 +8,7 @@ import {
   DialogTitle,
   Divider,
   FormControlLabel,
+  IconButton,
   MenuItem,
   Switch,
   Tab,
@@ -39,6 +40,8 @@ import { NameTextField } from "./components/NameTextField";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState, useEffect, useRef } from "react";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
+import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
+import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 
 interface StartGameDialogProps {
   isOpen: boolean;
@@ -202,6 +205,26 @@ export const StartGameDialog = ({
 
     reorderPlayers(nextOrder);
     setDraggedPlayerId(null);
+  };
+
+  const handleMovePlayer = (playerId: number, offset: -1 | 1) => {
+    const currentOrder = sortedPlayers.map((player: any) => player.id);
+    const currentIndex = currentOrder.indexOf(playerId);
+    const targetIndex = currentIndex + offset;
+
+    if (
+      currentIndex < 0 ||
+      targetIndex < 0 ||
+      targetIndex >= currentOrder.length
+    ) {
+      return;
+    }
+
+    [currentOrder[currentIndex], currentOrder[targetIndex]] = [
+      currentOrder[targetIndex],
+      currentOrder[currentIndex],
+    ];
+    reorderPlayers(currentOrder);
   };
 
   const handleSaveImmunityModal = () => {
@@ -390,9 +413,42 @@ export const StartGameDialog = ({
                       <PlayerItemInfoText>{player.nickname}</PlayerItemInfoText>
                     )}
                   </Box>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: { xs: 0.25, sm: 1 },
+                    }}
+                  >
+                    <Box sx={{ display: { xs: "flex", sm: "none" } }}>
+                      <IconButton
+                        aria-label={`Move ${player.nickname} up`}
+                        disabled={player.tableOrder === 1}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleMovePlayer(player.id, -1);
+                        }}
+                        size="small"
+                        sx={{ color: "#a5f3fc", p: 0.75 }}
+                      >
+                        <ArrowUpwardRoundedIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        aria-label={`Move ${player.nickname} down`}
+                        disabled={player.tableOrder === sortedPlayers.length}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleMovePlayer(player.id, 1);
+                        }}
+                        size="small"
+                        sx={{ color: "#a5f3fc", p: 0.75 }}
+                      >
+                        <ArrowDownwardRoundedIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
                     <DragIndicatorIcon
                       sx={{
+                        display: { xs: "none", sm: "block" },
                         color: "rgba(248,250,252,0.35)",
                         fontSize: "1.2rem",
                       }}
@@ -760,9 +816,9 @@ export const StartGameDialog = ({
                               : "rgba(248,250,252,0.85)",
                           fontWeight: 700,
                           fontSize: "1rem",
-                          minWidth: 100,
+                          minWidth: { xs: 80, sm: 100 },
                           textAlign: "right",
-                          pr: 1.5,
+                          pr: { xs: 0.5, sm: 1.5 },
                         }}
                       >
                         {autoCitizenCount}
@@ -781,6 +837,9 @@ export const StartGameDialog = ({
                           }
                           sx={{
                             width: 100,
+                            "@media (max-width: 480px)": {
+                              width: 76,
+                            },
                             background: "rgba(255,255,255,0.06)",
                             borderRadius: 2,
                           }}

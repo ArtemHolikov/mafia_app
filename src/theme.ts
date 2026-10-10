@@ -75,6 +75,13 @@ export const appTheme = createTheme({
           background:
             "linear-gradient(145deg, rgba(17,24,39,0.98), rgba(10,14,26,0.98))",
           boxShadow: "0 25px 60px rgba(2, 6, 23, 0.7)",
+          "@media (max-width: 600px)": {
+            margin: 8,
+            width: "calc(100% - 16px)",
+            maxWidth: "calc(100% - 16px)",
+            maxHeight: "calc(100% - 16px)",
+            borderRadius: 18,
+          },
         },
       },
     },
