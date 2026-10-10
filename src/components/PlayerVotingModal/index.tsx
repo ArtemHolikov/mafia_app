@@ -91,7 +91,7 @@ export const PlayerVotingModal = ({
       sx={{
         "& .MuiDialog-paper": {
           overflow: "hidden",
-          borderRadius: 3,
+          borderRadius: "10px",
           background: "#07111d",
           boxShadow:
             "0 28px 84px rgba(2,6,23,0.78), 0 0 42px rgba(34,211,238,0.1)",

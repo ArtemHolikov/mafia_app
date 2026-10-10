@@ -269,7 +269,14 @@ export const NightPage = () => {
     : "All night actions are complete";
 
   return (
-    <PageWrapper bgimage={backgroundImage}>
+    <PageWrapper
+      bgimage={backgroundImage}
+      sx={{
+        "@media (max-width: 600px)": {
+          paddingBottom: `calc(${completedActions.length > 0 ? 140 : 80}px + env(safe-area-inset-bottom))`,
+        },
+      }}
+    >
       <ContentShell>
         <TopBar>
           <Box
@@ -290,49 +297,35 @@ export const NightPage = () => {
             }}
           >
             <Box>
-              <SectionTitle>{`Night — round ${roundParam}`}</SectionTitle>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 1,
+                }}
+              >
+                <SectionTitle>{`Night — round ${roundParam}`}</SectionTitle>
+                <Typography
+                  aria-label={`${aliveCount} alive players`}
+                  sx={{
+                    flexShrink: 0,
+                    color: "rgba(248,250,252,0.82)",
+                    fontSize: "1.1rem",
+                    fontWeight: 700,
+                    minWidth: 36,
+                    textAlign: "center",
+                    px: 1.3,
+                    py: 0.55,
+                    borderRadius: 999,
+                    bgcolor: "rgba(255,255,255,0.08)",
+                  }}
+                >
+                  {aliveCount}
+                </Typography>
+              </Box>
               <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
                 {activeButtonText}. Proceed to the next day when ready.
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                px: 3,
-                borderRadius: 3,
-                border: "1px solid rgba(255,255,255,0.18)",
-                bgcolor: "rgba(255,255,255,0.04)",
-                minWidth: 120,
-                padding: "15px 40px",
-                alignItems: "center",
-                "@media (max-width: 600px)": {
-                  width: "100%",
-                  minWidth: 0,
-                  padding: "12px 16px",
-                },
-              }}
-            >
-              <Typography
-                sx={{
-                  color: "rgba(248,250,252,0.72)",
-                  fontSize: "0.85rem",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                }}
-              >
-                Alive players
-              </Typography>
-              <Typography
-                sx={{
-                  color: "#fff",
-                  fontWeight: 700,
-                  fontSize: "1.35rem",
-                  mt: 0.5,
-                }}
-              >
-                {aliveCount}
               </Typography>
             </Box>
           </Box>
@@ -349,6 +342,12 @@ export const NightPage = () => {
           maxWidth: 1400,
           mx: "auto",
           mb: 2,
+          "@media (max-width: 600px)": {
+            gridTemplateColumns: "minmax(0, 1fr)",
+            "& > :not([aria-current='step'])": {
+              display: "none",
+            },
+          },
         }}
       >
         {NIGHT_STEPS.map((step, index) => {
@@ -452,8 +451,8 @@ export const NightPage = () => {
         ))}
       </PlayerCardsWrapper>
 
-      <NightActionsWrapper>
-        {completedActions.length > 0 && (
+      {completedActions.length > 0 && (
+        <NightActionsWrapper>
           <Button
             onClick={handleUndoLastAction}
             variant="outlined"
@@ -476,8 +475,8 @@ export const NightPage = () => {
               )?.title
             }
           </Button>
-        )}
-      </NightActionsWrapper>
+        </NightActionsWrapper>
+      )}
 
       <GoToDayAcquaintanceButton
         onClick={goToDay}

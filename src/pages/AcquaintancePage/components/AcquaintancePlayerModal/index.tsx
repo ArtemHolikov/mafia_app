@@ -1,4 +1,5 @@
-import { Box, Button, Dialog, Divider } from "@mui/material";
+import { Box, Button, Dialog, Divider, IconButton } from "@mui/material";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import {
   DialogBody,
   PlayerInfoText,
@@ -109,11 +110,62 @@ export const AcquaintancePlayerModal = ({
           background: "#07111d",
           boxShadow:
             "0 28px 84px rgba(2,6,23,0.78), 0 0 42px rgba(34,211,238,0.1)",
+          "@media (max-width: 600px)": {
+            margin: 0,
+            width: "100%",
+            maxWidth: "100%",
+            height: "100vh",
+            maxHeight: "100vh",
+            borderRadius: 0,
+            "@supports (height: 100dvh)": {
+              height: "100dvh",
+              maxHeight: "100dvh",
+            },
+          },
         },
       }}
     >
-      <DialogBody>
-        <SettingPlayerInfoTitle>Setup Player</SettingPlayerInfoTitle>
+      <DialogBody
+        sx={{
+          "@media (max-width: 600px)": {
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "flex-start",
+            height: "100%",
+            maxWidth: "none",
+            margin: "0 auto",
+            overflowY: "auto",
+            padding:
+              "calc(12px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))",
+            border: 0,
+            boxShadow: "none",
+          },
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 1,
+            mb: 1,
+          }}
+        >
+          <SettingPlayerInfoTitle sx={{ mb: 0, textAlign: "left" }}>
+            Assign a role
+          </SettingPlayerInfoTitle>
+          <IconButton
+            onClick={handleClose}
+            aria-label="Close player role setup"
+            sx={{
+              color: "rgba(248,250,252,0.8)",
+              width: 44,
+              height: 44,
+            }}
+          >
+            <CloseRoundedIcon />
+          </IconButton>
+        </Box>
         <Divider
           sx={{
             width: "100%",
@@ -121,14 +173,40 @@ export const AcquaintancePlayerModal = ({
             background: "rgba(103,232,249,0.2)",
           }}
         />
-        <Box sx={{ padding: "16px" }}>
-          <PlayerInfoWrapper>
+        <Box sx={{ padding: { xs: "10px 0", sm: "16px" } }}>
+          <PlayerInfoWrapper
+            sx={{
+              "@media (max-width: 600px)": {
+                alignItems: "center",
+                flexDirection: "row",
+                padding: "12px 14px",
+                gap: 12,
+              },
+            }}
+          >
             <Box>
-              <PlayerInfoText>ID: {id}</PlayerInfoText>
-              <PlayerInfoText>Nickname: {nickname}</PlayerInfoText>
-              <PlayerInfoText>Role: {selectedRoleLabel}</PlayerInfoText>
+              <PlayerInfoText sx={{ color: "rgba(248,250,252,0.56)", fontSize: "0.78rem" }}>
+                PLAYER {String(id).padStart(2, "0")}
+              </PlayerInfoText>
+              <PlayerInfoText sx={{ fontSize: "1.08rem", overflowWrap: "anywhere" }}>
+                {nickname}
+              </PlayerInfoText>
+              <PlayerInfoText sx={{ color: "#67e8f9", fontSize: "0.86rem" }}>
+                {selectedRoleLabel}
+              </PlayerInfoText>
             </Box>
-            <img src={roleImageToDisplay} width={120} height={120} />
+            <img
+              src={roleImageToDisplay}
+              width={96}
+              height={96}
+              alt={`${selectedRoleLabel} role`}
+              style={{
+                width: "clamp(72px, 24vw, 96px)",
+                height: "clamp(72px, 24vw, 96px)",
+                objectFit: "contain",
+                flex: "0 0 auto",
+              }}
+            />
           </PlayerInfoWrapper>
         </Box>
         <Divider
@@ -138,13 +216,16 @@ export const AcquaintancePlayerModal = ({
             background: "rgba(103,232,249,0.2)",
           }}
         />
-        <Box sx={{ padding: "24px 16px 0" }}>
-          <PlayerInfoText sx={{ mb: 1.5 }}>Pick a role</PlayerInfoText>
+        <Box sx={{ padding: { xs: "14px 0 0", sm: "24px 16px 0" } }}>
+          <PlayerInfoText sx={{ mb: 1.5 }}>Available roles</PlayerInfoText>
           <Box
             sx={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))",
-              gap: 1,
+              gap: { xs: 1, sm: 1 },
+              "@media (max-width: 600px)": {
+                gridTemplateColumns: "minmax(0, 1fr)",
+              },
             }}
           >
             {rolesArray.map((roleOption) => {
@@ -166,9 +247,14 @@ export const AcquaintancePlayerModal = ({
                   }
                   sx={{
                     minHeight: 48,
+                    width: "100%",
                     textTransform: "none",
-                    borderRadius: 1.5,
+                    borderRadius: 2,
                     fontWeight: 700,
+                    px: 1,
+                    "@media (max-width: 380px)": {
+                      fontSize: "0.78rem",
+                    },
                     borderColor: isSelected
                       ? "rgba(103,232,249,0.55)"
                       : "rgba(103,232,249,0.2)",
@@ -198,9 +284,14 @@ export const AcquaintancePlayerModal = ({
               );
             })}
           </Box>
-          <PlayerInfoText sx={{ mt: 2, color: "rgba(248,250,252,0.7)" }}>
-            The current role button is disabled. Pick any other available role
-            to assign it immediately.
+          <PlayerInfoText
+            sx={{
+              mt: 1.5,
+              color: "rgba(248,250,252,0.62)",
+              fontSize: "0.84rem",
+            }}
+          >
+            Choose an available role to assign it to this player.
           </PlayerInfoText>
         </Box>
       </DialogBody>

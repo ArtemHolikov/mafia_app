@@ -229,11 +229,27 @@ export const VotingPage = () => {
         fullWidth
         maxWidth="sm"
         sx={{
+          "@media (max-width: 600px)": {
+            "& .MuiDialog-container": {
+              alignItems: "stretch",
+            },
+          },
           "& .MuiDialog-paper": {
             overflow: "hidden",
             border: `1px solid ${votingResult?.type === "tieResolution" ? "rgba(251,191,36,0.25)" : votingResult?.eliminated ? "rgba(251,113,133,0.25)" : "rgba(74,222,128,0.22)"}`,
             background:
               "radial-gradient(ellipse at top left, rgba(22,101,52,0.16), transparent 58%), linear-gradient(145deg, #111827, #090e19)",
+            "@media (max-width: 600px)": {
+              display: "flex",
+              flexDirection: "column",
+              width: "100%",
+              maxWidth: "none",
+              height: "100%",
+              maxHeight: "none",
+              minHeight: "100dvh",
+              margin: 0,
+              borderRadius: "10px",
+            },
           },
         }}
       >
@@ -245,6 +261,10 @@ export const VotingPage = () => {
             gap: 2,
             pt: 3,
             px: 3,
+            "@media (max-width: 600px)": {
+              pt: "calc(24px + env(safe-area-inset-top))",
+              px: 2.5,
+            },
           }}
         >
           <Box
@@ -322,7 +342,17 @@ export const VotingPage = () => {
             <Divider sx={{ borderColor: "rgba(251,113,133,0.2)", mt: 2 }} />
           </Box>
         )}
-        <DialogContent sx={{ px: 3, pt: 1, pb: 2 }}>
+        <DialogContent
+          sx={{
+            px: 3,
+            pt: 1,
+            pb: 2,
+            "@media (max-width: 600px)": {
+              flex: "1 1 auto",
+              px: 2.5,
+            },
+          }}
+        >
           {votingResult?.type === "tieResolution" ? (
             <>
               <DialogContentText
@@ -490,6 +520,10 @@ export const VotingPage = () => {
             pt: 1,
             flexWrap: "wrap",
             gap: 1.5,
+            "@media (max-width: 600px)": {
+              px: 2.5,
+              pb: "calc(24px + env(safe-area-inset-bottom))",
+            },
           }}
         >
           {votingResult?.type === "tieResolution" ? (

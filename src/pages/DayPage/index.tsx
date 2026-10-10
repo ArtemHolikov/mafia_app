@@ -25,11 +25,12 @@ import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
 import { GameOverDialog } from "../../components/GameOverDialog";
 import { CountdownTimer } from "../../components/CountdownTimer";
-import { FlickeringBox, MafiaFlickeringBox } from "./index.styles";
 
 import NightsStayRoundedIcon from "@mui/icons-material/NightsStayRounded";
 import PersonOffRoundedIcon from "@mui/icons-material/PersonOffRounded";
 import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
+import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
+import HowToVoteRoundedIcon from "@mui/icons-material/HowToVoteRounded";
 
 export const DayPage = () => {
   const navigate = useNavigate();
@@ -280,7 +281,14 @@ export const DayPage = () => {
   }, [sortedPlayers, roundParam]);
 
   return (
-    <PageWrapper bgimage={backgroundImage}>
+    <PageWrapper
+      bgimage={backgroundImage}
+      sx={{
+        "@media (max-width: 600px)": {
+          paddingBottom: "calc(110px + env(safe-area-inset-bottom))",
+        },
+      }}
+    >
       <ContentShell>
         <TopBar>
           <Box
@@ -291,6 +299,13 @@ export const DayPage = () => {
               flexWrap: "wrap",
               gap: 3,
               width: "100%",
+              "@media (max-width: 600px)": {
+                gap: 1.5,
+                "& > *": {
+                  minWidth: 0,
+                  width: "100%",
+                },
+              },
             }}
           >
             <Box>
@@ -306,75 +321,102 @@ export const DayPage = () => {
                 {openingSpeaker?.nickname ?? "No alive starter"}
               </Typography>
             </Box>
-            <CountdownTimer
-              label="Speaker time"
-              secondsLeft={dayTimerSecondsLeft}
-              totalSeconds={speechTimer}
-              running={isDayTimerRunning}
-              onSecondsChange={setDayTimerSecondsLeft}
-              onRunningChange={setDayTimerRunning}
-              onReset={resetDayTimer}
-            />
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "space-between",
                 gap: 2,
-                px: 3,
-                borderRadius: 3,
-                border: "1px solid rgba(255,255,255,0.18)",
-                bgcolor: "rgba(255,255,255,0.04)",
-                minWidth: 260,
-                padding: "15px 24px",
+                "@media (max-width: 600px)": {
+                  gap: 1,
+                  width: "100%",
+                  minWidth: 0,
+                  flexWrap: "nowrap",
+                  p: 1,
+                  borderRadius: "10px",
+                  border: "1px solid rgba(255,255,255,0.14)",
+                  bgcolor: "rgba(255,255,255,0.04)",
+                },
               }}
             >
+              <CountdownTimer
+                label="Speaker time"
+                secondsLeft={dayTimerSecondsLeft}
+                totalSeconds={speechTimer}
+                running={isDayTimerRunning}
+                onSecondsChange={setDayTimerSecondsLeft}
+                onRunningChange={setDayTimerRunning}
+                onReset={resetDayTimer}
+                mobileInline
+              />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 2,
+                  px: 3,
+                  borderRadius: 3,
+                  border: "1px solid rgba(255,255,255,0.18)",
+                  bgcolor: "rgba(255,255,255,0.04)",
+                  minWidth: 260,
+                  padding: "15px 24px",
+                  "@media (max-width: 600px)": {
+                    flex: "1 1 50%",
+                    minWidth: 0,
+                    padding: "0 0 0 8px",
+                    gap: 0.5,
+                    border: 0,
+                    borderLeft: "1px solid rgba(255,255,255,0.16)",
+                    borderRadius: 0,
+                    bgcolor: "transparent",
+                  },
+              }}
+              >
               <Box
                 sx={{
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 1,
+                  gap: { xs: 0.4, sm: 1 },
                 }}
               >
                 <Typography
                   sx={{
                     color: "rgba(248,250,252,0.72)",
-                    fontSize: "0.85rem",
+                    fontSize: { xs: "0.65rem", sm: "0.85rem" },
                     textTransform: "uppercase",
-                    letterSpacing: "0.08em",
+                    letterSpacing: { xs: "0.04em", sm: "0.08em" },
                   }}
                 >
                   Town
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <FlickeringBox />
                   <Typography
                     sx={{
                       color: "#fff",
                       fontWeight: 700,
-                      fontSize: "1.35rem",
+                      fontSize: { xs: "1.2rem", sm: "1.35rem" },
                     }}
                   >
                     {townAliveCount}
                   </Typography>
+                  </Box>
                 </Box>
-              </Box>
 
               <Box
                 sx={{
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 1,
+                  gap: { xs: 0.4, sm: 1 },
                 }}
               >
                 <Typography
                   sx={{
                     color: "rgba(248,250,252,0.72)",
-                    fontSize: "0.85rem",
+                    fontSize: { xs: "0.65rem", sm: "0.85rem" },
                     textTransform: "uppercase",
-                    letterSpacing: "0.08em",
+                    letterSpacing: { xs: "0.04em", sm: "0.08em" },
                   }}
                 >
                   Total
@@ -384,7 +426,7 @@ export const DayPage = () => {
                     sx={{
                       color: "#fff",
                       fontWeight: 700,
-                      fontSize: "1.35rem",
+                      fontSize: { xs: "1.2rem", sm: "1.35rem" },
                     }}
                   >
                     {aliveCount}
@@ -397,32 +439,32 @@ export const DayPage = () => {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: 1,
+                  gap: { xs: 0.4, sm: 1 },
                 }}
               >
                 <Typography
                   sx={{
                     color: "rgba(248,250,252,0.72)",
-                    fontSize: "0.85rem",
+                    fontSize: { xs: "0.65rem", sm: "0.85rem" },
                     textTransform: "uppercase",
-                    letterSpacing: "0.08em",
+                    letterSpacing: { xs: "0.04em", sm: "0.08em" },
                   }}
                 >
                   Mafia
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <MafiaFlickeringBox />
                   <Typography
                     sx={{
                       color: "#fff",
                       fontWeight: 700,
-                      fontSize: "1.35rem",
+                      fontSize: { xs: "1.2rem", sm: "1.35rem" },
                     }}
                   >
                     {mafiaAliveCount}
                   </Typography>
                 </Box>
               </Box>
+            </Box>
             </Box>
           </Box>
         </TopBar>
@@ -442,7 +484,14 @@ export const DayPage = () => {
         ))}
       </PlayerCardsWrapper>
 
-      <NightActionsWrapper>
+      <NightActionsWrapper
+        sx={{
+          "@media (max-width: 600px)": {
+            bottom: "calc(12px + env(safe-area-inset-bottom))",
+            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+          },
+        }}
+      >
         <NightActionButton
           onClick={handleGiveFoul}
           disabled={
@@ -452,9 +501,22 @@ export const DayPage = () => {
             foulWasGivenForSelection ||
             nominationWasGivenForSelection
           }
-          sx={{ background: "rgba(56,189,248,0.92)", minWidth: 170 }}
+          aria-label="Give foul +1"
+          startIcon={<ReportProblemRoundedIcon />}
+          sx={{
+            background: "rgba(56,189,248,0.92)",
+            minWidth: 170,
+            "@media (max-width: 600px)": {
+              "& .MuiButton-startIcon": { mr: 0.5, ml: 0 },
+            },
+          }}
         >
-          Give foul +1
+          <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+            Give foul +1
+          </Box>
+          <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+            Foul +1
+          </Box>
         </NightActionButton>
 
         <NightActionButton
@@ -471,19 +533,47 @@ export const DayPage = () => {
             background:
               "linear-gradient(135deg, rgba(34,197,94,0.95), rgba(22,163,74,0.95))",
             minWidth: 190,
+            "@media (max-width: 600px)": {
+              "& .MuiButton-startIcon": { mr: 0.5, ml: 0 },
+            },
           }}
+          aria-label="Nominate player"
+          startIcon={<HowToVoteRoundedIcon />}
         >
-          Nominate player
+          <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+            Nominate player
+          </Box>
+          <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+            Nominate
+          </Box>
         </NightActionButton>
 
         <NightActionButton
           onClick={goToNight}
           disabled={isMafiaWinConditionMet || isTownWinConditionMet}
-          sx={{ minWidth: 190 }}
+          sx={{
+            minWidth: 190,
+            "@media (max-width: 600px)": {
+              "& .MuiButton-startIcon": { mr: 0.5, ml: 0 },
+            },
+          }}
+          aria-label={
+            raisedForVotingPlayers.length > 0
+              ? `Open voting with ${raisedForVotingPlayers.length} nominated players`
+              : "Proceed to night"
+          }
+          startIcon={<NightsStayRoundedIcon />}
         >
-          {raisedForVotingPlayers.length > 0
-            ? `Open voting (${raisedForVotingPlayers.length})`
-            : "Proceed to night"}
+          <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+            {raisedForVotingPlayers.length > 0
+              ? `Open voting (${raisedForVotingPlayers.length})`
+              : "Proceed to night"}
+          </Box>
+          <Box component="span" sx={{ display: { xs: "inline", sm: "none" } }}>
+            {raisedForVotingPlayers.length > 0
+              ? `Vote (${raisedForVotingPlayers.length})`
+              : "Night"}
+          </Box>
         </NightActionButton>
       </NightActionsWrapper>
 
@@ -517,11 +607,26 @@ export const DayPage = () => {
         fullWidth
         maxWidth="sm"
         sx={{
+          "@media (max-width: 600px)": {
+            "& .MuiDialog-container": {
+              alignItems: "stretch",
+            },
+          },
           "& .MuiDialog-paper": {
             overflow: "hidden",
             border: "1px solid rgba(251,113,133,0.24)",
             background:
               "radial-gradient(ellipse at top left, rgba(136,19,55,0.2), transparent 58%), linear-gradient(145deg, #111827, #090e19)",
+            "@media (max-width: 600px)": {
+              width: "100%",
+              maxWidth: "none",
+              height: "100%",
+              maxHeight: "none",
+              minHeight: "100dvh",
+              margin: 0,
+              border: 0,
+              borderRadius: 0,
+            },
           },
         }}
       >
@@ -533,6 +638,10 @@ export const DayPage = () => {
             gap: 2,
             pt: 3,
             px: 3,
+            "@media (max-width: 600px)": {
+              pt: "calc(24px + env(safe-area-inset-top))",
+              px: 2.5,
+            },
           }}
         >
           <Box
@@ -603,7 +712,16 @@ export const DayPage = () => {
             <Divider sx={{ borderColor: "rgba(251,113,133,0.2)", mt: 2 }} />
           </Box>
         )}
-        <DialogContent sx={{ px: 3, pt: 1, pb: 2 }}>
+        <DialogContent
+          sx={{
+            px: 3,
+            pt: 1,
+            pb: 2,
+            "@media (max-width: 600px)": {
+              px: 2.5,
+            },
+          }}
+        >
           <DialogContentText sx={{ color: "rgba(248,250,252,0.66)", mb: 2 }}>
             {killedPlayers.length > 0
               ? "These players were marked during the night. Confirm to apply the results."
@@ -666,7 +784,18 @@ export const DayPage = () => {
             ))}
           </Box>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: "center", px: 3, pb: 3, pt: 1 }}>
+        <DialogActions
+          sx={{
+            justifyContent: "center",
+            px: 3,
+            pb: 3,
+            pt: 1,
+            "@media (max-width: 600px)": {
+              px: 2.5,
+              pb: "calc(24px + env(safe-area-inset-bottom))",
+            },
+          }}
+        >
           <Button
             onClick={confirmKills}
             variant="contained"

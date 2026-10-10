@@ -20,6 +20,18 @@ export const StartGameDialogBody = styled(Box)({
   boxShadow: "0 30px 90px rgba(2,6,23,0.72), 0 0 38px rgba(34,211,238,0.08)",
   scrollbarColor: "rgba(103,232,249,0.35) transparent",
   scrollbarWidth: "thin",
+  "@media (max-width: 600px)": {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    maxWidth: "none",
+    maxHeight: "none",
+    minHeight: 0,
+    padding:
+      "calc(18px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))",
+    border: 0,
+    boxShadow: "none",
+  },
   "& .MuiOutlinedInput-root": {
     color: "#f8fafc",
     background: "rgba(4,14,25,0.72)",
@@ -61,6 +73,11 @@ export const PlayersList = styled(MenuList)({
   scrollbarWidth: "thin",
   gap: 8,
   minWidth: 0,
+  "@media (max-width: 600px)": {
+    flex: 1,
+    minHeight: 0,
+    maxHeight: "none",
+  },
 });
 
 export const PlayerItem = styled(MenuItem)({
@@ -78,15 +95,27 @@ export const PlayerItem = styled(MenuItem)({
     borderColor: "rgba(103,232,249,0.38)",
   },
   "@media (max-width: 480px)": {
-    alignItems: "flex-start",
-    flexDirection: "column",
-    gap: 8,
+    alignItems: "center",
+    minHeight: "unset",
+    flexWrap: "nowrap",
+    gap: 4,
+    padding: "6px 8px",
     "& > *": {
-      width: "100%",
       minWidth: 0,
     },
-    "& > :last-child": {
+    "& > :first-of-type": {
+      flex: "1 1 0",
+      width: "auto",
+      overflow: "hidden",
+    },
+    "& > :last-of-type": {
+      flex: "0 0 auto",
+      width: "auto",
       justifyContent: "flex-end",
+      "& .MuiButton-root": {
+        minHeight: 36,
+        px: 0.75,
+      },
     },
   },
 });
@@ -96,6 +125,11 @@ export const PlayerItemInfoText = styled(Typography)({
   fontWeight: 600,
   fontSize: "0.95rem",
   overflowWrap: "anywhere",
+  "&:last-child": {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
 });
 
 export const NoPlayersMessage = styled(Typography)({
@@ -118,6 +152,10 @@ export const GoToAcquaintancePhase = styled(Button)({
     background: "linear-gradient(110deg, #22d3ee, #34d399)",
     boxShadow: "0 0 28px rgba(34,211,238,0.28)",
   },
+  "@media (max-width: 600px)": {
+    flex: "0 0 auto",
+    marginTop: 16,
+  },
 });
 
 export const TabPanelBox = styled(Box)(({ theme }) => ({
@@ -125,6 +163,15 @@ export const TabPanelBox = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   gap: 16,
+  "@media (max-width: 600px)": {
+    flex: 1,
+    minHeight: 0,
+    "& > .MuiMenuList-root": {
+      flex: 1,
+      minHeight: 0,
+      maxHeight: "none",
+    },
+  },
 }));
 
 export const TotalCountChip = styled(Box)(({ theme }) => ({

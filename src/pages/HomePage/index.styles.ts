@@ -93,7 +93,7 @@ export const StartGameButton = styled(Button)({
     background: "linear-gradient(110deg, #22d3ee, #34d399)",
     boxShadow: "0 0 32px rgba(34,211,238,0.34)",
   },
-  "@media (max-width: 400px)": {
+  "@media (max-width: 600px)": {
     flex: 1,
     minWidth: 0,
     padding: "12px 14px",
@@ -112,7 +112,7 @@ export const ResetGameButton = styled(Button)({
     background: "rgba(248,250,252,0.1)",
     borderColor: "rgba(248,250,252,0.64)",
   },
-  "@media (max-width: 400px)": {
+  "@media (max-width: 600px)": {
     flex: 1,
     minWidth: 0,
     padding: "12px 14px",

@@ -267,6 +267,18 @@ export const StartGameDialog = ({
           background: "#07111d",
           boxShadow:
             "0 30px 100px rgba(2,6,23,0.78), 0 0 44px rgba(34,211,238,0.1)",
+          "@media (max-width: 600px)": {
+            margin: 0,
+            width: "100%",
+            maxWidth: "100%",
+            height: "100vh",
+            maxHeight: "100vh",
+            borderRadius: 0,
+            "@supports (height: 100dvh)": {
+              height: "100dvh",
+              maxHeight: "100dvh",
+            },
+          },
         },
       }}
     >
@@ -429,7 +441,12 @@ export const StartGameDialog = ({
                           handleMovePlayer(player.id, -1);
                         }}
                         size="small"
-                        sx={{ color: "#a5f3fc", p: 0.75 }}
+                        sx={{
+                          color: "#a5f3fc",
+                          p: 1,
+                          width: 44,
+                          height: 44,
+                        }}
                       >
                         <ArrowUpwardRoundedIcon fontSize="small" />
                       </IconButton>
@@ -441,7 +458,12 @@ export const StartGameDialog = ({
                           handleMovePlayer(player.id, 1);
                         }}
                         size="small"
-                        sx={{ color: "#a5f3fc", p: 0.75 }}
+                        sx={{
+                          color: "#a5f3fc",
+                          p: 1,
+                          width: 44,
+                          height: 44,
+                        }}
                       >
                         <ArrowDownwardRoundedIcon fontSize="small" />
                       </IconButton>
@@ -774,6 +796,11 @@ export const StartGameDialog = ({
                 maxHeight: "360px",
                 scrollbarColor: "grey transparent",
                 scrollbarWidth: "thin",
+                "@media (max-width: 600px)": {
+                  flex: 1,
+                  minHeight: 0,
+                  maxHeight: "none",
+                },
               }}
             >
               {Object.entries(roleLimits).map(([role, limits]: any) => {

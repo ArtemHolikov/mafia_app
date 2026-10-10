@@ -65,6 +65,19 @@ export const RaisedForVotingBox = styled(Box)({
   borderRadius: 22,
   opacity: 0.82,
   zIndex: 0,
+  "& img": {
+    width: "min(140px, 42%)",
+    height: "auto",
+    maxHeight: "82%",
+    objectFit: "contain",
+  },
+  "@media (max-width: 600px)": {
+    borderRadius: 16,
+    "& img": {
+      width: "min(180px, 68%)",
+      maxHeight: "90%",
+    },
+  },
 });
 
 export const MarkIconBox = styled(Box)({
@@ -77,4 +90,17 @@ export const MarkIconBox = styled(Box)({
   borderRadius: 22,
   opacity: 0.82,
   zIndex: 0,
+  "& img": {
+    width: "min(140px, 42%)",
+    height: "auto",
+    maxHeight: "82%",
+    objectFit: "contain",
+  },
+  "@media (max-width: 600px)": {
+    borderRadius: 16,
+    "& img": {
+      width: "min(180px, 68%)",
+      maxHeight: "90%",
+    },
+  },
 });

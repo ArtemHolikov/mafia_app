@@ -15,6 +15,7 @@ interface CountdownTimerProps {
   onReset: () => void;
   width?: number | string;
   accentColor?: string;
+  mobileInline?: boolean;
 }
 
 const RESET_DELAY_MS = 1200;
@@ -35,6 +36,7 @@ export const CountdownTimer = ({
   onReset,
   width = 260,
   accentColor = "#22d3ee",
+  mobileInline = false,
 }: CountdownTimerProps) => {
   const safeSeconds = Number.isFinite(secondsLeft) ? secondsLeft : totalSeconds;
   const secondsRef = useRef(safeSeconds);
@@ -90,6 +92,23 @@ export const CountdownTimer = ({
         width,
         maxWidth: "100%",
         boxSizing: "border-box",
+        "@media (max-width: 600px)": {
+          width: mobileInline ? "auto" : "100%",
+          minWidth: 0,
+          flex: mobileInline ? "1 1 50%" : undefined,
+          px: 1.25,
+          py: 1,
+          gap: 0.5,
+          borderRadius: 2,
+          ...(mobileInline && {
+            px: 0,
+            py: 0,
+            border: 0,
+            background: "transparent",
+            boxShadow: "none",
+            backdropFilter: "none",
+          }),
+        },
         borderRadius: 3,
         border: `1px solid ${color}40`,
         background:
@@ -99,12 +118,18 @@ export const CountdownTimer = ({
         transition: "border-color 0.3s, box-shadow 0.3s",
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: { xs: 1, sm: 1.5 },
+        }}
+      >
         <Typography
           sx={{
             flex: 1,
             color: isEmpty || isCritical ? color : "#f8fafc",
-            fontSize: "2rem",
+            fontSize: { xs: "1.45rem", sm: "2rem" },
             fontWeight: 800,
             lineHeight: 1,
             fontVariantNumeric: "tabular-nums",
@@ -118,8 +143,8 @@ export const CountdownTimer = ({
           aria-label={running ? "Pause timer" : "Start timer"}
           disabled={isEmpty}
           sx={{
-            width: 40,
-            height: 40,
+            width: { xs: 36, sm: 40 },
+            height: { xs: 36, sm: 40 },
             color: "#04111d",
             bgcolor: color,
             "&:hover": { bgcolor: color, filter: "brightness(1.1)" },
@@ -132,8 +157,8 @@ export const CountdownTimer = ({
           onClick={onReset}
           aria-label="Reset timer"
           sx={{
-            width: 40,
-            height: 40,
+            width: { xs: 36, sm: 40 },
+            height: { xs: 36, sm: 40 },
             color: "rgba(248,250,252,0.85)",
             bgcolor: "rgba(255,255,255,0.08)",
             "&:hover": { bgcolor: "rgba(255,255,255,0.16)" },
