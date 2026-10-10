@@ -19,8 +19,8 @@ export const AppWrapper = styled(Box, {
     minHeight: "100dvh",
   },
   "@media (max-width: 600px)": {
-    alignItems: "flex-start",
-    padding: "calc(16px + env(safe-area-inset-top)) 12px calc(16px + env(safe-area-inset-bottom))",
+    alignItems: "stretch",
+    padding: "calc(12px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom))",
   },
 }));
 
@@ -46,8 +46,18 @@ export const HeroCard = styled(Box)({
     boxShadow: "0 0 22px rgba(103,232,249,0.65)",
   },
   "@media (max-width: 600px)": {
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
+    minHeight:
+      "calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
     padding: "24px 20px",
-    borderRadius: 16,
+    borderRadius: 20,
+    background:
+      "radial-gradient(ellipse at 100% 0%, rgba(34,211,238,0.12), transparent 42%), linear-gradient(145deg, rgba(11,25,38,0.96), rgba(5,13,24,0.94))",
+    "&::before": {
+      width: 4,
+    },
   },
 });
 
@@ -57,6 +67,13 @@ export const HeroTitle = styled(Typography)({
   lineHeight: 1.1,
   marginTop: 12,
   marginBottom: 12,
+  "@media (max-width: 600px)": {
+    fontSize: "clamp(2.1rem, 9vw, 2.8rem)",
+    maxWidth: "12ch",
+    lineHeight: 1.04,
+    marginTop: 16,
+    marginBottom: 16,
+  },
 });
 
 export const HeroSubtitle = styled(Typography)({
@@ -64,6 +81,11 @@ export const HeroSubtitle = styled(Typography)({
   lineHeight: 1.7,
   color: "rgba(248, 250, 252, 0.8)",
   marginBottom: 24,
+  "@media (max-width: 600px)": {
+    fontSize: "1rem",
+    lineHeight: 1.6,
+    marginBottom: 28,
+  },
 });
 
 export const FeatureList = styled(Box)({
@@ -71,6 +93,10 @@ export const FeatureList = styled(Box)({
   flexWrap: "wrap",
   gap: 10,
   marginBottom: 24,
+  "@media (max-width: 600px)": {
+    gap: 8,
+    marginBottom: 24,
+  },
 });
 
 export const FeatureChip = styled(Chip)({
@@ -94,9 +120,11 @@ export const StartGameButton = styled(Button)({
     boxShadow: "0 0 32px rgba(34,211,238,0.34)",
   },
   "@media (max-width: 600px)": {
-    flex: 1,
+    width: "100%",
     minWidth: 0,
-    padding: "12px 14px",
+    minHeight: 54,
+    padding: "14px 16px",
+    borderRadius: 14,
   },
 });
 
@@ -113,8 +141,10 @@ export const ResetGameButton = styled(Button)({
     borderColor: "rgba(248,250,252,0.64)",
   },
   "@media (max-width: 600px)": {
-    flex: 1,
+    width: "100%",
     minWidth: 0,
-    padding: "12px 14px",
+    minHeight: 50,
+    padding: "12px 16px",
+    borderRadius: 14,
   },
 });
