@@ -133,6 +133,20 @@ export const StartGameDialog = ({
     updateSelectedRoleCount(role, enabled ? 1 : 0);
   };
 
+  const [speechDraft, setSpeechDraft] = useState(String(speechTimer));
+  const [defenseDraft, setDefenseDraft] = useState(String(defenseTimer));
+  const [finalDraft, setFinalDraft] = useState(String(finalWordTimer));
+  const commitDraft = (
+    draft: string,
+    min: number,
+    set: (n: number) => void,
+    setDraft: (s: string) => void,
+  ) => {
+    const value = Math.max(min, Math.round(Number(draft)) || min);
+    set(value);
+    setDraft(String(value));
+  };
+
   const handleSpeechTimerChange = (value: number) => {
     setSpeechTimer(Math.max(10, value));
   };
@@ -635,9 +649,10 @@ export const StartGameDialog = ({
                   fullWidth
                   type="number"
                   size="small"
-                  value={speechTimer}
-                  onChange={(event) =>
-                    handleSpeechTimerChange(Number(event.target.value))
+                  value={speechDraft}
+                  onChange={(event) => setSpeechDraft(event.target.value)}
+                  onBlur={() =>
+                    commitDraft(speechDraft, 10, setSpeechTimer, setSpeechDraft)
                   }
                   sx={{
                     background: "rgba(255,255,255,0.08)",
@@ -677,9 +692,15 @@ export const StartGameDialog = ({
                   fullWidth
                   type="number"
                   size="small"
-                  value={defenseTimer}
-                  onChange={(event) =>
-                    handleDefenseTimerChange(Number(event.target.value))
+                  value={defenseDraft}
+                  onChange={(event) => setDefenseDraft(event.target.value)}
+                  onBlur={() =>
+                    commitDraft(
+                      defenseDraft,
+                      5,
+                      setDefenseTimer,
+                      setDefenseDraft,
+                    )
                   }
                   sx={{
                     background: "rgba(255,255,255,0.08)",
@@ -719,9 +740,10 @@ export const StartGameDialog = ({
                   fullWidth
                   type="number"
                   size="small"
-                  value={finalWordTimer}
-                  onChange={(event) =>
-                    setFinalWordTimer(Math.max(5, Number(event.target.value)))
+                  value={finalDraft}
+                  onChange={(event) => setFinalDraft(event.target.value)}
+                  onBlur={() =>
+                    commitDraft(finalDraft, 5, setFinalWordTimer, setFinalDraft)
                   }
                   sx={{
                     background: "rgba(255,255,255,0.08)",
