@@ -884,12 +884,77 @@ export const StartGameDialog = ({
                               Number(event.target.value),
                             )
                           }
-                          sx={{
-                            width: 100,
-                            "@media (max-width: 480px)": {
-                              width: 76,
+                          slotProps={{
+                            select: {
+                              MenuProps: {
+                                anchorOrigin: {
+                                  vertical: "bottom",
+                                  horizontal: "right",
+                                },
+                                transformOrigin: {
+                                  vertical: "top",
+                                  horizontal: "right",
+                                },
+                                slotProps: {
+                                  paper: {
+                                    sx: {
+                                      mt: 0.5,
+                                      minWidth: "72px !important",
+                                      borderRadius: "3px",
+                                      background: "rgba(15,23,42,0.92)",
+                                      backdropFilter: "blur(16px)",
+                                      border: "1px solid rgba(103,232,249,0.2)",
+                                      boxShadow: "0 12px 32px rgba(0,0,0,0.5)",
+                                      "& .MuiList-root": { p: 0.5 },
+                                      "& .MuiMenuItem-root": {
+                                        justifyContent: "center",
+                                        borderRadius: "3px",
+                                        fontWeight: 600,
+                                        color: "rgba(248,250,252,0.85)",
+                                        minHeight: 36,
+                                      },
+                                      "& .MuiMenuItem-root:hover": {
+                                        background: "rgba(103,232,249,0.12)",
+                                      },
+                                      "& .MuiMenuItem-root.Mui-selected": {
+                                        background: "rgba(103,232,249,0.22)",
+                                        color: "#a5f3fc",
+                                      },
+                                      "& .MuiMenuItem-root.Mui-selected:hover":
+                                        {
+                                          background: "rgba(103,232,249,0.3)",
+                                        },
+                                    },
+                                  },
+                                },
+                              },
                             },
-                            background: "rgba(255,255,255,0.06)",
+                          }}
+                          sx={{
+                            width: "auto",
+                            background: "transparent",
+                            "& fieldset": {
+                              display: "none",
+                            },
+                            "& .MuiSelect-select, & .MuiSelect-select:focus": {
+                              outline: "none",
+                              background: "transparent",
+                              boxShadow: "none",
+                            },
+                            "& .MuiOutlinedInput-root, & .MuiOutlinedInput-root:hover, & .MuiOutlinedInput-root.Mui-focused":
+                              {
+                                background: "transparent",
+                                boxShadow: "none",
+                                border: "none",
+                              },
+                            "& .MuiOutlinedInput-notchedOutline, & .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline, & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                              {
+                                border: "none",
+                              },
+                            "& .MuiSelect-select": {
+                              paddingRight: "auto",
+                              minWidth: 0,
+                            },
                             borderRadius: 2,
                           }}
                         >

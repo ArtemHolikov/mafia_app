@@ -211,6 +211,7 @@ export const RoleCountField = styled(Box)(({ theme }) => ({
   minWidth: 110,
   display: "flex",
   alignItems: "center",
+  justifyContent: "flex-end",
   gap: 8,
   "@media (max-width: 480px)": {
     minWidth: 0,
