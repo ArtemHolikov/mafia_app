@@ -9,14 +9,16 @@ export const PageWrapper = styled(Box, {
   backgroundRepeat: "no-repeat",
   minHeight: "100vh",
   width: "100%",
-  padding: "24px 24px calc(96px + env(safe-area-inset-bottom))",
+  padding:
+    "calc(24px + env(safe-area-inset-top)) 24px calc(96px + env(safe-area-inset-bottom))",
   overflow: "auto",
   position: "relative",
   "@supports (height: 100dvh)": {
     minHeight: "100dvh",
   },
   "@media (max-width: 600px)": {
-    padding: "16px 12px calc(190px + env(safe-area-inset-bottom))",
+    padding:
+      "calc(16px + env(safe-area-inset-top)) 12px calc(190px + env(safe-area-inset-bottom))",
   },
 }));
 
