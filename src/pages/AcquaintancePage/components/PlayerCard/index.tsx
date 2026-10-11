@@ -52,6 +52,7 @@ interface PlayerCardProps {
     | "journalist"
     | "don"
     | null;
+  nightTargetDisabled?: boolean;
   onNightTargetSelect?: (targetId: number) => void;
 }
 
@@ -68,6 +69,7 @@ export const PlayerCard = ({
   onStartVoteMode,
   voteModeVoterId,
   nightAction,
+  nightTargetDisabled = false,
   onNightTargetSelect,
 }: PlayerCardProps) => {
   const [openModal, setOpenModal] = useState(false);
@@ -84,6 +86,8 @@ export const PlayerCard = ({
   );
   const isDisabledByImmunity =
     nightAction === "mafia" || nightAction === "maniac" ? isImmune : false;
+  const isNightTargetDisabled =
+    Boolean(nightAction) && (isDisabledByImmunity || nightTargetDisabled);
   const currentVotes =
     phase === "voting"
       ? (votingEntries?.[id] ?? playerRecord?.votesReceived)
@@ -108,7 +112,7 @@ export const PlayerCard = ({
     }
 
     if (nightAction) {
-      if (isDisabledByImmunity) {
+      if (isNightTargetDisabled) {
         return;
       }
       onNightTargetSelect?.(id);
@@ -147,8 +151,15 @@ export const PlayerCard = ({
               : isPlayerRaisedForVoting
                 ? "0 0 0 2px rgba(45,211,195,0.42), 0 16px 40px rgba(2,6,23,0.22)"
                 : `0 0 0 1px ${roleColor}22, 0 16px 40px rgba(2,6,23,0.22)`,
-          opacity: isDisabledByImmunity ? 0.55 : 1,
+          opacity: isNightTargetDisabled ? 0.55 : 1,
+          filter: nightTargetDisabled ? "grayscale(0.8)" : undefined,
+          cursor: isNightTargetDisabled ? "not-allowed" : undefined,
         }}
+        title={
+          nightTargetDisabled
+            ? "This player was targeted by this role last night"
+            : undefined
+        }
       >
         <Box>
           <OrderNicknameText>

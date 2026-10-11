@@ -31,6 +31,32 @@ const normalizePlayersOrder = (players: any[]) =>
       tableOrder: index + 1,
     }));
 
+type NightTargetRecord = {
+  round: number;
+  playerIds: number[];
+  previous?: NightTargetRecord;
+};
+
+const addNightTargetRecord = (
+  records: Record<string, NightTargetRecord> | undefined,
+  action: string,
+  playerIds: number[],
+  round: number,
+) => {
+  const existing = records?.[action];
+  // Re-recording within the same night must keep the earlier night as "previous"
+  const previous = existing?.round === round ? existing.previous : existing;
+  return { ...records, [action]: { round, playerIds, previous } };
+};
+
+const undoNightTargetRecord = (
+  records: Record<string, NightTargetRecord> | undefined,
+  action: string,
+) => {
+  const { [action]: removed, ...rest } = records ?? {};
+  return removed?.previous ? { ...rest, [action]: removed.previous } : rest;
+};
+
 export type phaseNames =
   | "lobby"
   | "night"
@@ -62,8 +88,7 @@ export const useGameStore = create(
       finalWordTimerSecondsLeft: 60,
       isFinalWordTimerRunning: false,
       round: 1, // Current round number
-      lastDoctorHealedPlayerId: null,
-      lastDoctorHealRound: 0,
+      lastNightTargets: {},
       selectedGameRoles: {
         Don: 1,
         Mafia: 1,
@@ -773,8 +798,7 @@ export const useGameStore = create(
           finalWordTimerSecondsLeft: state.finalWordTimer,
           isFinalWordTimerRunning: false,
           round: 1,
-          lastDoctorHealedPlayerId: null,
-          lastDoctorHealRound: 0,
+          lastNightTargets: {},
           selectedGameRoles: state.selectedGameRoles,
         })),
 
@@ -860,15 +884,40 @@ export const useGameStore = create(
             ...player,
             pendingDoctorSave: false,
           })),
-          lastDoctorHealedPlayerId: null,
-          lastDoctorHealRound: 0,
+          lastNightTargets: undoNightTargetRecord(
+            state.lastNightTargets,
+            "doctor",
+          ),
+        })),
+
+      recordNightTarget: (
+        action: string,
+        playerIds: number[],
+        currentRound: number,
+      ) =>
+        set((state: any) => ({
+          lastNightTargets: addNightTargetRecord(
+            state.lastNightTargets,
+            action,
+            playerIds,
+            currentRound,
+          ),
+        })),
+
+      undoNightTarget: (action: string) =>
+        set((state: any) => ({
+          lastNightTargets: undoNightTargetRecord(
+            state.lastNightTargets,
+            action,
+          ),
         })),
 
       doctorHealTarget: (playerId: number, currentRound: number) =>
         set((state: any) => {
+          const lastHeal = state.lastNightTargets?.doctor;
           const samePlayerBlocked =
-            state.lastDoctorHealedPlayerId === playerId &&
-            state.lastDoctorHealRound === currentRound - 1;
+            lastHeal?.round === currentRound - 1 &&
+            lastHeal.playerIds.includes(playerId);
 
           const updatedPlayers = state.players.map((player: any) => {
             if (player.id !== playerId) {
@@ -896,8 +945,12 @@ export const useGameStore = create(
 
           return {
             players: updatedPlayers,
-            lastDoctorHealedPlayerId: playerId,
-            lastDoctorHealRound: currentRound,
+            lastNightTargets: addNightTargetRecord(
+              state.lastNightTargets,
+              "doctor",
+              [playerId],
+              currentRound,
+            ),
           };
         }),
 
@@ -978,8 +1031,7 @@ export const useGameStore = create(
         dayTimerSecondsLeft: state.dayTimerSecondsLeft,
         isDayTimerRunning: state.isDayTimerRunning,
         round: state.round,
-        lastDoctorHealedPlayerId: state.lastDoctorHealedPlayerId,
-        lastDoctorHealRound: state.lastDoctorHealRound,
+        lastNightTargets: state.lastNightTargets,
         selectedGameRoles: state.selectedGameRoles,
         roleLimits: state.roleLimits,
       }),

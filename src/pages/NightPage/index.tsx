@@ -28,13 +28,7 @@ import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
 
 type NightAction =
-  | "mafia"
-  | "thief"
-  | "maniac"
-  | "doctor"
-  | "sheriff"
-  | "journalist"
-  | "don";
+  "mafia" | "thief" | "maniac" | "doctor" | "sheriff" | "journalist" | "don";
 
 type NightPlayer = {
   id: number;
@@ -130,6 +124,11 @@ export const NightPage = () => {
   );
   const clearDoctorHeal = useGameStore((state: any) => state.clearDoctorHeal);
   const doctorHealTarget = useGameStore((state: any) => state.doctorHealTarget);
+  const lastNightTargets = useGameStore((state: any) => state.lastNightTargets);
+  const recordNightTarget = useGameStore(
+    (state: any) => state.recordNightTarget,
+  );
+  const undoNightTarget = useGameStore((state: any) => state.undoNightTarget);
   const alivePlayers = players.filter((player: any) => player.isAlive);
   const aliveCount = alivePlayers.length;
   const roundParam = Number(searchParams.get("round") ?? round) || 1;
@@ -144,6 +143,20 @@ export const NightPage = () => {
   const filteredPlayers = alivePlayers;
 
   const activeAction = NIGHT_STEPS[currentStepIndex]?.id ?? null;
+
+  const isTargetRepeated = (playerId: number) => {
+    if (
+      !activeAction ||
+      activeAction === "mafia" ||
+      activeAction === "journalist"
+    )
+      return false;
+    const lastRecord = lastNightTargets?.[activeAction];
+    return (
+      lastRecord?.round === roundParam - 1 &&
+      lastRecord.playerIds.includes(playerId)
+    );
+  };
 
   useEffect(() => {
     if (roundParam !== round) setRound(roundParam);
@@ -176,7 +189,7 @@ export const NightPage = () => {
   const handlePlayerClick = (playerId: number) => {
     if (!activeAction) return;
     const target = alivePlayers.find((player: any) => player.id === playerId);
-    if (!target) return;
+    if (!target || isTargetRepeated(playerId)) return;
 
     if (activeAction === "mafia") {
       setMafiaNightTarget(playerId);
@@ -186,12 +199,14 @@ export const NightPage = () => {
 
     if (activeAction === "thief") {
       setThiefNightTarget(playerId);
+      recordNightTarget("thief", [playerId], roundParam);
       completeCurrentAction("thief");
       return;
     }
 
     if (activeAction === "maniac") {
       setManiacNightTarget(playerId);
+      recordNightTarget("maniac", [playerId], roundParam);
       completeCurrentAction("maniac");
       return;
     }
@@ -203,6 +218,7 @@ export const NightPage = () => {
     }
 
     if (activeAction === "sheriff") {
+      recordNightTarget("sheriff", [playerId], roundParam);
       setInformationResult({
         action: "sheriff",
         target,
@@ -236,6 +252,7 @@ export const NightPage = () => {
     }
 
     if (activeAction === "don") {
+      recordNightTarget("don", [playerId], roundParam);
       setInformationResult({
         action: "don",
         target,
@@ -252,6 +269,9 @@ export const NightPage = () => {
     if (last === "mafia") clearMafiaNightTarget();
     if (last === "maniac") clearManiacNightTarget();
     if (last === "thief") clearThiefNightTarget();
+    if (["thief", "maniac", "sheriff", "don"].includes(last)) {
+      undoNightTarget(last);
+    }
     if (last === "doctor") clearDoctorHeal();
     if (["sheriff", "journalist", "don"].includes(last)) {
       setInformationResult(null);
@@ -445,6 +465,7 @@ export const NightPage = () => {
             tableOrder={player.tableOrder}
             role={player.role}
             nightAction={activeAction}
+            nightTargetDisabled={isTargetRepeated(player.id)}
             selectedForNightTarget={player.id === journalistFirstTargetId}
             onNightTargetSelect={handlePlayerClick}
           />
