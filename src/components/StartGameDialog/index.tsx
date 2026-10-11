@@ -48,6 +48,117 @@ interface StartGameDialogProps {
   setIsOpen: (isOpen: boolean) => void;
 }
 
+interface TimerSettingProps {
+  label: string;
+  draft: string;
+  min: number;
+  onDraftChange: (value: string) => void;
+  onCommit: (value: string) => void;
+}
+
+const TimerSetting = ({
+  label,
+  draft,
+  min,
+  onDraftChange,
+  onCommit,
+}: TimerSettingProps) => {
+  const current = Math.max(min, Math.round(Number(draft)) || min);
+  const stepButtonSx = {
+    minWidth: 26,
+    width: 26,
+    height: 26,
+    p: 0,
+    borderRadius: "50%",
+    fontSize: "1.05rem",
+    lineHeight: 1,
+    color: "#a5f3fc",
+    background: "rgba(103,232,249,0.1)",
+    "&:hover": { background: "rgba(103,232,249,0.2)" },
+    "&.Mui-disabled": { color: "rgba(248,250,252,0.25)" },
+  };
+
+  return (
+    <Box
+      sx={{
+        minWidth: 0,
+        px: 0.75,
+        py: 1,
+        borderRadius: 2.5,
+        background: "rgba(15,23,42,0.45)",
+        border: "1px solid rgba(103,232,249,0.14)",
+        textAlign: "center",
+      }}
+    >
+      <Typography
+        sx={{
+          color: "rgba(248,250,252,0.62)",
+          fontSize: "0.68rem",
+          fontWeight: 700,
+          letterSpacing: 0.6,
+          textTransform: "uppercase",
+          mb: 0.5,
+        }}
+      >
+        {label}
+      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 0.5,
+        }}
+      >
+        <Button
+          aria-label={`Decrease ${label}`}
+          disabled={current <= min}
+          onClick={() => onCommit(String(current - 5))}
+          sx={stepButtonSx}
+        >
+          −
+        </Button>
+        <TextField
+          type="number"
+          variant="standard"
+          value={draft}
+          onChange={(event) => onDraftChange(event.target.value)}
+          onBlur={() => onCommit(draft)}
+          slotProps={{
+            input: { disableUnderline: true },
+            htmlInput: {
+              inputMode: "numeric",
+              "aria-label": label,
+              style: {
+                textAlign: "center",
+                fontSize: "1.25rem",
+                fontWeight: 800,
+                color: "#f8fafc",
+                padding: 0,
+                width: "3ch",
+              },
+            },
+          }}
+          sx={{
+            background: "transparent",
+            "& .MuiInputBase-root": { background: "transparent" },
+            "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
+              { display: "none", margin: 0 },
+            "& input[type=number]": { MozAppearance: "textfield" },
+          }}
+        />
+        <Button
+          aria-label={`Increase ${label}`}
+          onClick={() => onCommit(String(current + 5))}
+          sx={stepButtonSx}
+        >
+          +
+        </Button>
+      </Box>
+    </Box>
+  );
+};
+
 export const StartGameDialog = ({
   isOpen,
   setIsOpen,
@@ -520,7 +631,7 @@ export const StartGameDialog = ({
                   sx={{
                     mt: 0.5,
                     p: 2.5,
-                    borderRadius: 3,
+                    borderRadius: "15px",
                     border: "1px solid rgba(255,255,255,0.14)",
                     background:
                       "linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03))",
@@ -612,6 +723,7 @@ export const StartGameDialog = ({
                       mt: 0.25,
                       width: "100%",
                       textTransform: "none",
+                      borderRadius: "10px",
                       fontWeight: 700,
                       background:
                         "linear-gradient(135deg, rgba(16,185,129,0.95), rgba(14,116,144,0.95))",
@@ -631,143 +743,39 @@ export const StartGameDialog = ({
             <Box
               sx={{
                 display: "grid",
-                gap: 1.25,
-                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                gap: 0.75,
+                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
               }}
             >
-              <Box>
-                <Typography
-                  sx={{
-                    color: "rgba(248,250,252,0.92)",
-                    fontWeight: 700,
-                    mb: 1,
-                  }}
-                >
-                  Speaker time
-                </Typography>
-                <TextField
-                  fullWidth
-                  type="number"
-                  size="small"
-                  value={speechDraft}
-                  onChange={(event) => setSpeechDraft(event.target.value)}
-                  onBlur={() =>
-                    commitDraft(speechDraft, 10, setSpeechTimer, setSpeechDraft)
-                  }
-                  sx={{
-                    background: "rgba(255,255,255,0.08)",
-                    borderRadius: 2,
-                    "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                      {
-                        display: "none",
-                        margin: 0,
-                      },
-                    "& input[type=number]": {
-                      MozAppearance: "textfield",
-                    },
-                  }}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
-                          sec
-                        </Typography>
-                      ),
-                    },
-                  }}
-                />
-              </Box>
+              <TimerSetting
+                label="Speech"
+                draft={speechDraft}
+                min={10}
+                onDraftChange={setSpeechDraft}
+                onCommit={(value) =>
+                  commitDraft(value, 10, setSpeechTimer, setSpeechDraft)
+                }
+              />
 
-              <Box>
-                <Typography
-                  sx={{
-                    color: "rgba(248,250,252,0.92)",
-                    fontWeight: 700,
-                    mb: 1,
-                  }}
-                >
-                  Defense time
-                </Typography>
-                <TextField
-                  fullWidth
-                  type="number"
-                  size="small"
-                  value={defenseDraft}
-                  onChange={(event) => setDefenseDraft(event.target.value)}
-                  onBlur={() =>
-                    commitDraft(
-                      defenseDraft,
-                      5,
-                      setDefenseTimer,
-                      setDefenseDraft,
-                    )
-                  }
-                  sx={{
-                    background: "rgba(255,255,255,0.08)",
-                    borderRadius: 2,
-                    "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                      {
-                        display: "none",
-                        margin: 0,
-                      },
-                    "& input[type=number]": {
-                      MozAppearance: "textfield",
-                    },
-                  }}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
-                          sec
-                        </Typography>
-                      ),
-                    },
-                  }}
-                />
-              </Box>
+              <TimerSetting
+                label="Defense"
+                draft={defenseDraft}
+                min={5}
+                onDraftChange={setDefenseDraft}
+                onCommit={(value) =>
+                  commitDraft(value, 5, setDefenseTimer, setDefenseDraft)
+                }
+              />
 
-              <Box>
-                <Typography
-                  sx={{
-                    color: "rgba(248,250,252,0.92)",
-                    fontWeight: 700,
-                    mb: 1,
-                  }}
-                >
-                  Final word time
-                </Typography>
-                <TextField
-                  fullWidth
-                  type="number"
-                  size="small"
-                  value={finalDraft}
-                  onChange={(event) => setFinalDraft(event.target.value)}
-                  onBlur={() =>
-                    commitDraft(finalDraft, 5, setFinalWordTimer, setFinalDraft)
-                  }
-                  sx={{
-                    background: "rgba(255,255,255,0.08)",
-                    borderRadius: 2,
-                    "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button":
-                      {
-                        display: "none",
-                        margin: 0,
-                      },
-                    "& input[type=number]": {
-                      MozAppearance: "textfield",
-                    },
-                  }}
-                  slotProps={{
-                    input: {
-                      endAdornment: (
-                        <Typography sx={{ color: "rgba(248,250,252,0.72)" }}>
-                          sec
-                        </Typography>
-                      ),
-                    },
-                  }}
-                />
-              </Box>
+              <TimerSetting
+                label="Final word"
+                draft={finalDraft}
+                min={5}
+                onDraftChange={setFinalDraft}
+                onCommit={(value) =>
+                  commitDraft(value, 5, setFinalWordTimer, setFinalDraft)
+                }
+              />
             </Box>
           </TabPanelBox>
         )}
