@@ -19,6 +19,18 @@ function AppRoutes() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [location.pathname]);
+
+  useEffect(() => {
     const handlePopState = () => {
       navigate(location.pathname + location.search, { replace: true });
     };
