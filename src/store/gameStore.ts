@@ -988,9 +988,16 @@ export const useGameStore = create(
 
       raisedForVoting: (votedId: number) => {
         set((state: any) => {
+          const alreadyRaised = state.raisedForVotingPlayers.some(
+            (player: any) => player.id === votedId,
+          );
           const updatedPlayers = state.players.map((player: any) =>
             player.id === votedId
-              ? { ...player, raisedForVoting: true }
+              ? {
+                  ...player,
+                  raisedForVoting: true,
+                  votesReceived: alreadyRaised ? player.votesReceived : 0,
+                }
               : player,
           );
 
@@ -1001,10 +1008,6 @@ export const useGameStore = create(
           if (!votedPlayer) {
             return { players: updatedPlayers };
           }
-
-          const alreadyRaised = state.raisedForVotingPlayers.some(
-            (player: any) => player.id === votedId,
-          );
 
           return {
             players: updatedPlayers,
