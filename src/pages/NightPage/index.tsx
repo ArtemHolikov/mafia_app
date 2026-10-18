@@ -116,6 +116,7 @@ export const NightPage = () => {
   const round = useGameStore((state: any) => state.round);
   const setRound = useGameStore((state: any) => state.setRound);
   const players = useGameStore((state: any) => state.players);
+  const gameMode = useGameStore((state: any) => state.gameMode);
   const setMafiaNightTarget = useGameStore(
     (state: any) => state.setMafiaNightTarget,
   );
@@ -280,6 +281,12 @@ export const NightPage = () => {
     }
   };
 
+  const handleMafiaMiss = () => {
+    if (activeAction !== "mafia") return;
+    clearMafiaNightTarget();
+    completeCurrentAction("mafia");
+  };
+
   const handleUndoLastAction = () => {
     const last = completedActions[completedActions.length - 1];
     if (!last) return;
@@ -299,6 +306,8 @@ export const NightPage = () => {
   };
 
   const activeStep = NIGHT_STEPS[currentStepIndex];
+  const isMafiaMissAvailable =
+    activeAction === "mafia" && gameMode === "classic";
   const activeButtonText = activeStep
     ? activeStep.id === "journalist"
       ? `Select ${journalistFirstTargetId === null ? "the first" : "the second"} player for the Journalist`
@@ -493,30 +502,49 @@ export const NightPage = () => {
         ))}
       </PlayerCardsWrapper>
 
-      {completedActions.length > 0 && (
+      {(isMafiaMissAvailable || completedActions.length > 0) && (
         <NightActionsWrapper>
-          <Button
-            onClick={handleUndoLastAction}
-            variant="outlined"
-            sx={{
-              borderRadius: 999,
-              borderColor: "rgba(255,255,255,0.3)",
-              color: "rgba(248,250,252,0.8)",
-              px: 3,
-              py: 1.5,
-              fontWeight: 600,
-              "&:hover": { borderColor: "#fff" },
-            }}
-            startIcon={<UndoRoundedIcon />}
-          >
-            Undo{" "}
-            {
-              NIGHT_STEPS.find(
-                (step) =>
-                  step.id === completedActions[completedActions.length - 1],
-              )?.title
-            }
-          </Button>
+          {isMafiaMissAvailable && (
+            <Button
+              onClick={handleMafiaMiss}
+              variant="outlined"
+              sx={{
+                borderRadius: 999,
+                borderColor: "rgba(251,113,133,0.6)",
+                color: "#fda4af",
+                px: 3,
+                py: 1.5,
+                fontWeight: 600,
+                "&:hover": { borderColor: "#fb7185" },
+              }}
+            >
+              Miss
+            </Button>
+          )}
+          {completedActions.length > 0 && (
+            <Button
+              onClick={handleUndoLastAction}
+              variant="outlined"
+              sx={{
+                borderRadius: 999,
+                borderColor: "rgba(255,255,255,0.3)",
+                color: "rgba(248,250,252,0.8)",
+                px: 3,
+                py: 1.5,
+                fontWeight: 600,
+                "&:hover": { borderColor: "#fff" },
+              }}
+              startIcon={<UndoRoundedIcon />}
+            >
+              Undo{" "}
+              {
+                NIGHT_STEPS.find(
+                  (step) =>
+                    step.id === completedActions[completedActions.length - 1],
+                )?.title
+              }
+            </Button>
+          )}
         </NightActionsWrapper>
       )}
 

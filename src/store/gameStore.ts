@@ -87,6 +87,25 @@ export const useGameStore = create(
       finalWordTimer: 60, // Timer for the final word of an eliminated player
       finalWordTimerSecondsLeft: 60,
       blockedDonRestriction: "both", // What a Thief-blocked Don cannot do: "kill" | "check" | "both"
+      gameMode: "classic", // "classic" (mafia can miss) | "free-talk"
+      setGameMode: (value: string) =>
+        set((state: any) => ({
+          gameMode: value,
+          // Classic preset: Don, 2 Mafia, Sheriff (Citizens fill the rest)
+          selectedGameRoles:
+            value === "classic"
+              ? {
+                  ...state.selectedGameRoles,
+                  Don: 1,
+                  Mafia: 2,
+                  Sheriff: 1,
+                  Doctor: 0,
+                  Journalist: 0,
+                  Thief: 0,
+                  Maniac: 0,
+                }
+              : state.selectedGameRoles,
+        })),
       setBlockedDonRestriction: (value: string) =>
         set({ blockedDonRestriction: value }),
       isFinalWordTimerRunning: false,
@@ -94,13 +113,13 @@ export const useGameStore = create(
       lastNightTargets: {},
       selectedGameRoles: {
         Don: 1,
-        Mafia: 1,
+        Mafia: 2,
         Sheriff: 1,
-        Doctor: 1,
-        Journalist: 1,
-        Thief: 1,
-        Maniac: 1,
-        Citizen: 1,
+        Doctor: 0,
+        Journalist: 0,
+        Thief: 0,
+        Maniac: 0,
+        Citizen: 7,
       },
       roleLimits: {
         Don: { min: 1, max: 1 },
@@ -1053,6 +1072,7 @@ export const useGameStore = create(
         speechTimer: state.speechTimer,
         finalWordTimer: state.finalWordTimer,
         blockedDonRestriction: state.blockedDonRestriction,
+        gameMode: state.gameMode,
         dayTimerSecondsLeft: state.dayTimerSecondsLeft,
         isDayTimerRunning: state.isDayTimerRunning,
         round: state.round,

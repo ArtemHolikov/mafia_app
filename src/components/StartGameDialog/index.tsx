@@ -159,6 +159,91 @@ const TimerSetting = ({
   );
 };
 
+const SettingSelect = ({
+  value,
+  onChange,
+  options,
+  disabled = false,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: string }[];
+  disabled?: boolean;
+}) => (
+  <TextField
+    select
+    size="small"
+    value={value}
+    disabled={disabled}
+    onChange={(event) => onChange(event.target.value)}
+    slotProps={{
+      select: {
+        MenuProps: {
+          anchorOrigin: { vertical: "bottom", horizontal: "right" },
+          transformOrigin: { vertical: "top", horizontal: "right" },
+          slotProps: {
+            paper: {
+              sx: {
+                mt: 0.5,
+                minWidth: "72px !important",
+                borderRadius: "3px",
+                background: "rgba(15,23,42,0.92)",
+                backdropFilter: "blur(16px)",
+                border: "1px solid rgba(103,232,249,0.2)",
+                boxShadow: "0 12px 32px rgba(0,0,0,0.5)",
+                "& .MuiList-root": { p: 0.5 },
+                "& .MuiMenuItem-root": {
+                  justifyContent: "center",
+                  borderRadius: "3px",
+                  fontWeight: 600,
+                  color: "rgba(248,250,252,0.85)",
+                  minHeight: 36,
+                },
+                "& .MuiMenuItem-root:hover": {
+                  background: "rgba(103,232,249,0.12)",
+                },
+                "& .MuiMenuItem-root.Mui-selected": {
+                  background: "rgba(103,232,249,0.22)",
+                  color: "#a5f3fc",
+                },
+                "& .MuiMenuItem-root.Mui-selected:hover": {
+                  background: "rgba(103,232,249,0.3)",
+                },
+              },
+            },
+          },
+        },
+      },
+    }}
+    sx={{
+      width: "auto",
+      background: "transparent",
+      "& fieldset": { display: "none" },
+      "& .MuiSelect-select, & .MuiSelect-select:focus": {
+        outline: "none",
+        background: "transparent",
+        boxShadow: "none",
+      },
+      "& .MuiOutlinedInput-root, & .MuiOutlinedInput-root:hover, & .MuiOutlinedInput-root.Mui-focused":
+        {
+          background: "transparent",
+          boxShadow: "none",
+          border: "none",
+        },
+      "& .MuiOutlinedInput-notchedOutline, & .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline, & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+        { border: "none" },
+      "& .MuiSelect-select": { paddingRight: "auto", minWidth: 0 },
+      borderRadius: 2,
+    }}
+  >
+    {options.map((option) => (
+      <MenuItem key={option.value} value={option.value}>
+        {option.label}
+      </MenuItem>
+    ))}
+  </TextField>
+);
+
 export const StartGameDialog = ({
   isOpen,
   setIsOpen,
@@ -193,6 +278,8 @@ export const StartGameDialog = ({
   const setBlockedDonRestriction = useGameStore(
     (state: any) => state.setBlockedDonRestriction,
   );
+  const gameMode = useGameStore((state: any) => state.gameMode);
+  const setGameMode = useGameStore((state: any) => state.setGameMode);
   const addPlayer = useGameStore((state: any) => state.addPlayer);
 
   const navigate = useNavigate();
@@ -1021,86 +1108,33 @@ export const StartGameDialog = ({
                 </Typography>
               </RoleInfo>
               <RoleCountField>
-                <TextField
-                  select
-                  size="small"
+                <SettingSelect
                   value={blockedDonRestriction}
-                  onChange={(event) =>
-                    setBlockedDonRestriction(event.target.value)
-                  }
-                  slotProps={{
-                    select: {
-                      MenuProps: {
-                        anchorOrigin: {
-                          vertical: "bottom",
-                          horizontal: "right",
-                        },
-                        transformOrigin: {
-                          vertical: "top",
-                          horizontal: "right",
-                        },
-                        slotProps: {
-                          paper: {
-                            sx: {
-                              mt: 0.5,
-                              minWidth: "72px !important",
-                              borderRadius: "3px",
-                              background: "rgba(15,23,42,0.92)",
-                              backdropFilter: "blur(16px)",
-                              border: "1px solid rgba(103,232,249,0.2)",
-                              boxShadow: "0 12px 32px rgba(0,0,0,0.5)",
-                              "& .MuiList-root": { p: 0.5 },
-                              "& .MuiMenuItem-root": {
-                                justifyContent: "center",
-                                borderRadius: "3px",
-                                fontWeight: 600,
-                                color: "rgba(248,250,252,0.85)",
-                                minHeight: 36,
-                              },
-                              "& .MuiMenuItem-root:hover": {
-                                background: "rgba(103,232,249,0.12)",
-                              },
-                              "& .MuiMenuItem-root.Mui-selected": {
-                                background: "rgba(103,232,249,0.22)",
-                                color: "#a5f3fc",
-                              },
-                              "& .MuiMenuItem-root.Mui-selected:hover": {
-                                background: "rgba(103,232,249,0.3)",
-                              },
-                            },
-                          },
-                        },
-                      },
-                    },
-                  }}
-                  sx={{
-                    width: "auto",
-                    background: "transparent",
-                    "& fieldset": { display: "none" },
-                    "& .MuiSelect-select, & .MuiSelect-select:focus": {
-                      outline: "none",
-                      background: "transparent",
-                      boxShadow: "none",
-                    },
-                    "& .MuiOutlinedInput-root, & .MuiOutlinedInput-root:hover, & .MuiOutlinedInput-root.Mui-focused":
-                      {
-                        background: "transparent",
-                        boxShadow: "none",
-                        border: "none",
-                      },
-                    "& .MuiOutlinedInput-notchedOutline, & .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline, & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
-                      { border: "none" },
-                    "& .MuiSelect-select": {
-                      paddingRight: "auto",
-                      minWidth: 0,
-                    },
-                    borderRadius: 2,
-                  }}
-                >
-                  <MenuItem value="kill">Can&apos;t kill</MenuItem>
-                  <MenuItem value="check">Can&apos;t check Sheriff</MenuItem>
-                  <MenuItem value="both">Can&apos;t kill or check</MenuItem>
-                </TextField>
+                  disabled={gameMode === "classic"}
+                  onChange={setBlockedDonRestriction}
+                  options={[
+                    { value: "kill", label: "Can't kill" },
+                    { value: "check", label: "Can't check Sheriff" },
+                    { value: "both", label: "Can't kill or check" },
+                  ]}
+                />
+              </RoleCountField>
+            </RoleRow>
+            <RoleRow>
+              <RoleInfo>
+                <Typography sx={{ fontWeight: 700, color: "#fff" }}>
+                  Mode
+                </Typography>
+              </RoleInfo>
+              <RoleCountField>
+                <SettingSelect
+                  value={gameMode}
+                  onChange={setGameMode}
+                  options={[
+                    { value: "classic", label: "Classic" },
+                    { value: "free-talk", label: "Free-talk" },
+                  ]}
+                />
               </RoleCountField>
             </RoleRow>
           </TabPanelBox>
