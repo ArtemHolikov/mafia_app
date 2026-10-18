@@ -187,6 +187,12 @@ export const StartGameDialog = ({
     (state: any) => state.setPlayerImmunity,
   );
   const setPhase = useGameStore((state: any) => state.setPhase);
+  const blockedDonRestriction = useGameStore(
+    (state: any) => state.blockedDonRestriction,
+  );
+  const setBlockedDonRestriction = useGameStore(
+    (state: any) => state.setBlockedDonRestriction,
+  );
   const addPlayer = useGameStore((state: any) => state.addPlayer);
 
   const navigate = useNavigate();
@@ -444,6 +450,7 @@ export const StartGameDialog = ({
           <Tab label="Time" disabled={players.length === 0} />
           <Tab label="Immunity" disabled={players.length === 0} />
           <Tab label="Roles" disabled={players.length === 0} />
+          <Tab label="Settings" disabled={players.length === 0} />
         </Tabs>
 
         {activeTab === 0 && (
@@ -1001,6 +1008,101 @@ export const StartGameDialog = ({
                 );
               })}
             </Box>
+          </TabPanelBox>
+        )}
+
+        {activeTab === 4 && (
+          <TabPanelBox>
+            <SettingsLobbyTitle>Settings</SettingsLobbyTitle>
+            <RoleRow>
+              <RoleInfo>
+                <Typography sx={{ fontWeight: 700, color: "#fff" }}>
+                  Blocked Don restriction
+                </Typography>
+              </RoleInfo>
+              <RoleCountField>
+                <TextField
+                  select
+                  size="small"
+                  value={blockedDonRestriction}
+                  onChange={(event) =>
+                    setBlockedDonRestriction(event.target.value)
+                  }
+                  slotProps={{
+                    select: {
+                      MenuProps: {
+                        anchorOrigin: {
+                          vertical: "bottom",
+                          horizontal: "right",
+                        },
+                        transformOrigin: {
+                          vertical: "top",
+                          horizontal: "right",
+                        },
+                        slotProps: {
+                          paper: {
+                            sx: {
+                              mt: 0.5,
+                              minWidth: "72px !important",
+                              borderRadius: "3px",
+                              background: "rgba(15,23,42,0.92)",
+                              backdropFilter: "blur(16px)",
+                              border: "1px solid rgba(103,232,249,0.2)",
+                              boxShadow: "0 12px 32px rgba(0,0,0,0.5)",
+                              "& .MuiList-root": { p: 0.5 },
+                              "& .MuiMenuItem-root": {
+                                justifyContent: "center",
+                                borderRadius: "3px",
+                                fontWeight: 600,
+                                color: "rgba(248,250,252,0.85)",
+                                minHeight: 36,
+                              },
+                              "& .MuiMenuItem-root:hover": {
+                                background: "rgba(103,232,249,0.12)",
+                              },
+                              "& .MuiMenuItem-root.Mui-selected": {
+                                background: "rgba(103,232,249,0.22)",
+                                color: "#a5f3fc",
+                              },
+                              "& .MuiMenuItem-root.Mui-selected:hover": {
+                                background: "rgba(103,232,249,0.3)",
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  }}
+                  sx={{
+                    width: "auto",
+                    background: "transparent",
+                    "& fieldset": { display: "none" },
+                    "& .MuiSelect-select, & .MuiSelect-select:focus": {
+                      outline: "none",
+                      background: "transparent",
+                      boxShadow: "none",
+                    },
+                    "& .MuiOutlinedInput-root, & .MuiOutlinedInput-root:hover, & .MuiOutlinedInput-root.Mui-focused":
+                      {
+                        background: "transparent",
+                        boxShadow: "none",
+                        border: "none",
+                      },
+                    "& .MuiOutlinedInput-notchedOutline, & .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline, & .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                      { border: "none" },
+                    "& .MuiSelect-select": {
+                      paddingRight: "auto",
+                      minWidth: 0,
+                    },
+                    borderRadius: 2,
+                  }}
+                >
+                  <MenuItem value="kill">Can&apos;t kill</MenuItem>
+                  <MenuItem value="check">Can&apos;t check Sheriff</MenuItem>
+                  <MenuItem value="both">Can&apos;t kill or check</MenuItem>
+                </TextField>
+              </RoleCountField>
+            </RoleRow>
           </TabPanelBox>
         )}
 

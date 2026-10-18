@@ -73,8 +73,13 @@ const hasLivingActor = (action: NightAction, roster: any[]) => {
   );
 };
 
-const isActionBlocked = (action: NightAction, roster: any[]) => {
+const isActionBlocked = (
+  action: NightAction,
+  roster: any[],
+  blockedDonRestriction: string,
+) => {
   if (action === "mafia" || action === "thief") return false;
+  if (action === "don" && blockedDonRestriction === "kill") return false;
   const step = NIGHT_STEPS.find((candidate) => candidate.id === action);
   return Boolean(
     step &&
@@ -85,11 +90,18 @@ const isActionBlocked = (action: NightAction, roster: any[]) => {
   );
 };
 
-const findNextAvailableStep = (startIndex: number, roster: any[]) => {
+const findNextAvailableStep = (
+  startIndex: number,
+  roster: any[],
+  blockedDonRestriction: string,
+) => {
   let index = startIndex;
   while (index < NIGHT_STEPS.length) {
     const action = NIGHT_STEPS[index].id;
-    if (hasLivingActor(action, roster) && !isActionBlocked(action, roster)) {
+    if (
+      hasLivingActor(action, roster) &&
+      !isActionBlocked(action, roster, blockedDonRestriction)
+    ) {
       break;
     }
     index += 1;
@@ -162,7 +174,11 @@ export const NightPage = () => {
     if (roundParam !== round) setRound(roundParam);
     setPhase("night");
     setCurrentStepIndex(
-      findNextAvailableStep(0, useGameStore.getState().players),
+      findNextAvailableStep(
+        0,
+        useGameStore.getState().players,
+        useGameStore.getState().blockedDonRestriction,
+      ),
     );
     setCompletedActions([]);
     setJournalistFirstTargetId(null);
@@ -182,6 +198,7 @@ export const NightPage = () => {
       findNextAvailableStep(
         currentStepIndex + 1,
         useGameStore.getState().players,
+        useGameStore.getState().blockedDonRestriction,
       ),
     );
   };
@@ -373,7 +390,11 @@ export const NightPage = () => {
         {NIGHT_STEPS.map((step, index) => {
           const isDone = completedActions.includes(step.id);
           const hasActor = hasLivingActor(step.id, players);
-          const isBlocked = isActionBlocked(step.id, players);
+          const isBlocked = isActionBlocked(
+            step.id,
+            players,
+            useGameStore.getState().blockedDonRestriction,
+          );
           const isCurrent = index === currentStepIndex;
           const status = isDone
             ? "Done"

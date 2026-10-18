@@ -86,6 +86,9 @@ export const useGameStore = create(
       isDefenseTimerRunning: false,
       finalWordTimer: 60, // Timer for the final word of an eliminated player
       finalWordTimerSecondsLeft: 60,
+      blockedDonRestriction: "both", // What a Thief-blocked Don cannot do: "kill" | "check" | "both"
+      setBlockedDonRestriction: (value: string) =>
+        set({ blockedDonRestriction: value }),
       isFinalWordTimerRunning: false,
       round: 1, // Current round number
       lastNightTargets: {},
@@ -848,9 +851,11 @@ export const useGameStore = create(
 
       setThiefNightTarget: (playerId: number) =>
         set((state: any) => {
-          const blocksDon = state.players.some(
-            (player: any) => player.id === playerId && player.role === "Don",
-          );
+          const blocksDon =
+            state.blockedDonRestriction !== "check" &&
+            state.players.some(
+              (player: any) => player.id === playerId && player.role === "Don",
+            );
           const cancelled = blocksDon
             ? state.players.find((player: any) => player.pendingMafiaKill)
             : undefined;
@@ -1047,6 +1052,7 @@ export const useGameStore = create(
         playersCount: state.playersCount,
         speechTimer: state.speechTimer,
         finalWordTimer: state.finalWordTimer,
+        blockedDonRestriction: state.blockedDonRestriction,
         dayTimerSecondsLeft: state.dayTimerSecondsLeft,
         isDayTimerRunning: state.isDayTimerRunning,
         round: state.round,
