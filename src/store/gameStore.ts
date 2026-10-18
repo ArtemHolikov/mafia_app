@@ -847,12 +847,23 @@ export const useGameStore = create(
         })),
 
       setThiefNightTarget: (playerId: number) =>
-        set((state: any) => ({
-          players: state.players.map((player: any) => ({
-            ...player,
-            pendingThiefBlock: player.id === playerId,
-          })),
-        })),
+        set((state: any) => {
+          const blocksDon = state.players.some(
+            (player: any) => player.id === playerId && player.role === "Don",
+          );
+          const cancelled = blocksDon
+            ? state.players.find((player: any) => player.pendingMafiaKill)
+            : undefined;
+
+          return {
+            thiefCancelledMafiaKillId: cancelled?.id ?? null,
+            players: state.players.map((player: any) => ({
+              ...player,
+              pendingThiefBlock: player.id === playerId,
+              pendingMafiaKill: blocksDon ? false : player.pendingMafiaKill,
+            })),
+          };
+        }),
 
       clearMafiaNightTarget: () =>
         set((state: any) => ({
@@ -872,9 +883,14 @@ export const useGameStore = create(
 
       clearThiefNightTarget: () =>
         set((state: any) => ({
+          thiefCancelledMafiaKillId: null,
           players: state.players.map((player: any) => ({
             ...player,
             pendingThiefBlock: false,
+            pendingMafiaKill:
+              player.id === state.thiefCancelledMafiaKillId
+                ? true
+                : player.pendingMafiaKill,
           })),
         })),
 

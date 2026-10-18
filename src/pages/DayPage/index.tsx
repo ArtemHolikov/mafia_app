@@ -40,6 +40,7 @@ export const DayPage = () => {
   const setRound = useGameStore((state: any) => state.setRound);
   const resetForLobby = useGameStore((state: any) => state.resetForLobby);
   const players = useGameStore((state: any) => state.players);
+  const clearNightMarks = useGameStore((state: any) => state.clearNightMarks);
   const commitNightDeaths = useGameStore(
     (state: any) => state.commitNightDeaths,
   );
@@ -125,6 +126,9 @@ export const DayPage = () => {
       resetFinalWordTimer();
       setShowKilledDialog(true);
       setShowWinnerDialog(false);
+    } else {
+      // No kills to commit, so drop leftover night marks (e.g. Thief block)
+      clearNightMarks();
     }
   }, [
     round,
