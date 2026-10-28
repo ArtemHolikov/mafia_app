@@ -22,7 +22,7 @@ export const PlayerVotingModal = ({
   id,
   nickname,
 }: PlayerVotingModalProps) => {
-  const [countOfVotes, setCountOfVotes] = useState(0);
+  const [countOfVotes, setCountOfVotes] = useState<number | "">(0);
 
   const alivePlayersCount = useGameStore(
     (state: any) =>
@@ -62,6 +62,11 @@ export const PlayerVotingModal = ({
   const handleChangeCountOfVotes = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
+    if (e.target.value === "") {
+      setCountOfVotes("");
+      return;
+    }
+
     const value = Number(e.target.value);
     if (!Number.isInteger(value)) {
       return;
@@ -71,14 +76,12 @@ export const PlayerVotingModal = ({
   };
 
   const handleSubmitReceivedVotes = () => {
-    if (!Number.isInteger(countOfVotes)) {
+    const votes = countOfVotes === "" ? 0 : countOfVotes;
+    if (!Number.isInteger(votes)) {
       return;
     }
 
-    submitReceivedVotes(
-      id,
-      Math.min(Math.max(0, countOfVotes), remainingVotes),
-    );
+    submitReceivedVotes(id, Math.min(Math.max(0, votes), remainingVotes));
     handleClose();
   };
 
@@ -139,8 +142,14 @@ export const PlayerVotingModal = ({
         >
           <CountOfVotesTitle>Votes received</CountOfVotesTitle>
           <CountOfVotesField
-            value={countOfVotes}
+            value={String(countOfVotes)}
             onChange={(e) => handleChangeCountOfVotes(e)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleSubmitReceivedVotes();
+              }
+            }}
             type="number"
             slotProps={{
               input: {
