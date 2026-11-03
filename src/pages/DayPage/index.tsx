@@ -190,7 +190,7 @@ export const DayPage = () => {
   );
 
   const handleSelectPlayer = (playerId: number) => {
-    setSelectedPlayerId(playerId);
+    setSelectedPlayerId(playerId === selectedPlayerId ? null : playerId);
     foulWasGivenForSelectionRef.current = false;
     setFoulWasGivenForSelection(false);
     nominationWasGivenForSelectionRef.current = false;
