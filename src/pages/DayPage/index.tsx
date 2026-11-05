@@ -15,7 +15,6 @@ import {
   NightActionsWrapper,
   PageWrapper,
   PlayerCardsWrapper,
-  SectionTitle,
   TopBar,
 } from "../AcquaintancePage/index.styles";
 import backgroundImage from "../../images/backgroundPhoto.png";
@@ -31,6 +30,51 @@ import PersonOffRoundedIcon from "@mui/icons-material/PersonOffRounded";
 import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
 import ReportProblemRoundedIcon from "@mui/icons-material/ReportProblemRounded";
 import HowToVoteRoundedIcon from "@mui/icons-material/HowToVoteRounded";
+
+const StatItem = ({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number | string;
+  color: string;
+}) => (
+  <Box
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      minWidth: 0,
+      maxWidth: "100%",
+    }}
+  >
+    <Typography
+      sx={{
+        color: "rgba(248,250,252,0.5)",
+        fontSize: { xs: "0.62rem", sm: "0.7rem" },
+        textTransform: "uppercase",
+        letterSpacing: "0.1em",
+      }}
+    >
+      {label}
+    </Typography>
+    <Typography
+      sx={{
+        color,
+        fontWeight: 600,
+        lineHeight: 1.2,
+        maxWidth: "100%",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        fontSize: { xs: "1.2rem", sm: "1.4rem" },
+      }}
+    >
+      {value}
+    </Typography>
+  </Box>
+);
 
 export const DayPage = () => {
   const navigate = useNavigate();
@@ -252,11 +296,7 @@ export const DayPage = () => {
   }, [foulFeedback]);
 
   const goToNight = () => {
-    if (
-      isMafiaWinConditionMet ||
-      isTownWinConditionMet ||
-      isDrawConditionMet
-    ) {
+    if (isMafiaWinConditionMet || isTownWinConditionMet || isDrawConditionMet) {
       setShowWinnerDialog(true);
       return;
     }
@@ -308,7 +348,7 @@ export const DayPage = () => {
           <Box
             sx={{
               display: "flex",
-              alignItems: "center",
+              alignItems: "stretch",
               justifyContent: "space-between",
               flexWrap: "wrap",
               gap: 3,
@@ -322,33 +362,56 @@ export const DayPage = () => {
               },
             }}
           >
-            <Box>
-              <SectionTitle>{`Day — round ${roundParam}`}</SectionTitle>
-              <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
-                Day actions for round {roundParam}. Proceed to the next night
-                when ready.
-              </Typography>
-              <Typography
-                sx={{ color: "rgba(248,250,252,0.72)", marginTop: 1 }}
-              >
-                Opening speaker:{" "}
-                {openingSpeaker?.nickname ?? "No alive starter"}
-              </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: { xs: 1.5, sm: 3 },
+                p: { xs: 1.25, sm: "12px 20px" },
+                borderRadius: { xs: "14px", sm: "18px" },
+                border: "1px solid rgba(255,255,255,0.08)",
+                bgcolor: "rgba(255,255,255,0.035)",
+                backdropFilter: "blur(12px)",
+                "@media (max-width: 600px)": {
+                  justifyContent: "space-around",
+                },
+              }}
+            >
+              <StatItem
+                label="Day"
+                value={`Round ${roundParam}`}
+                color="#f8fafc"
+              />
+              <Box
+                sx={{
+                  alignSelf: "stretch",
+                  width: "1px",
+                  bgcolor: "rgba(255,255,255,0.1)",
+                }}
+              />
+              <StatItem
+                label="Opening speaker"
+                value={openingSpeaker?.nickname ?? "—"}
+                color="#5eead4"
+              />
             </Box>
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 2,
+                gap: 2.5,
+                p: "12px 20px",
+                borderRadius: "18px",
+                border: "1px solid rgba(255,255,255,0.08)",
+                bgcolor: "rgba(255,255,255,0.035)",
+                backdropFilter: "blur(12px)",
                 "@media (max-width: 600px)": {
-                  gap: 1,
+                  gap: 1.5,
                   width: "100%",
                   minWidth: 0,
                   flexWrap: "nowrap",
-                  p: 1,
-                  borderRadius: "10px",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  bgcolor: "rgba(255,255,255,0.04)",
+                  p: 1.25,
+                  borderRadius: "14px",
                 },
               }}
             >
@@ -361,124 +424,30 @@ export const DayPage = () => {
                 onRunningChange={setDayTimerRunning}
                 onReset={resetDayTimer}
                 mobileInline
+                compact
               />
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 2,
-                  px: 3,
-                  borderRadius: 3,
-                  border: "1px solid rgba(255,255,255,0.18)",
-                  bgcolor: "rgba(255,255,255,0.04)",
-                  minWidth: 260,
-                  padding: "15px 24px",
+                  gap: { xs: 1.5, sm: 3 },
+                  pl: { xs: 1.5, sm: 3 },
+                  borderLeft: "1px solid rgba(255,255,255,0.1)",
                   "@media (max-width: 600px)": {
                     flex: "1 1 50%",
                     minWidth: 0,
-                    padding: "0 0 0 8px",
-                    gap: 0.5,
-                    border: 0,
-                    borderLeft: "1px solid rgba(255,255,255,0.16)",
-                    borderRadius: 0,
-                    bgcolor: "transparent",
+                    justifyContent: "space-around",
                   },
-              }}
-              >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: { xs: 0.4, sm: 1 },
                 }}
               >
-                <Typography
-                  sx={{
-                    color: "rgba(248,250,252,0.72)",
-                    fontSize: { xs: "0.65rem", sm: "0.85rem" },
-                    textTransform: "uppercase",
-                    letterSpacing: { xs: "0.04em", sm: "0.08em" },
-                  }}
-                >
-                  Town
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography
-                    sx={{
-                      color: "#fff",
-                      fontWeight: 700,
-                      fontSize: { xs: "1.2rem", sm: "1.35rem" },
-                    }}
-                  >
-                    {townAliveCount}
-                  </Typography>
-                  </Box>
-                </Box>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: { xs: 0.4, sm: 1 },
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "rgba(248,250,252,0.72)",
-                    fontSize: { xs: "0.65rem", sm: "0.85rem" },
-                    textTransform: "uppercase",
-                    letterSpacing: { xs: "0.04em", sm: "0.08em" },
-                  }}
-                >
-                  Total
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography
-                    sx={{
-                      color: "#fff",
-                      fontWeight: 700,
-                      fontSize: { xs: "1.2rem", sm: "1.35rem" },
-                    }}
-                  >
-                    {aliveCount}
-                  </Typography>
-                </Box>
+                <StatItem label="Town" value={townAliveCount} color="#86efac" />
+                <StatItem
+                  label="Mafia"
+                  value={mafiaAliveCount}
+                  color="#fda4af"
+                />
+                <StatItem label="Total" value={aliveCount} color="#f8fafc" />
               </Box>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: { xs: 0.4, sm: 1 },
-                }}
-              >
-                <Typography
-                  sx={{
-                    color: "rgba(248,250,252,0.72)",
-                    fontSize: { xs: "0.65rem", sm: "0.85rem" },
-                    textTransform: "uppercase",
-                    letterSpacing: { xs: "0.04em", sm: "0.08em" },
-                  }}
-                >
-                  Mafia
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <Typography
-                    sx={{
-                      color: "#fff",
-                      fontWeight: 700,
-                      fontSize: { xs: "1.2rem", sm: "1.35rem" },
-                    }}
-                  >
-                    {mafiaAliveCount}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
             </Box>
           </Box>
         </TopBar>
@@ -519,7 +488,11 @@ export const DayPage = () => {
           aria-label="Give foul +1"
           startIcon={<ReportProblemRoundedIcon />}
           sx={{
-            background: "rgba(56,189,248,0.92)",
+            background: "rgba(56,189,248,0.16)",
+            color: "#7dd3fc",
+            border: "1px solid rgba(56,189,248,0.35)",
+            boxShadow: "none",
+            "&:hover": { background: "rgba(56,189,248,0.26)" },
             minWidth: 170,
             "@media (max-width: 600px)": {
               "& .MuiButton-startIcon": { mr: 0.5, ml: 0 },
@@ -546,8 +519,11 @@ export const DayPage = () => {
             isDrawConditionMet
           }
           sx={{
-            background:
-              "linear-gradient(135deg, rgba(34,197,94,0.95), rgba(22,163,74,0.95))",
+            background: "rgba(34,197,94,0.16)",
+            color: "#86efac",
+            border: "1px solid rgba(34,197,94,0.35)",
+            boxShadow: "none",
+            "&:hover": { background: "rgba(34,197,94,0.26)" },
             minWidth: 190,
             "@media (max-width: 600px)": {
               "& .MuiButton-startIcon": { mr: 0.5, ml: 0 },
@@ -839,11 +815,7 @@ export const DayPage = () => {
         onClose={() => setShowWinnerDialog(false)}
         onReturnToLobby={handleReturnToLobby}
         winner={
-          isDrawConditionMet
-            ? "Draw"
-            : isTownWinConditionMet
-              ? "Town"
-              : "Mafia"
+          isDrawConditionMet ? "Draw" : isTownWinConditionMet ? "Town" : "Mafia"
         }
         message={
           isDrawConditionMet

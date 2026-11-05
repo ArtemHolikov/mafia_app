@@ -16,6 +16,7 @@ interface CountdownTimerProps {
   width?: number | string;
   accentColor?: string;
   mobileInline?: boolean;
+  compact?: boolean;
 }
 
 const RESET_DELAY_MS = 1200;
@@ -38,6 +39,7 @@ export const CountdownTimer = ({
   width = 260,
   accentColor = "#22d3ee",
   mobileInline = false,
+  compact = false,
 }: CountdownTimerProps) => {
   const safeSeconds = Number.isFinite(secondsLeft) ? secondsLeft : totalSeconds;
   const secondsRef = useRef(safeSeconds);
@@ -125,7 +127,7 @@ export const CountdownTimer = ({
         "@media (max-width: 600px)": {
           width: mobileInline ? "auto" : "100%",
           minWidth: 0,
-          flex: mobileInline ? "1 1 50%" : undefined,
+          flex: compact ? "0 0 auto" : mobileInline ? "1 1 50%" : undefined,
           px: 1.25,
           py: 1,
           gap: 0.5,
@@ -146,6 +148,15 @@ export const CountdownTimer = ({
         boxShadow: running ? `0 0 28px ${color}26` : "none",
         backdropFilter: "blur(10px)",
         transition: "border-color 0.3s, box-shadow 0.3s",
+        ...(compact && {
+          width: "auto",
+          px: 0,
+          py: 0,
+          border: 0,
+          background: "transparent",
+          boxShadow: "none",
+          backdropFilter: "none",
+        }),
       }}
     >
       <Box
