@@ -255,6 +255,7 @@ export const DayPage = () => {
     foulWasGivenForSelectionRef.current = true;
     setFoulWasGivenForSelection(true);
     addFoul(selectedPlayer.id);
+
     const nextFouls = (selectedPlayer.fouls ?? 0) + 1;
     setFoulFeedback(
       `${selectedPlayer.nickname} received a foul (${nextFouls}).`,
