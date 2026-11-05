@@ -98,6 +98,7 @@ export const DayPage = () => {
   const townAliveCount = alivePlayers.filter(
     (player: any) => !mafiaRoles.has(player.role),
   ).length;
+  const isDrawConditionMet = aliveCount === 0;
   const isMafiaWinConditionMet =
     mafiaAliveCount > 0 && mafiaAliveCount >= townAliveCount;
   const isTownWinConditionMet = mafiaAliveCount === 0 && townAliveCount > 0;
@@ -135,13 +136,17 @@ export const DayPage = () => {
     roundParam,
     setRound,
     setPhase,
+    clearNightMarks,
     killedPlayers.length,
     resetDayTimer,
+    resetFinalWordTimer,
   ]);
 
   useEffect(() => {
     if (
-      (!isMafiaWinConditionMet && !isTownWinConditionMet) ||
+      (!isMafiaWinConditionMet &&
+        !isTownWinConditionMet &&
+        !isDrawConditionMet) ||
       showKilledDialog
     ) {
       return;
@@ -152,6 +157,7 @@ export const DayPage = () => {
   }, [
     isMafiaWinConditionMet,
     isTownWinConditionMet,
+    isDrawConditionMet,
     showKilledDialog,
     setPhase,
   ]);
@@ -246,7 +252,11 @@ export const DayPage = () => {
   }, [foulFeedback]);
 
   const goToNight = () => {
-    if (isMafiaWinConditionMet || isTownWinConditionMet) {
+    if (
+      isMafiaWinConditionMet ||
+      isTownWinConditionMet ||
+      isDrawConditionMet
+    ) {
       setShowWinnerDialog(true);
       return;
     }
@@ -502,6 +512,7 @@ export const DayPage = () => {
             !selectedPlayer ||
             isMafiaWinConditionMet ||
             isTownWinConditionMet ||
+            isDrawConditionMet ||
             foulWasGivenForSelection ||
             nominationWasGivenForSelection
           }
@@ -531,7 +542,8 @@ export const DayPage = () => {
             foulWasGivenForSelection ||
             selectedPlayerAlreadyRaised ||
             isMafiaWinConditionMet ||
-            isTownWinConditionMet
+            isTownWinConditionMet ||
+            isDrawConditionMet
           }
           sx={{
             background:
@@ -554,7 +566,11 @@ export const DayPage = () => {
 
         <NightActionButton
           onClick={goToNight}
-          disabled={isMafiaWinConditionMet || isTownWinConditionMet}
+          disabled={
+            isMafiaWinConditionMet ||
+            isTownWinConditionMet ||
+            isDrawConditionMet
+          }
           sx={{
             minWidth: 190,
             "@media (max-width: 600px)": {
@@ -822,11 +838,19 @@ export const DayPage = () => {
         open={showWinnerDialog}
         onClose={() => setShowWinnerDialog(false)}
         onReturnToLobby={handleReturnToLobby}
-        winner={isTownWinConditionMet ? "Town" : "Mafia"}
+        winner={
+          isDrawConditionMet
+            ? "Draw"
+            : isTownWinConditionMet
+              ? "Town"
+              : "Mafia"
+        }
         message={
-          isTownWinConditionMet
-            ? "All mafia members have been eliminated. Town wins the game!"
-            : "Mafia reached a tied score with the town and wins the game."
+          isDrawConditionMet
+            ? "No players remain alive. The game ends in a draw."
+            : isTownWinConditionMet
+              ? "All mafia members have been eliminated. Town wins the game!"
+              : "Mafia reached a tied score with the town and wins the game."
         }
         players={players}
       />

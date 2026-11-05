@@ -20,7 +20,7 @@ type GameOverPlayer = {
 
 interface GameOverDialogProps {
   open: boolean;
-  winner: "Town" | "Mafia";
+  winner: "Town" | "Mafia" | "Draw";
   message: string;
   players: GameOverPlayer[];
   onClose: () => void;
@@ -45,7 +45,8 @@ export const GameOverDialog = ({
   onClose,
   onReturnToLobby,
 }: GameOverDialogProps) => {
-  const accent = winner === "Town" ? "#4ade80" : "#fb7185";
+  const accent =
+    winner === "Town" ? "#4ade80" : winner === "Draw" ? "#fbbf24" : "#fb7185";
   const orderedPlayers = players
     .filter((player: GameOverPlayer) => player.role !== "Citizen")
     .sort(
@@ -117,7 +118,7 @@ export const GameOverDialog = ({
             component="div"
             sx={{ color: "#f8fafc", fontSize: "1.4rem", fontWeight: 800 }}
           >
-            {winner} wins
+            {winner === "Draw" ? "Draw" : `${winner} wins`}
           </Typography>
         </Box>
       </DialogTitle>
@@ -288,7 +289,14 @@ export const GameOverDialog = ({
             borderRadius: 1.5,
             bgcolor: accent,
             color: "#0b1120",
-            "&:hover": { bgcolor: winner === "Town" ? "#22c55e" : "#f43f5e" },
+            "&:hover": {
+              bgcolor:
+                winner === "Town"
+                  ? "#22c55e"
+                  : winner === "Draw"
+                    ? "#f59e0b"
+                    : "#f43f5e",
+            },
           }}
         >
           Back to lobby settings

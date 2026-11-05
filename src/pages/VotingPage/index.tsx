@@ -113,6 +113,7 @@ export const VotingPage = () => {
   ).length;
   const isMafiaWinConditionMet =
     mafiaAliveCount > 0 && mafiaAliveCount >= townAliveCount;
+  const isDrawConditionMet = alivePlayers.length === 0;
 
   const getVictoryState = (playersState: any[] = players) => {
     const aliveStatePlayers = playersState.filter(
@@ -126,6 +127,7 @@ export const VotingPage = () => {
     ).length;
 
     return {
+      isDrawConditionMet: aliveStatePlayers.length === 0,
       isMafiaWinConditionMet:
         mafiaStateAliveCount > 0 && mafiaStateAliveCount >= townStateAliveCount,
       isTownWinConditionMet:
@@ -137,6 +139,7 @@ export const VotingPage = () => {
     const victoryState = getVictoryState();
 
     if (
+      victoryState.isDrawConditionMet ||
       victoryState.isMafiaWinConditionMet ||
       victoryState.isTownWinConditionMet
     ) {
@@ -158,6 +161,7 @@ export const VotingPage = () => {
     const victoryState = getVictoryState(updatedPlayers);
 
     if (
+      victoryState.isDrawConditionMet ||
       victoryState.isMafiaWinConditionMet ||
       victoryState.isTownWinConditionMet
     ) {
@@ -598,11 +602,19 @@ export const VotingPage = () => {
           resetForLobby();
           navigate("/?openLobby=true");
         }}
-        winner={isMafiaWinConditionMet ? "Mafia" : "Town"}
+        winner={
+          isDrawConditionMet
+            ? "Draw"
+            : isMafiaWinConditionMet
+              ? "Mafia"
+              : "Town"
+        }
         message={
-          isMafiaWinConditionMet
-            ? "The remaining players are tied at a mafia win condition."
-            : "All mafia roles were eliminated. The town wins."
+          isDrawConditionMet
+            ? "No players remain alive. The game ends in a draw."
+            : isMafiaWinConditionMet
+              ? "The remaining players are tied at a mafia win condition."
+              : "All mafia roles were eliminated. The town wins."
         }
         players={players}
       />

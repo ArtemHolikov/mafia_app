@@ -205,7 +205,9 @@ export const AcquaintancePage = () => {
           <Box>
             <SectionTitle>{phaseLabel}</SectionTitle>
             <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
-              Review each player and prepare the next stage smoothly.
+              {phase !== "day acquaintance"
+                ? "Review each player and prepare the next stage smoothly."
+                : "It's time to get familiar with each other. Good luck, town!"}
             </Typography>
           </Box>
           {phase === "day acquaintance" && (
