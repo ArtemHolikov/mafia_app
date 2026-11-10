@@ -135,7 +135,10 @@ export const VotingPage = () => {
     };
   };
 
-  const goToNight = () => {
+  const isVotingInProgress =
+    raisedForVotingPlayers.length > 0 || votingResult?.type === "tieResolution";
+
+  const proceedToNight = () => {
     const victoryState = getVictoryState();
 
     if (
@@ -154,6 +157,16 @@ export const VotingPage = () => {
     navigate(`/night?round=${nextRound}`);
   };
 
+  const goToNight = () => {
+    if (
+      useGameStore.getState().raisedForVotingPlayers.length > 0 ||
+      votingResult?.type === "tieResolution"
+    ) {
+      return;
+    }
+    proceedToNight();
+  };
+
   const handleTieResolution = (decision: "leave" | "kick") => {
     resolveTieResolution(decision);
 
@@ -169,7 +182,7 @@ export const VotingPage = () => {
       return;
     }
 
-    goToNight();
+    proceedToNight();
   };
 
   const submitTieResolutionVote = () => {
@@ -219,7 +232,17 @@ export const VotingPage = () => {
         </PlayerCardsWrapper>
       </ContentShell>
 
-      <GoToDayAcquaintanceButton onClick={goToNight}>
+      <GoToDayAcquaintanceButton
+        onClick={goToNight}
+        disabled={isVotingInProgress}
+        sx={{
+          "&.Mui-disabled": {
+            color: "rgba(255,255,255,0.55)",
+            background: "rgba(71,85,105,0.75)",
+            boxShadow: "none",
+          },
+        }}
+      >
         Return to night
       </GoToDayAcquaintanceButton>
 
