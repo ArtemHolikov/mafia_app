@@ -12,6 +12,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ThumbUpAltRoundedIcon from "@mui/icons-material/ThumbUpAltRounded";
 import ThumbDownAltRoundedIcon from "@mui/icons-material/ThumbDownAltRounded";
 import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
+import ShieldRoundedIcon from "@mui/icons-material/ShieldRounded";
 import {
   ContentShell,
   GoToDayAcquaintanceButton,
@@ -28,7 +29,13 @@ import { useGameStore } from "../../store/gameStore";
 import { PlayerCard } from "../AcquaintancePage/components/PlayerCard";
 
 type NightAction =
-  "mafia" | "thief" | "maniac" | "doctor" | "sheriff" | "journalist" | "don";
+  | "mafia"
+  | "thief"
+  | "maniac"
+  | "doctor"
+  | "sheriff"
+  | "journalist"
+  | "don";
 
 type NightPlayer = {
   id: number;
@@ -313,6 +320,9 @@ export const NightPage = () => {
       ? `Select ${journalistFirstTargetId === null ? "the first" : "the second"} player for the Journalist`
       : `Select a player for the ${activeStep.title}`
     : "All night actions are complete";
+  const isCheckResult =
+    informationResult?.action === "sheriff" ||
+    informationResult?.action === "don";
 
   return (
     <PageWrapper
@@ -567,23 +577,157 @@ export const NightPage = () => {
         onClose={() => setInformationResult(null)}
         fullWidth
         maxWidth="xs"
+        aria-labelledby="night-check-title"
         sx={{
           "& .MuiDialog-paper": {
-            border: "1px solid rgba(255,255,255,0.12)",
-            background:
-              "radial-gradient(ellipse at top left, rgba(56,189,248,0.14), transparent 60%), linear-gradient(145deg, #111827, #090e19)",
+            border: isCheckResult
+              ? "1px solid rgba(125,211,252,0.22)"
+              : "1px solid rgba(255,255,255,0.12)",
+            borderRadius: isCheckResult ? 3 : undefined,
+            background: isCheckResult
+              ? "radial-gradient(ellipse at top, rgba(56,189,248,0.18), transparent 55%), linear-gradient(145deg, #111d30, #090e19)"
+              : "radial-gradient(ellipse at top left, rgba(56,189,248,0.14), transparent 60%), linear-gradient(145deg, #111827, #090e19)",
+            ...(isCheckResult && {
+              boxShadow: "0 24px 80px rgba(0,0,0,0.55)",
+              margin: { xs: 2, sm: 4 },
+            }),
           },
         }}
       >
-        <DialogTitle sx={{ color: "#f8fafc", textAlign: "center", pt: 3 }}>
-          {informationResult?.action === "sheriff"
-            ? "Sheriff's check"
-            : informationResult?.action === "don"
-              ? "Don's check"
-              : "Journalist's comparison"}
+        <DialogTitle
+          id="night-check-title"
+          sx={{ color: "#f8fafc", textAlign: "center", pt: 3 }}
+        >
+          {isCheckResult ? (
+            <Box sx={{ display: "grid", justifyItems: "center", gap: 1 }}>
+              <Box
+                sx={{
+                  display: "grid",
+                  placeItems: "center",
+                  width: 48,
+                  height: 48,
+                  borderRadius: "16px",
+                  color: "#7dd3fc",
+                  bgcolor: "rgba(56,189,248,0.12)",
+                  border: "1px solid rgba(125,211,252,0.24)",
+                }}
+              >
+                <ShieldRoundedIcon />
+              </Box>
+              <Typography
+                component="span"
+                sx={{
+                  color: "#7dd3fc",
+                  fontSize: "0.68rem",
+                  fontWeight: 800,
+                  letterSpacing: "0.16em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Night investigation
+              </Typography>
+              <Typography
+                component="span"
+                sx={{ fontSize: "1.4rem", fontWeight: 800, lineHeight: 1.2 }}
+              >
+                {informationResult?.action === "sheriff"
+                  ? "Sheriff's check"
+                  : "Don's check"}
+              </Typography>
+            </Box>
+          ) : (
+            "Journalist's comparison"
+          )}
         </DialogTitle>
         <DialogContent sx={{ textAlign: "center", px: 3, pb: 2 }}>
-          {informationResult?.action === "journalist" ? (
+          {informationResult && informationResult.action !== "journalist" ? (
+            <Box
+              sx={{
+                display: "grid",
+                justifyItems: "center",
+                gap: 1,
+                p: { xs: 2.5, sm: 3 },
+                borderRadius: 2.5,
+                border: `1px solid ${informationResult.positive ? "rgba(251,113,133,0.3)" : "rgba(74,222,128,0.3)"}`,
+                background: informationResult.positive
+                  ? "radial-gradient(ellipse at top, rgba(244,63,94,0.18), transparent 75%), rgba(244,63,94,0.04)"
+                  : "radial-gradient(ellipse at top, rgba(34,197,94,0.18), transparent 75%), rgba(34,197,94,0.04)",
+              }}
+            >
+              <Box
+                sx={{
+                  display: "grid",
+                  placeItems: "center",
+                  width: 68,
+                  height: 68,
+                  mb: 0.5,
+                  borderRadius: "50%",
+                  border: `1px solid ${informationResult.positive ? "rgba(251,113,133,0.35)" : "rgba(74,222,128,0.35)"}`,
+                  bgcolor: informationResult.positive
+                    ? "rgba(244,63,94,0.12)"
+                    : "rgba(34,197,94,0.12)",
+                }}
+              >
+                {informationResult.action === "don" ? (
+                  informationResult.positive ? (
+                    <CheckCircleRoundedIcon
+                      sx={{ color: "#fb7185", fontSize: 34 }}
+                    />
+                  ) : (
+                    <CloseRoundedIcon sx={{ color: "#4ade80", fontSize: 34 }} />
+                  )
+                ) : informationResult.positive ? (
+                  <ThumbDownAltRoundedIcon
+                    aria-label="Dislike"
+                    sx={{ color: "#fb7185", fontSize: 34 }}
+                  />
+                ) : (
+                  <ThumbUpAltRoundedIcon
+                    aria-label="Like"
+                    sx={{ color: "#4ade80", fontSize: 34 }}
+                  />
+                )}
+              </Box>
+              <Typography
+                sx={{
+                  color: "rgba(248,250,252,0.55)",
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Investigation result
+              </Typography>
+              <Typography
+                sx={{
+                  color: informationResult.positive ? "#fda4af" : "#86efac",
+                  fontSize: "1.6rem",
+                  fontWeight: 800,
+                  lineHeight: 1.15,
+                }}
+              >
+                {informationResult.action === "sheriff"
+                  ? informationResult.positive
+                    ? "Mafia"
+                    : "Citizen"
+                  : informationResult.positive
+                    ? "Sheriff"
+                    : "Not Sheriff"}
+              </Typography>
+              <Typography
+                sx={{
+                  color: "rgba(248,250,252,0.75)",
+                  mt: 0.5,
+                  maxWidth: "100%",
+                  overflowWrap: "anywhere",
+                }}
+              >
+                {informationResult.target.id} |{" "}
+                {informationResult.target.nickname}
+              </Typography>
+            </Box>
+          ) : informationResult?.action === "journalist" ? (
             <>
               <Typography sx={{ color: "rgba(248,250,252,0.68)", mb: 2 }}>
                 {informationResult.firstTarget.nickname} and{" "}
@@ -629,48 +773,6 @@ export const NightPage = () => {
                 </Typography>
               </Box>
             </>
-          ) : informationResult ? (
-            <>
-              <Typography sx={{ color: "rgba(248,250,252,0.68)", mb: 2 }}>
-                {informationResult.target.nickname}
-              </Typography>
-              <Box
-                sx={{
-                  display: "grid",
-                  placeItems: "center",
-                  gap: 1,
-                  p: 2.5,
-                  borderRadius: 2,
-                  border: `1px solid ${informationResult.positive ? "rgba(251,113,133,0.28)" : "rgba(74,222,128,0.28)"}`,
-                  bgcolor: informationResult.positive
-                    ? "rgba(244,63,94,0.08)"
-                    : "rgba(34,197,94,0.08)",
-                }}
-              >
-                {informationResult.positive ? (
-                  <CheckCircleRoundedIcon
-                    sx={{ color: "#fb7185", fontSize: 34 }}
-                  />
-                ) : (
-                  <CloseRoundedIcon sx={{ color: "#4ade80", fontSize: 34 }} />
-                )}
-                <Typography
-                  sx={{
-                    color: "#f8fafc",
-                    fontSize: "1.15rem",
-                    fontWeight: 800,
-                  }}
-                >
-                  {informationResult.action === "sheriff"
-                    ? informationResult.positive
-                      ? "Mafia"
-                      : "Not Mafia"
-                    : informationResult.positive
-                      ? "Sheriff"
-                      : "Not Sheriff"}
-                </Typography>
-              </Box>
-            </>
           ) : null}
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 3 }}>
@@ -678,9 +780,24 @@ export const NightPage = () => {
             onClick={() => setInformationResult(null)}
             variant="contained"
             fullWidth
-            sx={{ borderRadius: 1.5, py: 1.1 }}
+            sx={
+              isCheckResult
+                ? {
+                    borderRadius: 2,
+                    py: 1.3,
+                    color: "#06131f",
+                    fontWeight: 800,
+                    textTransform: "none",
+                    background: "linear-gradient(135deg, #7dd3fc, #38bdf8)",
+                    boxShadow: "0 8px 24px rgba(56,189,248,0.2)",
+                    "&:hover": {
+                      background: "linear-gradient(135deg, #bae6fd, #7dd3fc)",
+                    },
+                  }
+                : { borderRadius: 1.5, py: 1.1 }
+            }
           >
-            Continue night
+            Confirm
           </Button>
         </DialogActions>
       </Dialog>
