@@ -7,7 +7,6 @@ import {
   NightActionsWrapper,
   PageWrapper,
   PlayerCardsWrapper,
-  SectionChip,
   SectionTitle,
   TopBar,
 } from "./index.styles";
@@ -42,6 +41,10 @@ export const AcquaintancePage = () => {
   const [nominationWasGivenForSelection, setNominationWasGivenForSelection] =
     useState(false);
   const nominationWasGivenForSelectionRef = useRef(false);
+  const [nightAcquaintanceSecondsLeft, setNightAcquaintanceSecondsLeft] =
+    useState(60);
+  const [isNightAcquaintanceTimerRunning, setNightAcquaintanceTimerRunning] =
+    useState(false);
 
   const speechTimer = useGameStore((state: any) => state.speechTimer);
   const dayTimerSecondsLeft = useGameStore(
@@ -68,6 +71,10 @@ export const AcquaintancePage = () => {
     setFoulWasGivenForSelection(false);
     nominationWasGivenForSelectionRef.current = false;
     setNominationWasGivenForSelection(false);
+    if (phase === "night acquaintance") {
+      setNightAcquaintanceSecondsLeft(60);
+      setNightAcquaintanceTimerRunning(false);
+    }
   }, [phase]);
 
   const displayedPlayers = useMemo(
@@ -202,26 +209,117 @@ export const AcquaintancePage = () => {
     <PageWrapper bgimage={backgroundImage}>
       <ContentShell>
         <TopBar>
-          <Box>
-            <SectionTitle>{phaseLabel}</SectionTitle>
-            <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
-              {phase !== "day acquaintance"
-                ? "Review each player and prepare the next stage smoothly."
-                : "It's time to get familiar with each other. Good luck, town!"}
-            </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "stretch",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: 3,
+              width: "100%",
+              "@media (max-width: 600px)": {
+                gap: 1.5,
+                "& > *": {
+                  minWidth: 0,
+                  width: "100%",
+                },
+              },
+            }}
+          >
+            <Box>
+              <SectionTitle>{phaseLabel}</SectionTitle>
+              <Typography sx={{ color: "rgba(248,250,252,0.8)", marginTop: 1 }}>
+                {phase !== "day acquaintance"
+                  ? "Review each player and prepare the next stage smoothly."
+                  : "It's time to get familiar with each other. Good luck, town!"}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 2.5,
+                p: "12px 20px",
+                borderRadius: "18px",
+                border: "1px solid rgba(255,255,255,0.08)",
+                bgcolor: "rgba(255,255,255,0.035)",
+                backdropFilter: "blur(12px)",
+                "@media (max-width: 600px)": {
+                  gap: 1.5,
+                  width: "100%",
+                  minWidth: 0,
+                  flexWrap: "nowrap",
+                  p: 1.25,
+                  borderRadius: "14px",
+                },
+              }}
+            >
+              {phase === "night acquaintance" ? (
+                <CountdownTimer
+                  label="Night acquaintance"
+                  secondsLeft={nightAcquaintanceSecondsLeft}
+                  totalSeconds={60}
+                  running={isNightAcquaintanceTimerRunning}
+                  onSecondsChange={setNightAcquaintanceSecondsLeft}
+                  onRunningChange={setNightAcquaintanceTimerRunning}
+                  onReset={() => {
+                    setNightAcquaintanceSecondsLeft(60);
+                    setNightAcquaintanceTimerRunning(false);
+                  }}
+                  mobileInline
+                  compact
+                />
+              ) : (
+                <CountdownTimer
+                  label="Speaker time"
+                  secondsLeft={dayTimerSecondsLeft}
+                  totalSeconds={speechTimer}
+                  running={isDayTimerRunning}
+                  onSecondsChange={setDayTimerSecondsLeft}
+                  onRunningChange={setDayTimerRunning}
+                  onReset={resetDayTimer}
+                  mobileInline
+                  compact
+                />
+              )}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 0.25,
+                  pl: { xs: 1.5, sm: 3 },
+                  borderLeft: "1px solid rgba(255,255,255,0.1)",
+                  "@media (max-width: 600px)": {
+                    flex: "1 1 50%",
+                    minWidth: 0,
+                    justifyContent: "center",
+                  },
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: "rgba(248,250,252,0.5)",
+                    fontSize: { xs: "0.62rem", sm: "0.7rem" },
+                    textTransform: "uppercase",
+                    letterSpacing: "0.1em",
+                  }}
+                >
+                  Players
+                </Typography>
+                <Typography
+                  sx={{
+                    color: "#f8fafc",
+                    fontWeight: 600,
+                    lineHeight: 1.2,
+                    fontSize: { xs: "1.2rem", sm: "1.4rem" },
+                  }}
+                >
+                  {displayedPlayers.length}
+                </Typography>
+              </Box>
+            </Box>
           </Box>
-          {phase === "day acquaintance" && (
-            <CountdownTimer
-              label="Speaker time"
-              secondsLeft={dayTimerSecondsLeft}
-              totalSeconds={speechTimer}
-              running={isDayTimerRunning}
-              onSecondsChange={setDayTimerSecondsLeft}
-              onRunningChange={setDayTimerRunning}
-              onReset={resetDayTimer}
-            />
-          )}
-          <SectionChip>{displayedPlayers.length} players</SectionChip>
         </TopBar>
 
         <PlayerCardsWrapper>
