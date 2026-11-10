@@ -1,5 +1,5 @@
 import { Box, IconButton, Typography } from "@mui/material";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import PauseRoundedIcon from "@mui/icons-material/PauseRounded";
@@ -45,7 +45,60 @@ export const CountdownTimer = ({
   const secondsRef = useRef(safeSeconds);
   const hasPlayedAnnouncementRef = useRef(false);
   const announcementAudioRef = useRef<HTMLAudioElement | null>(null);
+  const announcementAttemptRef = useRef(0);
+  const announcementStartedRef = useRef(false);
+  const announcementDeadlineRef = useRef<number | null>(null);
+  const previousSecondsRef = useRef(safeSeconds);
   const callbacksRef = useRef({ onSecondsChange, onRunningChange, onReset });
+
+  const stopAnnouncement = useCallback(() => {
+    announcementAttemptRef.current += 1;
+    announcementStartedRef.current = false;
+    if (announcementDeadlineRef.current !== null) {
+      window.clearTimeout(announcementDeadlineRef.current);
+      announcementDeadlineRef.current = null;
+    }
+    const audio = announcementAudioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+  }, []);
+
+  useEffect(() => {
+    const audio = new Audio(
+      `${(process.env.PUBLIC_URL || "/mafia_app").replace(/\/$/, "")}/timer-announcement.mp3`,
+    );
+    audio.preload = "auto";
+    const onPlaying = () => {
+      announcementStartedRef.current = true;
+    };
+    const onError = () => {
+      console.error(
+        "Unable to load the timer announcement audio.",
+        audio.error,
+      );
+    };
+    const onWaiting = () => {
+      if (announcementStartedRef.current) {
+        stopAnnouncement();
+        console.warn("Timer announcement audio stopped because playback stalled.");
+      }
+    };
+    audio.addEventListener("playing", onPlaying);
+    audio.addEventListener("error", onError);
+    audio.addEventListener("waiting", onWaiting);
+    announcementAudioRef.current = audio;
+    audio.load();
+
+    return () => {
+      stopAnnouncement();
+      audio.removeEventListener("playing", onPlaying);
+      audio.removeEventListener("error", onError);
+      audio.removeEventListener("waiting", onWaiting);
+      announcementAudioRef.current = null;
+    };
+  }, [stopAnnouncement]);
 
   useEffect(() => {
     secondsRef.current = safeSeconds;
@@ -53,7 +106,10 @@ export const CountdownTimer = ({
   });
 
   useEffect(() => {
-    if (!running) return;
+    if (!running) {
+      stopAnnouncement();
+      return;
+    }
 
     const intervalId = window.setInterval(() => {
       const next = Math.max(0, secondsRef.current - 1);
@@ -65,9 +121,13 @@ export const CountdownTimer = ({
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [running]);
+  }, [running, stopAnnouncement]);
 
   useEffect(() => {
+    if (safeSeconds > previousSecondsRef.current) {
+      stopAnnouncement();
+    }
+    previousSecondsRef.current = safeSeconds;
     if (safeSeconds > ANNOUNCEMENT_SECONDS || safeSeconds === 0) {
       hasPlayedAnnouncementRef.current = false;
       return;
@@ -81,18 +141,29 @@ export const CountdownTimer = ({
       return;
     }
 
-    const audio =
-      announcementAudioRef.current ??
-      new Audio(
-        `${(process.env.PUBLIC_URL || "/mafia_app").replace(/\/$/, "")}/timer-announcement.mp3`,
-      );
-    announcementAudioRef.current = audio;
-    audio.currentTime = 0;
     hasPlayedAnnouncementRef.current = true;
+    const audio = announcementAudioRef.current;
+    if (!audio || audio.readyState < 3) {
+      console.warn("Timer announcement audio was not ready in time.");
+      return;
+    }
+
+    stopAnnouncement();
+    const attempt = announcementAttemptRef.current;
+    announcementDeadlineRef.current = window.setTimeout(() => {
+      announcementDeadlineRef.current = null;
+      if (!announcementStartedRef.current) {
+        stopAnnouncement();
+        console.warn("Timer announcement audio did not start in time.");
+      }
+    }, 1000);
     void audio.play().catch((error: unknown) => {
-      console.error("Unable to play the timer announcement audio.", error);
+      if (announcementAttemptRef.current === attempt) {
+        stopAnnouncement();
+        console.error("Unable to play the timer announcement audio.", error);
+      }
     });
-  }, [running, safeSeconds]);
+  }, [running, safeSeconds, stopAnnouncement]);
 
   // Restore the configured time shortly after reaching 00:00
   useEffect(() => {
@@ -107,7 +178,7 @@ export const CountdownTimer = ({
 
   const progress =
     totalSeconds > 0 ? Math.min(1, Math.max(0, safeSeconds / totalSeconds)) : 0;
-  const isCritical = safeSeconds <= 10 && safeSeconds > 0 && running;
+  const isCritical = safeSeconds <= 15 && safeSeconds > 0 && running;
   const isEmpty = safeSeconds === 0;
   const color = isEmpty || isCritical ? "#fb7185" : accentColor;
 
@@ -180,7 +251,10 @@ export const CountdownTimer = ({
           {formatTime(safeSeconds)}
         </Typography>
         <IconButton
-          onClick={() => onRunningChange(!running)}
+          onClick={() => {
+            if (running) stopAnnouncement();
+            onRunningChange(!running);
+          }}
           aria-label={running ? "Pause timer" : "Start timer"}
           disabled={isEmpty}
           sx={{
@@ -195,7 +269,10 @@ export const CountdownTimer = ({
           {running ? <PauseRoundedIcon /> : <PlayArrowRoundedIcon />}
         </IconButton>
         <IconButton
-          onClick={onReset}
+          onClick={() => {
+            stopAnnouncement();
+            onReset();
+          }}
           aria-label="Reset timer"
           sx={{
             width: { xs: 36, sm: 40 },
